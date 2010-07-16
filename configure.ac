@@ -1,6 +1,6 @@
-AC_INIT([clutter-ply], [0.1])
+AC_INIT([mash], [0.1])
 
-AC_CONFIG_SRCDIR([clutter-ply/clutter-ply.h])
+AC_CONFIG_SRCDIR([mash/mash.h])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -27,13 +27,13 @@ AC_PATH_PROG([GLIB_MKENUMS], [glib-mkenums])
 
 AC_CONFIG_FILES([
         Makefile
-        clutter-ply/Makefile
-        clutter-ply/rply/Makefile
+        mash/Makefile
+        mash/rply/Makefile
         example/Makefile
         docs/Makefile
         docs/reference/Makefile
-        docs/reference/clutter-ply-docs.sgml
-        clutter-ply.pc
+        docs/reference/mash-docs.sgml
+        mash.pc
 ])
 
 AC_OUTPUT

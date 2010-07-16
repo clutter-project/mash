@@ -6,13 +6,13 @@
 ]>
 <book id="index">
   <bookinfo>
-    <title>Clutter-PLY Reference Manual</title>
+    <title>Mash Reference Manual</title>
     <releaseinfo>
-      for Clutter-PLY @VERSION@.
+      for Mash @VERSION@.
       The latest version of this documentation can be found on-line at
       <ulink role="online-location"
-             url="http://www.clutter-project.org/clutter-ply/index.html">
-        http://www.clutter-project.org/clutter-ply/</ulink>.
+             url="http://www.clutter-project.org/mash/index.html">
+        http://www.clutter-project.org/mash/</ulink>.
     </releaseinfo>
 
     <copyright>
@@ -45,8 +45,8 @@
 
   <chapter>
     <title>Core reference</title>
-    <xi:include href="xml/clutter-ply-model.xml"/>
-    <xi:include href="xml/clutter-ply-data.xml"/>
+    <xi:include href="xml/mash-model.xml"/>
+    <xi:include href="xml/mash-data.xml"/>
   </chapter>
   <chapter id="object-tree">
     <title>Object Hierarchy</title>

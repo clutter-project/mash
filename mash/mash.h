@@ -1,5 +1,5 @@
 /*
- * Clutter PLY - A library for displaying PLY models in a Clutter scene
+ * Mash - A library for displaying PLY models in a Clutter scene
  * Copyright (C) 2010  Intel Corporation
  *
  * This library is free software; you can redistribute it and/or
@@ -16,15 +16,15 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CLUTTER_PLY_H__
-#define __CLUTTER_PLY_H__
+#ifndef __MASH_H__
+#define __MASH_H__
 
-#define __CLUTTER_PLY_H_INSIDE__
+#define __MASH_H_INSIDE__
 
-#include "clutter-ply-model.h"
-#include "clutter-ply-data.h"
-#include "clutter-ply-enum-types.h"
+#include "mash-model.h"
+#include "mash-data.h"
+#include "mash-enum-types.h"
 
-#undef __CLUTTER_PLY_H_INSIDE__
+#undef __MASH_H_INSIDE__
 
-#endif /* __CLUTTER_PLY_H__ */
+#endif /* __MASH_H__ */

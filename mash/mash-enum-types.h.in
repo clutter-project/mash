@@ -1,6 +1,6 @@
 /*** BEGIN file-header ***/
-#ifndef __CLUTTER_PLY_ENUM_TYPES_H__
-#define __CLUTTER_PLY_ENUM_TYPES_H__
+#ifndef __MASH_ENUM_TYPES_H__
+#define __MASH_ENUM_TYPES_H__
 
 #include <glib-object.h>
 
@@ -15,7 +15,7 @@ G_BEGIN_DECLS
 /*** BEGIN file-tail ***/
 G_END_DECLS
 
-#endif /* !__CLUTTER_PLY_ENUM_TYPES_H__ */
+#endif /* !__MASH_ENUM_TYPES_H__ */
 /*** END file-tail ***/
 
 /*** BEGIN value-header ***/

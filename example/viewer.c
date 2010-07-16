@@ -1,5 +1,5 @@
 /*
- * Clutter PLY - A library for displaying PLY models in a Clutter scene
+ * Mash - A library for displaying PLY models in a Clutter scene
  * Copyright (C) 2010  Intel Corporation
  *
  * This library is free software; you can redistribute it and/or
@@ -17,7 +17,7 @@
  */
 
 #include <clutter/clutter.h>
-#include <clutter-ply/clutter-ply.h>
+#include <mash/mash.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -37,7 +37,7 @@ main (int argc, char **argv)
 
   stage = clutter_stage_get_default ();
 
-  if ((model = clutter_ply_model_new_from_file (argv[1], &error))
+  if ((model = mash_model_new_from_file (argv[1], &error))
       == NULL)
     {
       g_warning ("%s", error->message);
@@ -68,8 +68,8 @@ main (int argc, char **argv)
               cogl_material_set_layer (material, 0, texture);
               cogl_handle_unref (texture);
 
-              clutter_ply_model_set_material (CLUTTER_PLY_MODEL (model),
-                                              material);
+              mash_model_set_material (MASH_MODEL (model),
+                                       material);
 
               cogl_handle_unref (material);
             }

@@ -1,5 +1,5 @@
 /*
- * Clutter PLY - A library for displaying PLY models in a Clutter scene
+ * Mash - A library for displaying PLY models in a Clutter scene
  * Copyright (C) 2010  Intel Corporation
  *
  * This library is free software; you can redistribute it and/or
@@ -17,10 +17,10 @@
  */
 
 /**
- * SECTION:clutter-ply-model
+ * SECTION:mash-model
  * @short_description: An actor that can be used to render a PLY model.
  *
- * #ClutterPlyModel is an actor subclass that can be used to render a
+ * #MashModel is an actor subclass that can be used to render a
  * 3D model. The model is a normal #ClutterActor that can be animated
  * and positioned with the methods of #ClutterActor.
  *
@@ -28,22 +28,22 @@
  * the actor. Therefore it is possible to take a small model that may
  * have positions ranging between -1 and 1 and draw it at a larger
  * size just by setting the size on the actor. This behaviour can be
- * disabled with clutter_ply_model_set_fit_to_allocation().
+ * disabled with mash_model_set_fit_to_allocation().
  *
  * The actual data for the model is stored in a separate object called
- * #ClutterPlyData. This can be used to share the data for a model
+ * #MashData. This can be used to share the data for a model
  * between multiple actors without having to duplicate resources of
- * the data. Alternatively clutter_ply_model_new_from_file() can be
+ * the data. Alternatively mash_model_new_from_file() can be
  * used as a convenience wrapper to easily make an actor out of a PLY
- * without having to worry about #ClutterPlyData. To share the data
- * with another actor, call clutter_ply_model_get_data() on an
- * existing actor then call clutter_ply_model_set_data() with the
+ * without having to worry about #MashData. To share the data
+ * with another actor, call mash_model_get_data() on an
+ * existing actor then call mash_model_set_data() with the
  * return value on a new actor.
  *
  * The model can be rendered with any Cogl material. By default the
  * model will use a solid white material. The material color is
  * blended with the model's vertex colors so the white material will
- * cause the vertex colors to be used directly. #ClutterPlyData is
+ * cause the vertex colors to be used directly. #MashData is
  * able to load texture coordinates from the PLY file so it is
  * possible to render a textured model by setting a texture layer on
  * the material, like so:
@@ -51,10 +51,10 @@
  * |[
  *   /&ast; Create an actor out of a PLY model file &ast;/
  *   ClutterActor *model
- *     = clutter_ply_model_new_from_file ("some-model.ply", NULL);
+ *     = mash_model_new_from_file ("some-model.ply", NULL);
  *   /&ast; Get a handle to the default material for the actor &ast;/
  *   CoglHandle material
- *     = clutter_ply_model_get_material (CLUTTER_PLY_MODEL (model));
+ *     = mash_model_get_material (MASH_MODEL (model));
  *   /&ast; Load a texture image from a file &ast;/
  *   CoglHandle texture
  *     = cogl_texture_new_from_file ("some-image.png", COGL_TEXTURE_NONE,
@@ -76,47 +76,47 @@
 #include <cogl/cogl.h>
 #include <clutter/clutter.h>
 
-#include "clutter-ply-model.h"
-#include "clutter-ply-data.h"
+#include "mash-model.h"
+#include "mash-data.h"
 
-static void clutter_ply_model_dispose (GObject *object);
+static void mash_model_dispose (GObject *object);
 
-static void clutter_ply_model_get_property (GObject *object,
-                                            guint prop_id,
-                                            GValue *value,
-                                            GParamSpec *pspec);
-static void clutter_ply_model_set_property (GObject *object,
-                                            guint prop_id,
-                                            const GValue *value,
-                                            GParamSpec *pspec);
+static void mash_model_get_property (GObject *object,
+                                     guint prop_id,
+                                     GValue *value,
+                                     GParamSpec *pspec);
+static void mash_model_set_property (GObject *object,
+                                     guint prop_id,
+                                     const GValue *value,
+                                     GParamSpec *pspec);
 
-static void clutter_ply_model_paint (ClutterActor *actor);
+static void mash_model_paint (ClutterActor *actor);
 
-static void clutter_ply_model_pick (ClutterActor *actor,
-                                    const ClutterColor *pick_color);
+static void mash_model_pick (ClutterActor *actor,
+                             const ClutterColor *pick_color);
 
-static void clutter_ply_model_get_preferred_width (ClutterActor *actor,
-                                                   gfloat for_height,
-                                                   gfloat *minimum_width,
-                                                   gfloat *natural_width);
-static void clutter_ply_model_get_preferred_height (ClutterActor *actor,
-                                                    gfloat for_width,
-                                                    gfloat *minimum_height,
-                                                    gfloat *natural_height);
+static void mash_model_get_preferred_width (ClutterActor *actor,
+                                            gfloat for_height,
+                                            gfloat *minimum_width,
+                                            gfloat *natural_width);
+static void mash_model_get_preferred_height (ClutterActor *actor,
+                                             gfloat for_width,
+                                             gfloat *minimum_height,
+                                             gfloat *natural_height);
 
-static void clutter_ply_model_allocate (ClutterActor *actor,
-                                        const ClutterActorBox *box,
-                                        ClutterAllocationFlags flags);
+static void mash_model_allocate (ClutterActor *actor,
+                                 const ClutterActorBox *box,
+                                 ClutterAllocationFlags flags);
 
-G_DEFINE_TYPE (ClutterPlyModel, clutter_ply_model, CLUTTER_TYPE_ACTOR);
+G_DEFINE_TYPE (MashModel, mash_model, CLUTTER_TYPE_ACTOR);
 
-#define CLUTTER_PLY_MODEL_GET_PRIVATE(obj)                      \
-  (G_TYPE_INSTANCE_GET_PRIVATE ((obj), CLUTTER_PLY_TYPE_MODEL,  \
-                                ClutterPlyModelPrivate))
+#define MASH_MODEL_GET_PRIVATE(obj)                     \
+  (G_TYPE_INSTANCE_GET_PRIVATE ((obj), MASH_TYPE_MODEL, \
+                                MashModelPrivate))
 
-struct _ClutterPlyModelPrivate
+struct _MashModelPrivate
 {
-  ClutterPlyData *data;
+  MashData *data;
   CoglHandle material, pick_material;
   /* Whether the model should be transformed to fill the allocation */
   gboolean fit_to_allocation;
@@ -138,21 +138,21 @@ enum
   };
 
 static void
-clutter_ply_model_class_init (ClutterPlyModelClass *klass)
+mash_model_class_init (MashModelClass *klass)
 {
   GObjectClass *gobject_class = (GObjectClass *) klass;
   ClutterActorClass *actor_class = (ClutterActorClass *) klass;
   GParamSpec *pspec;
 
-  gobject_class->dispose = clutter_ply_model_dispose;
-  gobject_class->get_property = clutter_ply_model_get_property;
-  gobject_class->set_property = clutter_ply_model_set_property;
+  gobject_class->dispose = mash_model_dispose;
+  gobject_class->get_property = mash_model_get_property;
+  gobject_class->set_property = mash_model_set_property;
 
-  actor_class->paint = clutter_ply_model_paint;
-  actor_class->pick = clutter_ply_model_pick;
-  actor_class->get_preferred_width = clutter_ply_model_get_preferred_width;
-  actor_class->get_preferred_height = clutter_ply_model_get_preferred_height;
-  actor_class->allocate = clutter_ply_model_allocate;
+  actor_class->paint = mash_model_paint;
+  actor_class->pick = mash_model_pick;
+  actor_class->get_preferred_width = mash_model_get_preferred_width;
+  actor_class->get_preferred_height = mash_model_get_preferred_height;
+  actor_class->allocate = mash_model_allocate;
 
   pspec = g_param_spec_boxed ("material",
                               "Material",
@@ -166,8 +166,8 @@ clutter_ply_model_class_init (ClutterPlyModelClass *klass)
 
   pspec = g_param_spec_object ("data",
                                "Data",
-                               "The ClutterPlyData to render",
-                               CLUTTER_PLY_TYPE_DATA,
+                               "The MashData to render",
+                               MASH_TYPE_DATA,
                                G_PARAM_READABLE | G_PARAM_WRITABLE
                                | G_PARAM_STATIC_NAME
                                | G_PARAM_STATIC_NICK
@@ -187,15 +187,15 @@ clutter_ply_model_class_init (ClutterPlyModelClass *klass)
   g_object_class_install_property (gobject_class,
                                    PROP_FIT_TO_ALLOCATION, pspec);
 
-  g_type_class_add_private (klass, sizeof (ClutterPlyModelPrivate));
+  g_type_class_add_private (klass, sizeof (MashModelPrivate));
 }
 
 static void
-clutter_ply_model_init (ClutterPlyModel *self)
+mash_model_init (MashModel *self)
 {
-  ClutterPlyModelPrivate *priv;
+  MashModelPrivate *priv;
 
-  priv = self->priv = CLUTTER_PLY_MODEL_GET_PRIVATE (self);
+  priv = self->priv = MASH_MODEL_GET_PRIVATE (self);
 
   /* Default to a plain white material */
   priv->material = cogl_material_new ();
@@ -204,49 +204,49 @@ clutter_ply_model_init (ClutterPlyModel *self)
 }
 
 /**
- * clutter_ply_model_new:
+ * mash_model_new:
  *
- * Constructs a new #ClutterPlyModel. Nothing will be rendered by the
- * model until a #ClutterPlyData is attached using
- * clutter_ply_model_set_data().
+ * Constructs a new #MashModel. Nothing will be rendered by the
+ * model until a #MashData is attached using
+ * mash_model_set_data().
  *
- * Return value: a new #ClutterPlyModel.
+ * Return value: a new #MashModel.
  */
 
 ClutterActor *
-clutter_ply_model_new (void)
+mash_model_new (void)
 {
-  ClutterActor *self = g_object_new (CLUTTER_PLY_TYPE_MODEL, NULL);
+  ClutterActor *self = g_object_new (MASH_TYPE_MODEL, NULL);
 
   return self;
 }
 
 /**
- * clutter_ply_model_new_from_file:
+ * mash_model_new_from_file:
  * @filename: The name of a PLY file to load.
  * @error: Return location for a #GError or %NULL.
  *
- * This is a convenience function that creates a new #ClutterPlyData
+ * This is a convenience function that creates a new #MashData
  * and immediately loads the data in @filename. If the load succeeds a
- * new #ClutterPlyModel will be created for the data. The model has a
+ * new #MashModel will be created for the data. The model has a
  * default white material so that if vertices of the model have any
  * color attributes they will be used directly. The material does not
  * have textures by default so if you want the model to be textured
  * you will need to modify the material.
  *
- * Return value: a new #ClutterPlyModel or %NULL if the load failed.
+ * Return value: a new #MashModel or %NULL if the load failed.
  */
 ClutterActor *
-clutter_ply_model_new_from_file (const gchar *filename,
-                                 GError **error)
+mash_model_new_from_file (const gchar *filename,
+                          GError **error)
 {
-  ClutterPlyData *data = clutter_ply_data_new ();
+  MashData *data = mash_data_new ();
   ClutterActor *model = NULL;
 
-  if (clutter_ply_data_load (data, filename, error))
+  if (mash_data_load (data, filename, error))
     {
-      model = clutter_ply_model_new ();
-      clutter_ply_model_set_data (CLUTTER_PLY_MODEL (model), data);
+      model = mash_model_new ();
+      mash_model_set_data (MASH_MODEL (model), data);
     }
 
   g_object_unref (data);
@@ -255,13 +255,13 @@ clutter_ply_model_new_from_file (const gchar *filename,
 }
 
 static void
-clutter_ply_model_dispose (GObject *object)
+mash_model_dispose (GObject *object)
 {
-  ClutterPlyModel *self = (ClutterPlyModel *) object;
-  ClutterPlyModelPrivate *priv = self->priv;
+  MashModel *self = (MashModel *) object;
+  MashModelPrivate *priv = self->priv;
 
-  clutter_ply_model_set_data (self, NULL);
-  clutter_ply_model_set_material (self, COGL_INVALID_HANDLE);
+  mash_model_set_data (self, NULL);
+  mash_model_set_material (self, COGL_INVALID_HANDLE);
 
   if (priv->pick_material)
     {
@@ -269,16 +269,16 @@ clutter_ply_model_dispose (GObject *object)
       priv->pick_material = COGL_INVALID_HANDLE;
     }
 
-  G_OBJECT_CLASS (clutter_ply_model_parent_class)->dispose (object);
+  G_OBJECT_CLASS (mash_model_parent_class)->dispose (object);
 }
 
 /**
- * clutter_ply_model_set_material:
- * @self: A #ClutterPlyModel instance
+ * mash_model_set_material:
+ * @self: A #MashModel instance
  * @material: A handle to a Cogl material
  *
  * Replaces the material that will be used to render the model with
- * the given one. By default a #ClutterPlyModel will use a solid white
+ * the given one. By default a #MashModel will use a solid white
  * material. However the color of the material is still blended with
  * the vertex colors so the white material will cause the vertex
  * colors to be used directly. If you want the model to be textured
@@ -286,12 +286,12 @@ clutter_ply_model_dispose (GObject *object)
  * it with this function.
  */
 void
-clutter_ply_model_set_material (ClutterPlyModel *self,
-                                CoglHandle material)
+mash_model_set_material (MashModel *self,
+                         CoglHandle material)
 {
-  ClutterPlyModelPrivate *priv;
+  MashModelPrivate *priv;
 
-  g_return_if_fail (CLUTTER_PLY_IS_MODEL (self));
+  g_return_if_fail (MASH_IS_MODEL (self));
   g_return_if_fail (material == COGL_INVALID_HANDLE
                     || cogl_is_material (material));
 
@@ -311,8 +311,8 @@ clutter_ply_model_set_material (ClutterPlyModel *self,
 }
 
 /**
- * clutter_ply_model_get_material:
- * @self: A #ClutterPlyModel instance
+ * mash_model_get_material:
+ * @self: A #MashModel instance
  *
  * Gets the material that will be used to render the model. The
  * material can be modified to affect the appearence of the model. By
@@ -321,17 +321,17 @@ clutter_ply_model_set_material (ClutterPlyModel *self,
  * Return value: a handle to the Cogl material used by the model.
  */
 CoglHandle
-clutter_ply_model_get_material (ClutterPlyModel *self)
+mash_model_get_material (MashModel *self)
 {
-  g_return_val_if_fail (CLUTTER_PLY_IS_MODEL (self), COGL_INVALID_HANDLE);
+  g_return_val_if_fail (MASH_IS_MODEL (self), COGL_INVALID_HANDLE);
 
   return self->priv->material;
 }
 
 static void
-clutter_ply_model_render_data (ClutterPlyModel *self)
+mash_model_render_data (MashModel *self)
 {
-  ClutterPlyModelPrivate *priv = self->priv;
+  MashModelPrivate *priv = self->priv;
 
   if (priv->fit_to_allocation)
     {
@@ -343,19 +343,19 @@ clutter_ply_model_render_data (ClutterPlyModel *self)
       cogl_scale (priv->scale, priv->scale, priv->scale);
     }
 
-  clutter_ply_data_render (priv->data);
+  mash_data_render (priv->data);
 
   if (priv->fit_to_allocation)
     cogl_pop_matrix ();
 }
 
 static void
-clutter_ply_model_paint (ClutterActor *actor)
+mash_model_paint (ClutterActor *actor)
 {
-  ClutterPlyModel *self = CLUTTER_PLY_MODEL (actor);
-  ClutterPlyModelPrivate *priv;
+  MashModel *self = MASH_MODEL (actor);
+  MashModelPrivate *priv;
 
-  g_return_if_fail (CLUTTER_PLY_IS_MODEL (self));
+  g_return_if_fail (MASH_IS_MODEL (self));
 
   priv = self->priv;
 
@@ -365,18 +365,18 @@ clutter_ply_model_paint (ClutterActor *actor)
 
   cogl_set_source (priv->material);
 
-  clutter_ply_model_render_data (self);
+  mash_model_render_data (self);
 }
 
 static void
-clutter_ply_model_pick (ClutterActor *actor,
-                        const ClutterColor *pick_color)
+mash_model_pick (ClutterActor *actor,
+                 const ClutterColor *pick_color)
 {
-  ClutterPlyModel *self = CLUTTER_PLY_MODEL (actor);
-  ClutterPlyModelPrivate *priv;
+  MashModel *self = MASH_MODEL (actor);
+  MashModelPrivate *priv;
   CoglColor color;
 
-  g_return_if_fail (CLUTTER_PLY_IS_MODEL (self));
+  g_return_if_fail (MASH_IS_MODEL (self));
 
   priv = self->priv;
 
@@ -406,43 +406,43 @@ clutter_ply_model_pick (ClutterActor *actor,
 
   cogl_set_source (priv->pick_material);
 
-  clutter_ply_model_render_data (self);
+  mash_model_render_data (self);
 }
 
 /**
- * clutter_ply_model_get_data:
- * @self: A #ClutterPlyModel instance
+ * mash_model_get_data:
+ * @self: A #MashModel instance
  *
  * Gets the model data that will be used to render the actor.
  *
- * Return value: A pointer to a #ClutterPlyData instance or %NULL if
+ * Return value: A pointer to a #MashData instance or %NULL if
  * no data has been set yet.
  */
-ClutterPlyData *
-clutter_ply_model_get_data (ClutterPlyModel *self)
+MashData *
+mash_model_get_data (MashModel *self)
 {
-  g_return_val_if_fail (CLUTTER_PLY_IS_MODEL (self), NULL);
+  g_return_val_if_fail (MASH_IS_MODEL (self), NULL);
 
   return self->priv->data;
 }
 
 /**
- * clutter_ply_model_set_data:
- * @self: A #ClutterPlyModel instance
- * @data: The new #ClutterPlyData
+ * mash_model_set_data:
+ * @self: A #MashModel instance
+ * @data: The new #MashData
  *
  * Replaces the data used by the actor with @data. A reference is
  * taken on @data so if you no longer need it you should unref it with
  * g_object_unref().
  */
 void
-clutter_ply_model_set_data (ClutterPlyModel *self,
-                            ClutterPlyData *data)
+mash_model_set_data (MashModel *self,
+                     MashData *data)
 {
-  ClutterPlyModelPrivate *priv;
+  MashModelPrivate *priv;
 
-  g_return_if_fail (CLUTTER_PLY_IS_MODEL (self));
-  g_return_if_fail (data == NULL || CLUTTER_PLY_IS_DATA (data));
+  g_return_if_fail (MASH_IS_MODEL (self));
+  g_return_if_fail (data == NULL || MASH_IS_DATA (data));
 
   priv = self->priv;
 
@@ -460,23 +460,23 @@ clutter_ply_model_set_data (ClutterPlyModel *self,
 }
 
 /**
- * clutter_ply_model_get_fit_to_allocation:
- * @self: A #ClutterPlyModel instance
+ * mash_model_get_fit_to_allocation:
+ * @self: A #MashModel instance
  *
  * Return value: whether the actor will try to scale the model to fit
  * within the allocation.
  */
 gboolean
-clutter_ply_model_get_fit_to_allocation (ClutterPlyModel *self)
+mash_model_get_fit_to_allocation (MashModel *self)
 {
-  g_return_val_if_fail (CLUTTER_PLY_IS_MODEL (self), FALSE);
+  g_return_val_if_fail (MASH_IS_MODEL (self), FALSE);
 
   return self->priv->fit_to_allocation;
 }
 
 /**
- * clutter_ply_model_set_fit_to_allocation:
- * @self: A #ClutterPlyModel instance
+ * mash_model_set_fit_to_allocation:
+ * @self: A #MashModel instance
  * @fit_to_allocation: New value
  *
  * This sets whether the actor should scale the model to fit the
@@ -492,7 +492,7 @@ clutter_ply_model_get_fit_to_allocation (ClutterPlyModel *self)
  * using the scale-x and scale-y properties. The preferred size of the
  * actor will be the width and height of the model. If
  * width-for-height or height-for-width allocation is being used then
- * #ClutterPlyModel will return whatever width or height will exactly
+ * #MashModel will return whatever width or height will exactly
  * preserve the aspect ratio.
  *
  * If the value is %FALSE then the actor is not transformed so the
@@ -505,12 +505,12 @@ clutter_ply_model_get_fit_to_allocation (ClutterPlyModel *self)
  * The default value is %TRUE.
  */
 void
-clutter_ply_model_set_fit_to_allocation (ClutterPlyModel *self,
-                                         gboolean fit_to_allocation)
+mash_model_set_fit_to_allocation (MashModel *self,
+                                  gboolean fit_to_allocation)
 {
-  ClutterPlyModelPrivate *priv;
+  MashModelPrivate *priv;
 
-  g_return_if_fail (CLUTTER_PLY_IS_MODEL (self));
+  g_return_if_fail (MASH_IS_MODEL (self));
 
   priv = self->priv;
 
@@ -523,26 +523,26 @@ clutter_ply_model_set_fit_to_allocation (ClutterPlyModel *self,
 }
 
 static void
-clutter_ply_model_get_property (GObject *object,
-                                guint prop_id,
-                                GValue *value,
-                                GParamSpec *pspec)
+mash_model_get_property (GObject *object,
+                         guint prop_id,
+                         GValue *value,
+                         GParamSpec *pspec)
 {
-  ClutterPlyModel *model = CLUTTER_PLY_MODEL (object);
+  MashModel *model = MASH_MODEL (object);
 
   switch (prop_id)
     {
     case PROP_MATERIAL:
-      g_value_set_boxed (value, clutter_ply_model_get_material (model));
+      g_value_set_boxed (value, mash_model_get_material (model));
       break;
 
     case PROP_DATA:
-      g_value_set_object (value, clutter_ply_model_get_data (model));
+      g_value_set_object (value, mash_model_get_data (model));
       break;
 
     case PROP_FIT_TO_ALLOCATION:
       g_value_set_boolean (value,
-                           clutter_ply_model_get_fit_to_allocation (model));
+                           mash_model_get_fit_to_allocation (model));
       break;
 
     default:
@@ -552,26 +552,26 @@ clutter_ply_model_get_property (GObject *object,
 }
 
 static void
-clutter_ply_model_set_property (GObject *object,
-                                guint prop_id,
-                                const GValue *value,
-                                GParamSpec *pspec)
+mash_model_set_property (GObject *object,
+                         guint prop_id,
+                         const GValue *value,
+                         GParamSpec *pspec)
 {
-  ClutterPlyModel *model = CLUTTER_PLY_MODEL (object);
+  MashModel *model = MASH_MODEL (object);
 
   switch (prop_id)
     {
     case PROP_MATERIAL:
-      clutter_ply_model_set_material (model, g_value_get_boxed (value));
+      mash_model_set_material (model, g_value_get_boxed (value));
       break;
 
     case PROP_DATA:
-      clutter_ply_model_set_data (model, g_value_get_object (value));
+      mash_model_set_data (model, g_value_get_object (value));
       break;
 
     case PROP_FIT_TO_ALLOCATION:
-      clutter_ply_model_set_fit_to_allocation (model,
-                                               g_value_get_boolean (value));
+      mash_model_set_fit_to_allocation (model,
+                                        g_value_get_boolean (value));
       break;
 
     default:
@@ -581,19 +581,19 @@ clutter_ply_model_set_property (GObject *object,
 }
 
 static void
-clutter_ply_model_get_preferred_width (ClutterActor *actor,
-                                       gfloat for_height,
-                                       gfloat *minimum_width_p,
-                                       gfloat *natural_width_p)
+mash_model_get_preferred_width (ClutterActor *actor,
+                                gfloat for_height,
+                                gfloat *minimum_width_p,
+                                gfloat *natural_width_p)
 {
-  ClutterPlyModel *model = CLUTTER_PLY_MODEL (actor);
-  ClutterPlyModelPrivate *priv = model->priv;
+  MashModel *model = MASH_MODEL (actor);
+  MashModelPrivate *priv = model->priv;
   ClutterVertex min_vertex, max_vertex;
   gfloat minimum_width, natural_width;
 
   if (priv->data)
     {
-      clutter_ply_data_get_extents (priv->data, &min_vertex, &max_vertex);
+      mash_data_get_extents (priv->data, &min_vertex, &max_vertex);
 
       if (priv->fit_to_allocation)
         {
@@ -625,19 +625,19 @@ clutter_ply_model_get_preferred_width (ClutterActor *actor,
 }
 
 static void
-clutter_ply_model_get_preferred_height (ClutterActor *actor,
-                                        gfloat for_width,
-                                        gfloat *minimum_height_p,
-                                        gfloat *natural_height_p)
+mash_model_get_preferred_height (ClutterActor *actor,
+                                 gfloat for_width,
+                                 gfloat *minimum_height_p,
+                                 gfloat *natural_height_p)
 {
-  ClutterPlyModel *model = CLUTTER_PLY_MODEL (actor);
-  ClutterPlyModelPrivate *priv = model->priv;
+  MashModel *model = MASH_MODEL (actor);
+  MashModelPrivate *priv = model->priv;
   ClutterVertex min_vertex, max_vertex;
   gfloat minimum_height, natural_height;
 
   if (priv->data)
     {
-      clutter_ply_data_get_extents (priv->data, &min_vertex, &max_vertex);
+      mash_data_get_extents (priv->data, &min_vertex, &max_vertex);
 
       if (priv->fit_to_allocation)
         {
@@ -669,9 +669,9 @@ clutter_ply_model_get_preferred_height (ClutterActor *actor,
 }
 
 static gfloat
-clutter_ply_model_calculate_scale (gfloat target_extents,
-                                   gfloat min,
-                                   gfloat max)
+mash_model_calculate_scale (gfloat target_extents,
+                            gfloat min,
+                            gfloat max)
 {
   if (min == max)
     return G_MAXFLOAT;
@@ -680,14 +680,14 @@ clutter_ply_model_calculate_scale (gfloat target_extents,
 }
 
 static void
-clutter_ply_model_allocate (ClutterActor *actor,
-                            const ClutterActorBox *box,
-                            ClutterAllocationFlags flags)
+mash_model_allocate (ClutterActor *actor,
+                     const ClutterActorBox *box,
+                     ClutterAllocationFlags flags)
 {
-  ClutterPlyModel *self = CLUTTER_PLY_MODEL (actor);
-  ClutterPlyModelPrivate *priv = self->priv;
+  MashModel *self = MASH_MODEL (actor);
+  MashModelPrivate *priv = self->priv;
 
-  CLUTTER_ACTOR_CLASS (clutter_ply_model_parent_class)
+  CLUTTER_ACTOR_CLASS (mash_model_parent_class)
     ->allocate (actor, box, flags);
 
   if (priv->fit_to_allocation && priv->data)
@@ -698,14 +698,14 @@ clutter_ply_model_allocate (ClutterActor *actor,
       /* Try to scale the model uniformly so that it will fill the
          maximum amount of space without breaking the aspect
          ratio. The model is then centered in the allocation */
-      clutter_ply_data_get_extents (priv->data, &min_vertex, &max_vertex);
+      mash_data_get_extents (priv->data, &min_vertex, &max_vertex);
 
-      min_scale = clutter_ply_model_calculate_scale (box->x2 - box->x1,
-                                                     min_vertex.x,
-                                                     max_vertex.x);
-      scale = clutter_ply_model_calculate_scale (box->y2 - box->y1,
-                                                 min_vertex.y,
-                                                 max_vertex.y);
+      min_scale = mash_model_calculate_scale (box->x2 - box->x1,
+                                              min_vertex.x,
+                                              max_vertex.x);
+      scale = mash_model_calculate_scale (box->y2 - box->y1,
+                                          min_vertex.y,
+                                          max_vertex.y);
       if (min_scale > scale)
         min_scale = scale;
 

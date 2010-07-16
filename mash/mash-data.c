@@ -1,5 +1,5 @@
 /*
- * Clutter PLY - A library for displaying PLY models in a Clutter scene
+ * Mash - A library for displaying PLY models in a Clutter scene
  * Copyright (C) 2010  Intel Corporation
  *
  * This library is free software; you can redistribute it and/or
@@ -17,15 +17,15 @@
  */
 
 /**
- * SECTION:clutter-ply-data
+ * SECTION:mash-data
  * @short_description: An object that contains the data for a PLY model.
  *
- * #ClutterPlyData is an object that can represent the data contained
+ * #MashData is an object that can represent the data contained
  * in a PLY file. The data is internally converted to a
  * Cogl vertex buffer so that it can be rendered efficiently.
  *
- * The #ClutterPlyData object is usually associated with a
- * #ClutterPlyModel so that it can be animated as a regular actor. The
+ * The #MashData object is usually associated with a
+ * #MashModel so that it can be animated as a regular actor. The
  * data is separated from the actor in this way to make it easy to
  * share data with multiple actors without having to keep two copies
  * of the data.
@@ -40,23 +40,23 @@
 #include <cogl/cogl.h>
 #include <clutter/clutter.h>
 
-#include "clutter-ply-data.h"
+#include "mash-data.h"
 #include "rply/rply.h"
 
-static void clutter_ply_data_finalize (GObject *object);
+static void mash_data_finalize (GObject *object);
 
-G_DEFINE_TYPE (ClutterPlyData, clutter_ply_data, G_TYPE_OBJECT);
+G_DEFINE_TYPE (MashData, mash_data, G_TYPE_OBJECT);
 
-#define CLUTTER_PLY_DATA_GET_PRIVATE(obj)                       \
-  (G_TYPE_INSTANCE_GET_PRIVATE ((obj), CLUTTER_PLY_TYPE_DATA,   \
-                                ClutterPlyDataPrivate))
+#define MASH_DATA_GET_PRIVATE(obj)                      \
+  (G_TYPE_INSTANCE_GET_PRIVATE ((obj), MASH_TYPE_DATA,  \
+                                MashDataPrivate))
 
 static const struct
 {
   const gchar *name;
   int size;
 }
-clutter_ply_data_properties[] =
+mash_data_properties[] =
 {
   /* These should be sorted in descending order of size so that it
      never ends doing an unaligned write */
@@ -73,22 +73,22 @@ clutter_ply_data_properties[] =
   { "blue", sizeof (guint8) }
 };
 
-#define CLUTTER_PLY_DATA_VERTEX_PROPS    7
-#define CLUTTER_PLY_DATA_NORMAL_PROPS    (7 << 3)
-#define CLUTTER_PLY_DATA_TEX_COORD_PROPS (3 << 6)
-#define CLUTTER_PLY_DATA_COLOR_PROPS     (7 << 8)
+#define MASH_DATA_VERTEX_PROPS    7
+#define MASH_DATA_NORMAL_PROPS    (7 << 3)
+#define MASH_DATA_TEX_COORD_PROPS (3 << 6)
+#define MASH_DATA_COLOR_PROPS     (7 << 8)
 
-typedef struct _ClutterPlyDataLoadData ClutterPlyDataLoadData;
+typedef struct _MashDataLoadData MashDataLoadData;
 
-struct _ClutterPlyDataLoadData
+struct _MashDataLoadData
 {
-  ClutterPlyData *model;
+  MashData *model;
   p_ply ply;
   GError *error;
   /* Data for the current vertex */
-  guint8 current_vertex[G_N_ELEMENTS (clutter_ply_data_properties) * 4];
+  guint8 current_vertex[G_N_ELEMENTS (mash_data_properties) * 4];
   /* Map from property number to byte offset in the current_vertex array */
-  gint prop_map[G_N_ELEMENTS (clutter_ply_data_properties)];
+  gint prop_map[G_N_ELEMENTS (mash_data_properties)];
   /* Number of bytes for a vertex */
   guint n_vertex_bytes;
   gint available_props, got_props;
@@ -104,7 +104,7 @@ struct _ClutterPlyDataLoadData
   guint min_index, max_index;
 };
 
-struct _ClutterPlyDataPrivate
+struct _MashDataPrivate
 {
   CoglHandle vertices_vbo;
   CoglHandle indices;
@@ -116,25 +116,25 @@ struct _ClutterPlyDataPrivate
 };
 
 static void
-clutter_ply_data_class_init (ClutterPlyDataClass *klass)
+mash_data_class_init (MashDataClass *klass)
 {
   GObjectClass *gobject_class = (GObjectClass *) klass;
 
-  gobject_class->finalize = clutter_ply_data_finalize;
+  gobject_class->finalize = mash_data_finalize;
 
-  g_type_class_add_private (klass, sizeof (ClutterPlyDataPrivate));
+  g_type_class_add_private (klass, sizeof (MashDataPrivate));
 }
 
 static void
-clutter_ply_data_init (ClutterPlyData *self)
+mash_data_init (MashData *self)
 {
-  self->priv = CLUTTER_PLY_DATA_GET_PRIVATE (self);
+  self->priv = MASH_DATA_GET_PRIVATE (self);
 }
 
 static void
-clutter_ply_data_free_vbos (ClutterPlyData *self)
+mash_data_free_vbos (MashData *self)
 {
-  ClutterPlyDataPrivate *priv = self->priv;
+  MashDataPrivate *priv = self->priv;
 
   if (priv->vertices_vbo)
     {
@@ -150,57 +150,57 @@ clutter_ply_data_free_vbos (ClutterPlyData *self)
 }
 
 static void
-clutter_ply_data_finalize (GObject *object)
+mash_data_finalize (GObject *object)
 {
-  ClutterPlyData *self = (ClutterPlyData *) object;
+  MashData *self = (MashData *) object;
 
-  clutter_ply_data_free_vbos (self);
+  mash_data_free_vbos (self);
 
-  G_OBJECT_CLASS (clutter_ply_data_parent_class)->finalize (object);
+  G_OBJECT_CLASS (mash_data_parent_class)->finalize (object);
 }
 
 /**
- * clutter_ply_data_new:
+ * mash_data_new:
  *
- * Constructs a new #ClutterPlyData instance. The object initially has
- * no data so nothing will be drawn when clutter_ply_data_render() is
- * called. To load data into the object, call clutter_ply_data_load().
+ * Constructs a new #MashData instance. The object initially has
+ * no data so nothing will be drawn when mash_data_render() is
+ * called. To load data into the object, call mash_data_load().
  *
- * Return value: a new #ClutterPlyData.
+ * Return value: a new #MashData.
  */
-ClutterPlyData *
-clutter_ply_data_new (void)
+MashData *
+mash_data_new (void)
 {
-  ClutterPlyData *self = g_object_new (CLUTTER_PLY_TYPE_DATA, NULL);
+  MashData *self = g_object_new (MASH_TYPE_DATA, NULL);
 
   return self;
 }
 
 static void
-clutter_ply_data_error_cb (const char *message, gpointer data)
+mash_data_error_cb (const char *message, gpointer data)
 {
-  ClutterPlyDataLoadData *load_data = data;
+  MashDataLoadData *load_data = data;
 
   if (load_data->error == NULL)
-    g_set_error_literal (&load_data->error, CLUTTER_PLY_DATA_ERROR,
-                         CLUTTER_PLY_DATA_ERROR_PLY, message);
+    g_set_error_literal (&load_data->error, MASH_DATA_ERROR,
+                         MASH_DATA_ERROR_PLY, message);
 }
 
 static void
-clutter_ply_data_check_unknown_error (ClutterPlyDataLoadData *data)
+mash_data_check_unknown_error (MashDataLoadData *data)
 {
   if (data->error == NULL)
     g_set_error_literal (&data->error,
-                         CLUTTER_PLY_DATA_ERROR,
-                         CLUTTER_PLY_DATA_ERROR_PLY,
+                         MASH_DATA_ERROR,
+                         MASH_DATA_ERROR_PLY,
                          "Unknown error loading PLY file");
 }
 
 static int
-clutter_ply_data_vertex_read_cb (p_ply_argument argument)
+mash_data_vertex_read_cb (p_ply_argument argument)
 {
   long prop_num;
-  ClutterPlyDataLoadData *data;
+  MashDataLoadData *data;
   gint32 length, index;
   double value;
 
@@ -209,10 +209,10 @@ clutter_ply_data_vertex_read_cb (p_ply_argument argument)
 
   if (length != 1 || index != 0)
     {
-      g_set_error (&data->error, CLUTTER_PLY_DATA_ERROR,
-                   CLUTTER_PLY_DATA_ERROR_INVALID,
+      g_set_error (&data->error, MASH_DATA_ERROR,
+                   MASH_DATA_ERROR_INVALID,
                    "List type property not supported for vertex element '%s'",
-                   clutter_ply_data_properties[prop_num].name);
+                   mash_data_properties[prop_num].name);
 
       return 0;
     }
@@ -220,7 +220,7 @@ clutter_ply_data_vertex_read_cb (p_ply_argument argument)
   value = ply_get_argument_value (argument);
 
   /* Colors are specified as a byte so we need to treat them specially */
-  if (((1 << prop_num) & CLUTTER_PLY_DATA_COLOR_PROPS))
+  if (((1 << prop_num) & MASH_DATA_COLOR_PROPS))
     data->current_vertex[data->prop_map[prop_num]] = value;
   else
     *(gfloat *) (data->current_vertex + data->prop_map[prop_num]) = value;
@@ -255,8 +255,8 @@ clutter_ply_data_vertex_read_cb (p_ply_argument argument)
 }
 
 static void
-clutter_ply_data_add_face_index (ClutterPlyDataLoadData *data,
-                                 guint index)
+mash_data_add_face_index (MashDataLoadData *data,
+                          guint index)
 {
   if (index > data->max_index)
     data->max_index = index;
@@ -287,8 +287,8 @@ clutter_ply_data_add_face_index (ClutterPlyDataLoadData *data,
 }
 
 static gboolean
-clutter_ply_data_get_indices_type (ClutterPlyDataLoadData *data,
-                                   GError **error)
+mash_data_get_indices_type (MashDataLoadData *data,
+                            GError **error)
 {
   p_ply_element elem = NULL;
 
@@ -320,8 +320,8 @@ clutter_ply_data_get_indices_type (ClutterPlyDataLoadData *data,
                 }
               else
                 {
-                  g_set_error (error, CLUTTER_PLY_DATA_ERROR,
-                               CLUTTER_PLY_DATA_ERROR_UNSUPPORTED,
+                  g_set_error (error, MASH_DATA_ERROR,
+                               MASH_DATA_ERROR_UNSUPPORTED,
                                "The PLY file requires unsigned int indices "
                                "but this is not supported by your GL driver");
                   return FALSE;
@@ -332,25 +332,25 @@ clutter_ply_data_get_indices_type (ClutterPlyDataLoadData *data,
         }
       else
         {
-          g_set_error (error, CLUTTER_PLY_DATA_ERROR,
-                       CLUTTER_PLY_DATA_ERROR_PLY,
+          g_set_error (error, MASH_DATA_ERROR,
+                       MASH_DATA_ERROR_PLY,
                        "Error getting element info");
           return FALSE;
         }
     }
 
-  g_set_error (error, CLUTTER_PLY_DATA_ERROR,
-               CLUTTER_PLY_DATA_ERROR_MISSING_PROPERTY,
+  g_set_error (error, MASH_DATA_ERROR,
+               MASH_DATA_ERROR_MISSING_PROPERTY,
                "PLY file is missing the vertex element");
 
   return FALSE;
 }
 
 static int
-clutter_ply_data_face_read_cb (p_ply_argument argument)
+mash_data_face_read_cb (p_ply_argument argument)
 {
   long prop_num;
-  ClutterPlyDataLoadData *data;
+  MashDataLoadData *data;
   gint32 length, index;
 
   ply_get_argument_user_data (argument, (void **) &data, &prop_num);
@@ -366,9 +366,9 @@ clutter_ply_data_face_read_cb (p_ply_argument argument)
 
       /* Add a triangle with the first vertex, the last vertex and
          this new vertex */
-      clutter_ply_data_add_face_index (data, data->first_vertex);
-      clutter_ply_data_add_face_index (data, data->last_vertex);
-      clutter_ply_data_add_face_index (data, new_vertex);
+      mash_data_add_face_index (data, data->first_vertex);
+      mash_data_add_face_index (data, data->last_vertex);
+      mash_data_add_face_index (data, new_vertex);
 
       /* Use the new vertex as one of the vertices next time around */
       data->last_vertex = new_vertex;
@@ -378,29 +378,29 @@ clutter_ply_data_face_read_cb (p_ply_argument argument)
 }
 
 /**
- * clutter_ply_data_load:
- * @self: The #ClutterPlyData instance
+ * mash_data_load:
+ * @self: The #MashData instance
  * @filename: The name of a PLY file to load
  * @error: Return location for an error or %NULL
  *
  * Loads the data from the PLY file called @filename into @self. The
- * model can then be rendered using clutter_ply_data_render(). If
+ * model can then be rendered using mash_data_render(). If
  * there is an error loading the file it will return %FALSE and @error
  * will be set to a GError instance.
  *
  * Return value: %TRUE if the load succeeded or %FALSE otherwise.
  */
 gboolean
-clutter_ply_data_load (ClutterPlyData *self,
-                       const gchar *filename,
-                       GError **error)
+mash_data_load (MashData *self,
+                const gchar *filename,
+                GError **error)
 {
-  ClutterPlyDataPrivate *priv;
-  ClutterPlyDataLoadData data;
+  MashDataPrivate *priv;
+  MashDataLoadData data;
   gchar *display_name;
   gboolean ret;
 
-  g_return_val_if_fail (CLUTTER_PLY_IS_DATA (self), FALSE);
+  g_return_val_if_fail (MASH_IS_DATA (self), FALSE);
 
   priv = self->priv;
 
@@ -423,48 +423,48 @@ clutter_ply_data_load (ClutterPlyData *self,
   display_name = g_filename_display_name (filename);
 
   if ((data.ply = ply_open (filename,
-                            clutter_ply_data_error_cb,
+                            mash_data_error_cb,
                             &data)) == NULL)
-    clutter_ply_data_check_unknown_error (&data);
+    mash_data_check_unknown_error (&data);
   else
     {
       if (!ply_read_header (data.ply))
-        clutter_ply_data_check_unknown_error (&data);
+        mash_data_check_unknown_error (&data);
       else
         {
           int i;
 
-          for (i = 0; i < G_N_ELEMENTS (clutter_ply_data_properties); i++)
+          for (i = 0; i < G_N_ELEMENTS (mash_data_properties); i++)
             if (ply_set_read_cb (data.ply, "vertex",
-                                 clutter_ply_data_properties[i].name,
-                                 clutter_ply_data_vertex_read_cb,
+                                 mash_data_properties[i].name,
+                                 mash_data_vertex_read_cb,
                                  &data, i))
               {
                 data.prop_map[i] = data.n_vertex_bytes;
-                data.n_vertex_bytes += clutter_ply_data_properties[i].size;
+                data.n_vertex_bytes += mash_data_properties[i].size;
                 data.available_props |= 1 << i;
               }
 
           /* Align the size of a vertex to 32 bits */
           data.n_vertex_bytes = (data.n_vertex_bytes + 3) & ~(guint) 3;
 
-          if ((data.available_props & CLUTTER_PLY_DATA_VERTEX_PROPS)
-              != CLUTTER_PLY_DATA_VERTEX_PROPS)
-            g_set_error (&data.error, CLUTTER_PLY_DATA_ERROR,
-                         CLUTTER_PLY_DATA_ERROR_MISSING_PROPERTY,
+          if ((data.available_props & MASH_DATA_VERTEX_PROPS)
+              != MASH_DATA_VERTEX_PROPS)
+            g_set_error (&data.error, MASH_DATA_ERROR,
+                         MASH_DATA_ERROR_MISSING_PROPERTY,
                          "PLY file %s is missing the vertex properties",
                          display_name);
           else if (!ply_set_read_cb (data.ply, "face", "vertex_indices",
-                                     clutter_ply_data_face_read_cb,
+                                     mash_data_face_read_cb,
                                      &data, i))
-            g_set_error (&data.error, CLUTTER_PLY_DATA_ERROR,
-                         CLUTTER_PLY_DATA_ERROR_MISSING_PROPERTY,
+            g_set_error (&data.error, MASH_DATA_ERROR,
+                         MASH_DATA_ERROR_MISSING_PROPERTY,
                          "PLY file %s is missing face property "
                          "'vertex_indices'",
                          display_name);
-          else if (clutter_ply_data_get_indices_type (&data, &data.error)
+          else if (mash_data_get_indices_type (&data, &data.error)
                    && !ply_read (data.ply))
-            clutter_ply_data_check_unknown_error (&data);
+            mash_data_check_unknown_error (&data);
         }
 
       ply_close (data.ply);
@@ -477,8 +477,8 @@ clutter_ply_data_load (ClutterPlyData *self,
     }
   else if (data.faces->len < 3)
     {
-      g_set_error (error, CLUTTER_PLY_DATA_ERROR,
-                   CLUTTER_PLY_DATA_ERROR_INVALID,
+      g_set_error (error, MASH_DATA_ERROR,
+                   MASH_DATA_ERROR_INVALID,
                    "No faces found in %s",
                    display_name);
       ret = FALSE;
@@ -488,8 +488,8 @@ clutter_ply_data_load (ClutterPlyData *self,
       /* Make sure all of the indices are valid */
       if (data.max_index >= data.vertices->len / data.n_vertex_bytes)
         {
-          g_set_error (error, CLUTTER_PLY_DATA_ERROR,
-                       CLUTTER_PLY_DATA_ERROR_INVALID,
+          g_set_error (error, MASH_DATA_ERROR,
+                       MASH_DATA_ERROR_INVALID,
                        "Index out of range in %s",
                        display_name);
           ret = FALSE;
@@ -497,15 +497,15 @@ clutter_ply_data_load (ClutterPlyData *self,
       else
         {
           /* Get rid of the old VBOs (if any) */
-          clutter_ply_data_free_vbos (self);
+          mash_data_free_vbos (self);
 
           /* Create a new VBO for the vertices */
           priv->vertices_vbo = cogl_vertex_buffer_new (data.vertices->len
                                                        / data.n_vertex_bytes);
 
           /* Upload the data */
-          if ((data.available_props & CLUTTER_PLY_DATA_VERTEX_PROPS)
-              == CLUTTER_PLY_DATA_VERTEX_PROPS)
+          if ((data.available_props & MASH_DATA_VERTEX_PROPS)
+              == MASH_DATA_VERTEX_PROPS)
             cogl_vertex_buffer_add (priv->vertices_vbo,
                                     "gl_Vertex",
                                     3, COGL_ATTRIBUTE_TYPE_FLOAT,
@@ -513,8 +513,8 @@ clutter_ply_data_load (ClutterPlyData *self,
                                     data.vertices->data
                                     + data.prop_map[0]);
 
-          if ((data.available_props & CLUTTER_PLY_DATA_NORMAL_PROPS)
-              == CLUTTER_PLY_DATA_NORMAL_PROPS)
+          if ((data.available_props & MASH_DATA_NORMAL_PROPS)
+              == MASH_DATA_NORMAL_PROPS)
             cogl_vertex_buffer_add (priv->vertices_vbo,
                                     "gl_Normal",
                                     3, COGL_ATTRIBUTE_TYPE_FLOAT,
@@ -522,8 +522,8 @@ clutter_ply_data_load (ClutterPlyData *self,
                                     data.vertices->data
                                     + data.prop_map[3]);
 
-          if ((data.available_props & CLUTTER_PLY_DATA_TEX_COORD_PROPS)
-              == CLUTTER_PLY_DATA_TEX_COORD_PROPS)
+          if ((data.available_props & MASH_DATA_TEX_COORD_PROPS)
+              == MASH_DATA_TEX_COORD_PROPS)
             cogl_vertex_buffer_add (priv->vertices_vbo,
                                     "gl_MultiTexCoord0",
                                     2, COGL_ATTRIBUTE_TYPE_FLOAT,
@@ -531,8 +531,8 @@ clutter_ply_data_load (ClutterPlyData *self,
                                     data.vertices->data
                                     + data.prop_map[6]);
 
-          if ((data.available_props & CLUTTER_PLY_DATA_COLOR_PROPS)
-              == CLUTTER_PLY_DATA_COLOR_PROPS)
+          if ((data.available_props & MASH_DATA_COLOR_PROPS)
+              == MASH_DATA_COLOR_PROPS)
             cogl_vertex_buffer_add (priv->vertices_vbo,
                                     "gl_Color",
                                     3, COGL_ATTRIBUTE_TYPE_UNSIGNED_BYTE,
@@ -568,22 +568,22 @@ clutter_ply_data_load (ClutterPlyData *self,
 }
 
 /**
- * clutter_ply_data_render:
- * @self: A #ClutterPlyData instance
+ * mash_data_render:
+ * @self: A #MashData instance
  *
  * Renders the data contained in the PLY model to the Clutter
  * scene. The current Cogl source material will be used to affect the
  * appearance of the model. This function is not usually called
- * directly but instead the #ClutterPlyData instance is added to a
- * #ClutterPlyModel and this function will be automatically called by
+ * directly but instead the #MashData instance is added to a
+ * #MashModel and this function will be automatically called by
  * the paint method of the model.
  */
 void
-clutter_ply_data_render (ClutterPlyData *self)
+mash_data_render (MashData *self)
 {
-  ClutterPlyDataPrivate *priv;
+  MashDataPrivate *priv;
 
-  g_return_if_fail (CLUTTER_PLY_IS_DATA (self));
+  g_return_if_fail (MASH_IS_DATA (self));
 
   priv = self->priv;
 
@@ -600,8 +600,8 @@ clutter_ply_data_render (ClutterPlyData *self)
 }
 
 /**
- * clutter_ply_data_get_extents:
- * @self: A #ClutterPlyData instance
+ * mash_data_get_extents:
+ * @self: A #MashData instance
  * @min_vertex: A location to return the minimum vertex
  * @max_vertex: A location to return the maximum vertex
  *
@@ -613,18 +613,18 @@ clutter_ply_data_render (ClutterPlyData *self)
  * cheap to call this function.
  */
 void
-clutter_ply_data_get_extents (ClutterPlyData *self,
-                              ClutterVertex *min_vertex,
-                              ClutterVertex *max_vertex)
+mash_data_get_extents (MashData *self,
+                       ClutterVertex *min_vertex,
+                       ClutterVertex *max_vertex)
 {
-  ClutterPlyDataPrivate *priv = self->priv;
+  MashDataPrivate *priv = self->priv;
 
   *min_vertex = priv->min_vertex;
   *max_vertex = priv->max_vertex;
 }
 
 GQuark
-clutter_ply_data_error_quark (void)
+mash_data_error_quark (void)
 {
-  return g_quark_from_static_string ("clutter-ply-data-error-quark");
+  return g_quark_from_static_string ("mash-data-error-quark");
 }

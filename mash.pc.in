@@ -4,9 +4,9 @@ libdir=@libdir@
 includedir=@includedir@
 requires=clutter-1.0
 
-Name: Clutter-PLY
-Description: Clutter PLY Rendering Library
+Name: Mash
+Description: A library for adding PLY files to a Clutter scene
 Version: @VERSION@
-Libs: -L${libdir} -lclutter-ply
+Libs: -L${libdir} -lmash
 Cflags: -I${includedir}
 Requires: ${requires}

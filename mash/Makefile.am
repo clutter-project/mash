@@ -1,45 +1,45 @@
 SUBDIRS = rply
 
-lib_LTLIBRARIES = libclutter-ply.la
+lib_LTLIBRARIES = libmash.la
 
 INCLUDES = \
 	-I$(top_srcdir)
 
 AM_CPPFLAGS = \
-	-DCLUTTER_PLY_COMPILATION=1 \
+	-DMASH_COMPILATION=1 \
 	@CLUTTER_CFLAGS@
 
-enum_h = $(srcdir)/clutter-ply-data.h
+enum_h = $(srcdir)/mash-data.h
 
 source_h = \
 	$(enum_h) \
-	$(srcdir)/clutter-ply.h \
-	$(srcdir)/clutter-ply-model.h
+	$(srcdir)/mash.h \
+	$(srcdir)/mash-model.h
 
 built_source_h = \
-	$(builddir)/clutter-ply-enum-types.h
+	$(builddir)/mash-enum-types.h
 
 built_source_c = \
-	$(builddir)/clutter-ply-enum-types.c
+	$(builddir)/mash-enum-types.c
 
-libclutter_ply_la_SOURCES = \
+libmash_la_SOURCES = \
 	$(source_h) \
-	$(srcdir)/clutter-ply-data.c \
-	$(srcdir)/clutter-ply-model.c
+	$(srcdir)/mash-data.c \
+	$(srcdir)/mash-model.c
 
-nodist_libclutter_ply_la_SOURCES = \
+nodist_libmash_la_SOURCES = \
 	$(built_source_h) \
 	$(built_source_c)
 
-clutter_plydir = $(includedir)/clutter-ply
+mashdir = $(includedir)/mash
 
-clutter_ply_HEADERS = \
+mash_HEADERS = \
 	$(source_h)
 
-nodist_clutter_ply_HEADERS = \
+nodist_mash_HEADERS = \
 	$(built_source_h)
 
-libclutter_ply_la_LIBADD = \
+libmash_la_LIBADD = \
 	@CLUTTER_LIBS@ \
 	rply/librply.la
 
@@ -49,18 +49,18 @@ BUILT_GIRSOURCES =
 
 if HAVE_INTROSPECTION
 
-ClutterPly.gir: $(INTROSPECTION_SCANNER) libclutter-ply.la
+ClutterPly.gir: $(INTROSPECTION_SCANNER) libmash.la
 	$(QUIET_GEN)$(INTROSPECTION_SCANNER) -v \
 		--namespace ClutterPly --nsversion=0.1 \
 		$(INCLUDES) \
 		$(AM_CPPFLAGS) \
 		--add-include-path=cogl/cogl \
 		$(json_gir_include_path) \
-		--c-include='clutter-ply/clutter-ply.h' \
+		--c-include='mash/mash.h' \
 		--include=Clutter-1.0 \
 		--output $@ \
-		--library=libclutter-ply.la \
-		$(libclutter_ply_la_SOURCES)
+		--library=libmash.la \
+		$(libmash_la_SOURCES)
 
 BUILT_GIRSOURCES += ClutterPly.gir
 
@@ -92,8 +92,8 @@ BUILT_SOURCES =
 EXTRA_DIST =
 
 # glib-mkenums rules
-glib_enum_h = clutter-ply-enum-types.h
-glib_enum_c = clutter-ply-enum-types.c
+glib_enum_h = mash-enum-types.h
+glib_enum_c = mash-enum-types.c
 glib_enum_headers = $(enum_h)
 
 # This used to use ebassi's magic Makefile.am.enums but I can't really

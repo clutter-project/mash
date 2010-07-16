@@ -1,10 +1,10 @@
-SUBDIRS = clutter-ply example docs
+SUBDIRS = mash example docs
 
 ACLOCAL_AMFLAGS = -I m4
 
-pkgconfig_DATA = clutter-ply.pc
+pkgconfig_DATA = mash.pc
 pkgconfigdir = $(libdir)/pkgconfig
 
-EXTRA_DIST = clutter-ply.pc.in
+EXTRA_DIST = mash.pc.in
 
 DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc

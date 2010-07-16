@@ -1,0 +1,50 @@
+<SECTION>
+<FILE>mash-data</FILE>
+<TITLE>MashData</TITLE>
+MASH_DATA_ERROR
+MashData
+MashDataClass
+MashDataError
+mash_data_new
+mash_data_load
+mash_data_render
+mash_data_get_extents
+<SUBSECTION Standard>
+MASH_DATA
+MASH_IS_DATA
+MASH_TYPE_DATA
+mash_data_get_type
+MASH_DATA_CLASS
+MASH_IS_DATA_CLASS
+MASH_DATA_GET_CLASS
+
+<SUBSECTION Private>
+MashDataPrivate
+mash_data_error_quark
+</SECTION>
+
+<SECTION>
+<FILE>mash-model</FILE>
+<TITLE>MashModel</TITLE>
+MashModel
+MashModelClass
+mash_model_new
+mash_model_new_from_file
+mash_model_get_material
+mash_model_set_material
+mash_model_get_data
+mash_model_set_data
+mash_model_get_fit_to_allocation
+mash_model_set_fit_to_allocation
+<SUBSECTION Standard>
+MASH_MODEL
+MASH_IS_MODEL
+MASH_TYPE_MODEL
+mash_model_get_type
+MASH_MODEL_CLASS
+MASH_IS_MODEL_CLASS
+MASH_MODEL_GET_CLASS
+
+<SUBSECTION Private>
+MashModelPrivate
+</SECTION>
