@@ -68,6 +68,18 @@ GType mash_point_light_get_type (void) G_GNUC_CONST;
 
 ClutterActor *mash_point_light_new (void);
 
+void mash_point_light_set_constant_attenuation (MashPointLight *light,
+                                                gfloat value);
+gfloat mash_point_light_get_constant_attenuation (MashPointLight *light);
+
+void mash_point_light_set_linear_attenuation (MashPointLight *light,
+                                              gfloat value);
+gfloat mash_point_light_get_linear_attenuation (MashPointLight *light);
+
+void mash_point_light_set_quadratic_attenuation (MashPointLight *light,
+                                                 gfloat value);
+gfloat mash_point_light_get_quadratic_attenuation (MashPointLight *light);
+
 G_END_DECLS
 
 #endif /* __MASH_POINT_LIGHT_H__ */
