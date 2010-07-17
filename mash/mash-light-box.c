@@ -27,6 +27,8 @@
 
 static void mash_light_box_finalize (GObject *object);
 
+static void mash_light_box_paint (ClutterActor *actor);
+
 static void mash_light_box_add (ClutterContainer *container,
                                 ClutterActor *actor);
 static void mash_light_box_remove (ClutterContainer *container,
@@ -54,8 +56,11 @@ static void
 mash_light_box_class_init (MashLightBoxClass *klass)
 {
   GObjectClass *gobject_class = (GObjectClass *) klass;
+  ClutterActorClass *actor_class = (ClutterActorClass *) klass;
 
   gobject_class->finalize = mash_light_box_finalize;
+
+  actor_class->paint = mash_light_box_paint;
 
   g_type_class_add_private (klass, sizeof (MashLightBoxPrivate));
 }
@@ -134,3 +139,133 @@ mash_light_box_remove (ClutterContainer *container,
 
   mash_light_box_check_light_changed (light_box, actor);
 }
+
+struct MashLightBoxGetProgramData
+{
+  GString *uniform_source;
+  GString *main_source;
+};
+
+static void
+mash_light_box_generate_shader_cb (ClutterActor *actor,
+                                   gpointer data_p)
+{
+  struct MashLightBoxGetProgramData *data = data_p;
+
+  if (MASH_IS_LIGHT (actor))
+    mash_light_generate_shader (MASH_LIGHT (actor),
+                                data->uniform_source,
+                                data->main_source);
+}
+
+static CoglHandle
+mash_light_box_get_program (MashLightBox *light_box)
+{
+  MashLightBoxPrivate *priv = light_box->priv;
+
+  if (priv->program == COGL_INVALID_HANDLE)
+    {
+      struct MashLightBoxGetProgramData data;
+      char *full_source;
+      CoglHandle shader;
+      char *info_log;
+
+      data.uniform_source = g_string_new (NULL);
+      data.main_source = g_string_new (NULL);
+
+      /* Give all of the lights in the scene a chance to modify the
+         shader source */
+      clutter_container_foreach (CLUTTER_CONTAINER (light_box),
+                                 mash_light_box_generate_shader_cb,
+                                 &data);
+
+      /* Append the shader boiler plate */
+      g_string_append (data.uniform_source,
+                       "\n"
+                       "void\n"
+                       "main ()\n"
+                       "{\n"
+                       /* Start with a completely unlit vertex. The
+                          lights should add to this color */
+                       "  gl_FrontColor = vec4 (0.0, 0.0, 0.0, 1.0);\n"
+                       /* Calculate a transformed and normalized
+                          vertex normal */
+                       "  vec3 normal = normalize (gl_NormalMatrix\n"
+                       "                           * gl_Normal);\n"
+                       /* Calculate the vertex position in eye coordinates */
+                       "  vec4 homogenous_eye_coord\n"
+                       "    = gl_ModelViewMatrix * gl_Vertex;\n"
+                       "  vec3 eye_coord = homogenous_eye_coord.xyz\n"
+                       "    / homogenous_eye_coord.w;\n");
+      /* Append the main source to the uniform source to get the full
+         source for the shader */
+      g_string_append_len (data.uniform_source,
+                           data.main_source->str,
+                           data.main_source->len);
+      /* Perform the standard vertex transformation */
+      g_string_append (data.uniform_source,
+                       "  gl_Position = ftransform ();\n"
+                       "}\n");
+
+      full_source = g_string_free (data.uniform_source, FALSE);
+      g_string_free (data.main_source, TRUE);
+
+      priv->program = cogl_create_program ();
+
+      shader = cogl_create_shader (COGL_SHADER_TYPE_VERTEX);
+      cogl_shader_source (shader, full_source);
+      g_free (full_source);
+      cogl_shader_compile (shader);
+
+      if (!cogl_shader_is_compiled (shader))
+        g_warning ("Error compiling light box shader");
+
+      info_log = cogl_shader_get_info_log (shader);
+
+      if (info_log)
+        {
+          if (*info_log)
+            g_warning ("The light box shader has an info log:\n%s", info_log);
+
+          g_free (info_log);
+        }
+
+      cogl_program_attach_shader (priv->program, shader);
+      cogl_program_link (priv->program);
+    }
+
+  return priv->program;
+}
+
+static void
+mash_light_box_update_uniforms_cb (ClutterActor *actor,
+                                   gpointer data_p)
+{
+  CoglHandle program = data_p;
+
+  if (MASH_IS_LIGHT (actor))
+    mash_light_update_uniforms (MASH_LIGHT (actor), program);
+}
+
+static void
+mash_light_box_paint (ClutterActor *actor)
+{
+  MashLightBox *light_box = MASH_LIGHT_BOX (actor);
+  CoglHandle program;
+
+  program = mash_light_box_get_program (light_box);
+
+  cogl_program_use (program);
+
+  /* Give all of the lights a chance to update the uniforms before we
+     paint any other actors */
+  clutter_container_foreach (CLUTTER_CONTAINER (light_box),
+                             mash_light_box_update_uniforms_cb,
+                             program);
+
+  /* Chain up to paint the rest of the children */
+  CLUTTER_ACTOR_CLASS (mash_light_box_parent_class)->paint (actor);
+
+  cogl_program_use (COGL_INVALID_HANDLE);
+}
+
