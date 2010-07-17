@@ -66,7 +66,7 @@ struct _MashLightBox
 
 GType mash_light_box_get_type (void) G_GNUC_CONST;
 
-ClutterActor *mash_light_box_new (void);
+ClutterActor *mash_light_box_new (ClutterLayoutManager *manager);
 
 G_END_DECLS
 

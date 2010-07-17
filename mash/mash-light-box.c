@@ -91,11 +91,11 @@ mash_light_box_finalize (GObject *object)
 }
 
 ClutterActor *
-mash_light_box_new (void)
+mash_light_box_new (ClutterLayoutManager *layout_manager)
 {
-  ClutterActor *self = g_object_new (MASH_TYPE_LIGHT_BOX, NULL);
-
-  return self;
+  return g_object_new (MASH_TYPE_LIGHT_BOX,
+                       "layout-manager", layout_manager,
+                       NULL);
 }
 
 static void
