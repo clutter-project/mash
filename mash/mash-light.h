@@ -66,6 +66,15 @@ struct _MashLight
 
 GType mash_light_get_type (void) G_GNUC_CONST;
 
+void mash_light_set_ambient (MashLight *light, const ClutterColor *ambient);
+void mash_light_get_ambient (MashLight *light, ClutterColor *ambient);
+
+void mash_light_set_diffuse (MashLight *light, const ClutterColor *diffuse);
+void mash_light_get_diffuse (MashLight *light, ClutterColor *diffuse);
+
+void mash_light_set_specular (MashLight *light, const ClutterColor *specular);
+void mash_light_get_specular (MashLight *light, ClutterColor *specular);
+
 G_END_DECLS
 
 #endif /* __MASH_LIGHT_H__ */
