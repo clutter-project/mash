@@ -55,6 +55,12 @@ typedef struct _MashLightPrivate MashLightPrivate;
 struct _MashLightClass
 {
   ClutterActorClass parent_class;
+
+  void (* generate_shader) (MashLight *light,
+                            GString *uniform_source,
+                            GString *main_source);
+  void (* update_uniforms) (MashLight *light,
+                            CoglHandle program);
 };
 
 struct _MashLight
@@ -74,6 +80,19 @@ void mash_light_get_diffuse (MashLight *light, ClutterColor *diffuse);
 
 void mash_light_set_specular (MashLight *light, const ClutterColor *specular);
 void mash_light_get_specular (MashLight *light, ClutterColor *specular);
+
+void mash_light_generate_shader (MashLight *light,
+                                 GString *uniform_source,
+                                 GString *main_source);
+void mash_light_update_uniforms (MashLight *light, CoglHandle program);
+
+int mash_light_get_uniform_location (MashLight *light,
+                                     CoglHandle program,
+                                     const char *uniform_name);
+
+void mash_light_append_shader (MashLight *light,
+                               GString *shader_source,
+                               const char *snippet);
 
 G_END_DECLS
 
