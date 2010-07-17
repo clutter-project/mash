@@ -23,6 +23,11 @@
 
 #include "mash-model.h"
 #include "mash-data.h"
+#include "mash-light.h"
+#include "mash-point-light.h"
+#include "mash-spot-light.h"
+#include "mash-directional-light.h"
+#include "mash-light-box.h"
 #include "mash-enum-types.h"
 
 #undef __MASH_H_INSIDE__

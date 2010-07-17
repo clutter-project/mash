@@ -14,7 +14,12 @@ enum_h = $(srcdir)/mash-data.h
 source_h = \
 	$(enum_h) \
 	$(srcdir)/mash.h \
-	$(srcdir)/mash-model.h
+	$(srcdir)/mash-model.h \
+	$(srcdir)/mash-light-box.h \
+	$(srcdir)/mash-light.h \
+	$(srcdir)/mash-directional-light.h \
+	$(srcdir)/mash-spot-light.h \
+	$(srcdir)/mash-point-light.h
 
 built_source_h = \
 	$(builddir)/mash-enum-types.h
@@ -25,7 +30,12 @@ built_source_c = \
 libmash_la_SOURCES = \
 	$(source_h) \
 	$(srcdir)/mash-data.c \
-	$(srcdir)/mash-model.c
+	$(srcdir)/mash-model.c \
+	$(srcdir)/mash-light-box.c \
+	$(srcdir)/mash-light.c \
+	$(srcdir)/mash-directional-light.c \
+	$(srcdir)/mash-spot-light.c \
+	$(srcdir)/mash-point-light.c
 
 nodist_libmash_la_SOURCES = \
 	$(built_source_h) \
