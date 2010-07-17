@@ -37,6 +37,12 @@ static void mash_point_light_set_property (GObject *object,
 static void mash_point_light_dispose (GObject *object);
 static void mash_point_light_finalize (GObject *object);
 
+static void mash_point_light_generate_shader (MashLight *light,
+                                              GString *uniform_source,
+                                              GString *main_source);
+static void mash_point_light_update_uniforms (MashLight *light,
+                                              CoglHandle program);
+
 G_DEFINE_TYPE (MashPointLight, mash_point_light, MASH_TYPE_LIGHT);
 
 #define MASH_POINT_LIGHT_GET_PRIVATE(obj) \
@@ -55,9 +61,16 @@ struct _MashPointLightPrivate
      shader */
   float attenuation[MASH_POINT_LIGHT_ATTENUATION_COUNT];
 
+  int attenuation_uniform_location;
+  int light_eye_coord_uniform_location;
+
   /* TRUE if the attenuation factors have been modified since
      update_uniforms was last called */
   gboolean attenuation_dirty;
+
+  /* TRUE if the shader has changed since we last called
+     cogl_program_get_uniform_location for the uniforms */
+  gboolean uniform_locations_dirty;
 };
 
 enum
@@ -69,16 +82,57 @@ enum
     PROP_QUADRATIC_ATTENUATION
   };
 
+static const char
+mash_point_light_shader[] =
+  /* Vector from the vertex to the light */
+  "  vec3 light_vec$ = light_eye_coord$ - eye_coord;\n"
+  /* Distance from the vertex to the light */
+  "  float d$ = length (light_vec$);\n"
+  /* Normalize the light vector */
+  "  light_vec$ /= d$;\n"
+  /* Add the ambient light term */
+  "  vec3 lit_color$ = gl_FrontMaterial.ambient.rgb * ambient_light$;\n"
+  /* Calculate the diffuse factor based on the angle between the
+     vertex normal and the angle between the light and the vertex */
+  "  float diffuse_factor$ = max (0.0, dot (light_vec$, normal));\n"
+  /* Skip the specular and diffuse terms if the vertex is not facing
+     the light */
+  "  if (diffuse_factor$ > 0.0)\n"
+  "    {\n"
+  /* Add the diffuse term */
+  "      lit_color$ += (diffuse_factor$ * gl_FrontMaterial.diffuse.rgb\n"
+  "                     * diffuse_light$);\n"
+  /* Direction for maximum specular highlights is half way between the
+     eye vector and the light vector. The eye vector is hard-coded to
+     look down the negative z axis */
+  "      vec3 half_vector$ = normalize (light_vec$ + vec3 (0.0, 0.0, 1.0));\n"
+  "      float spec_factor$ = max (0.0, dot (half_vector$, normal));\n"
+  "      float spec_power$ = pow (spec_factor$, gl_FrontMaterial.shininess);\n"
+  /* Add the specular term */
+  "      lit_color$ += (gl_FrontMaterial.specular.rgb\n"
+  "                     * specular_light$ * spec_power$);\n"
+  "    }\n"
+  /* Attenuate the lit color based on the distance to the light and
+     the attenuation formula properties */
+  "  lit_color$ /= dot (attenuation$, vec3 (1.0, d$, d$ * d$));\n"
+  /* Add it to the total computed color value */
+  "  gl_FrontColor.xyz += lit_color$;\n"
+  ;
+
 static void
 mash_point_light_class_init (MashPointLightClass *klass)
 {
   GObjectClass *gobject_class = (GObjectClass *) klass;
+  MashLightClass *light_class = (MashLightClass *) klass;
   GParamSpec *pspec;
 
   gobject_class->dispose = mash_point_light_dispose;
   gobject_class->finalize = mash_point_light_finalize;
   gobject_class->get_property = mash_point_light_get_property;
   gobject_class->set_property = mash_point_light_set_property;
+
+  light_class->generate_shader = mash_point_light_generate_shader;
+  light_class->update_uniforms = mash_point_light_update_uniforms;
 
   pspec = g_param_spec_float ("constant-attenuation",
                               "Constant Attenuation",
@@ -141,6 +195,8 @@ mash_point_light_init (MashPointLight *self)
   priv->attenuation[MASH_POINT_LIGHT_ATTENUATION_QUADRATIC] = 0.0f;
 
   priv->attenuation_dirty = TRUE;
+
+  priv->uniform_locations_dirty = TRUE;
 }
 
 static void
@@ -317,4 +373,90 @@ mash_point_light_get_quadratic_attenuation (MashPointLight *light)
   g_return_val_if_fail (MASH_IS_POINT_LIGHT (light), 0.0f);
 
   return light->priv->attenuation[MASH_POINT_LIGHT_ATTENUATION_QUADRATIC];
+}
+
+static void
+mash_point_light_generate_shader (MashLight *light,
+                                  GString *uniform_source,
+                                  GString *main_source)
+{
+  MashPointLight *plight = MASH_POINT_LIGHT (light);
+  MashPointLightPrivate *priv = plight->priv;
+
+  MASH_LIGHT_CLASS (mash_point_light_parent_class)
+    ->generate_shader (light, uniform_source, main_source);
+
+  /* If the shader is being generated then the uniform locations also
+     need updating */
+  priv->uniform_locations_dirty = TRUE;
+  priv->attenuation_dirty = TRUE;
+
+  mash_light_append_shader (light, uniform_source,
+                            "uniform vec3 attenuation$;\n"
+                            "uniform vec3 light_eye_coord$;\n");
+
+  mash_light_append_shader (light, main_source, mash_point_light_shader);
+}
+
+static void
+mash_point_light_update_uniforms (MashLight *light,
+                                  CoglHandle program)
+{
+  MashPointLight *plight = MASH_POINT_LIGHT (light);
+  MashPointLightPrivate *priv = plight->priv;
+  gfloat light_eye_coord[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+  CoglMatrix matrix;
+  CoglMatrix parent_matrix;
+  CoglMatrix light_matrix;
+
+  MASH_LIGHT_CLASS (mash_point_light_parent_class)
+    ->update_uniforms (light, program);
+
+  if (priv->uniform_locations_dirty)
+    {
+      priv->attenuation_uniform_location
+        = mash_light_get_uniform_location (light, program, "attenuation");
+      priv->light_eye_coord_uniform_location
+        = mash_light_get_uniform_location (light, program, "light_eye_coord");
+      priv->uniform_locations_dirty = FALSE;
+    }
+
+  if (priv->attenuation_dirty)
+    {
+      cogl_program_uniform_float (priv->attenuation_uniform_location,
+                                  3, 1,
+                                  priv->attenuation);
+      priv->attenuation_dirty = FALSE;
+    }
+
+  /* I can't think of a good way to recognise when the position of the
+     actor may have changed so this just always updates the light eye
+     coordinates. Any transformations in the parent hierarchy could
+     cause the position to change without affecting the allocation */
+
+  /* The update uniforms method is always called from the paint method
+     of the parent container so we know that the current cogl
+     modelview matrix contains the parent's transformation. Therefore
+     to get a transformation for the light position we just need apply
+     the actor's transform on top of that */
+  cogl_matrix_init_identity (&light_matrix);
+  clutter_actor_get_transformation_matrix (CLUTTER_ACTOR (light),
+                                           &light_matrix);
+
+  cogl_get_modelview_matrix (&parent_matrix);
+
+  cogl_matrix_multiply (&matrix, &parent_matrix, &light_matrix);
+
+  cogl_matrix_transform_point (&matrix,
+                               light_eye_coord + 0,
+                               light_eye_coord + 1,
+                               light_eye_coord + 2,
+                               light_eye_coord + 3);
+  light_eye_coord[0] /= light_eye_coord[3];
+  light_eye_coord[1] /= light_eye_coord[3];
+  light_eye_coord[2] /= light_eye_coord[3];
+
+  cogl_program_uniform_float (priv->light_eye_coord_uniform_location,
+                              3, 1,
+                              light_eye_coord);
 }
