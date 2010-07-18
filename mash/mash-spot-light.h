@@ -68,6 +68,14 @@ GType mash_spot_light_get_type (void) G_GNUC_CONST;
 
 ClutterActor *mash_spot_light_new (void);
 
+void mash_spot_light_set_spot_cutoff (MashSpotLight *light,
+                                      gfloat cutoff);
+gfloat mash_spot_light_get_spot_cutoff (MashSpotLight *light);
+
+void mash_spot_light_set_spot_exponent (MashSpotLight *light,
+                                        gfloat exponent);
+gfloat mash_spot_light_get_spot_exponent (MashSpotLight *light);
+
 G_END_DECLS
 
 #endif /* __MASH_SPOT_LIGHT_H__ */
