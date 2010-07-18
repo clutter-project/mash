@@ -21,7 +21,6 @@
 #endif
 
 #include <clutter/clutter.h>
-#include <math.h>
 
 #include "mash-light.h"
 #include "mash-directional-light.h"
@@ -127,22 +126,6 @@ mash_directional_light_generate_shader (MashLight *light,
 }
 
 static void
-transpose_matrix (const CoglMatrix *matrix,
-                  CoglMatrix *transpose)
-{
-  const float *matrix_p = cogl_matrix_get_array (matrix);
-  float matrix_array[16];
-  int i, j;
-
-  /* This should probably be in Cogl */
-  for (j = 0; j < 4; j++)
-    for (i = 0; i < 4; i++)
-      matrix_array[i * 4 + j] = matrix_p[j * 4 + i];
-
-  cogl_matrix_init_from_array (transpose, matrix_array);
-}
-
-static void
 mash_directional_light_update_uniforms (MashLight *light,
                                         CoglHandle program)
 {
@@ -150,11 +133,7 @@ mash_directional_light_update_uniforms (MashLight *light,
   MashDirectionalLightPrivate *priv = dlight->priv;
   /* The light is assumed to always be pointing directly down. This
      can be modified by rotating the actor */
-  gfloat light_direction[4] = { 0.0f, -1.0f, 0.0f, 0.0f };
-  CoglMatrix matrix, inverse_matrix;
-  CoglMatrix parent_matrix;
-  CoglMatrix light_matrix;
-  float magnitude;
+  static const float light_direction[4] = { 0.0f, -1.0f, 0.0f, 0.0f };
 
   MASH_LIGHT_CLASS (mash_directional_light_parent_class)
     ->update_uniforms (light, program);
@@ -168,44 +147,11 @@ mash_directional_light_update_uniforms (MashLight *light,
 
   /* I can't think of a good way to recognise when the transformation
      of the actor may have changed so this just always updates the
-     light eye coordinates. Any transformations in the parent
-     hierarchy could cause the transformation to change without
-     affecting the allocation */
+     light direction. Any transformations in the parent hierarchy
+     could cause the transformation to change without affecting the
+     allocation */
 
-  /* The update uniforms method is always called from the paint method
-     of the parent container so we know that the current cogl
-     modelview matrix contains the parent's transformation. Therefore
-     to get a transformation for the light position we just need apply
-     the actor's transform on top of that */
-  cogl_matrix_init_identity (&light_matrix);
-  clutter_actor_get_transformation_matrix (CLUTTER_ACTOR (light),
-                                           &light_matrix);
-
-  cogl_get_modelview_matrix (&parent_matrix);
-
-  cogl_matrix_multiply (&matrix, &parent_matrix, &light_matrix);
-
-  /* To safely transform the direction when the matrix might not be
-     orthogonal we need the transposed inverse matrix */
-
-  cogl_matrix_get_inverse (&matrix, &inverse_matrix);
-  transpose_matrix (&inverse_matrix, &matrix);
-
-  cogl_matrix_transform_point (&matrix,
-                               light_direction + 0,
-                               light_direction + 1,
-                               light_direction + 2,
-                               light_direction + 3);
-
-  /* Normalize the light direction */
-  magnitude = sqrtf ((light_direction[0] * light_direction[0])
-                     + (light_direction[1] * light_direction[1])
-                     + (light_direction[2] * light_direction[2]));
-  light_direction[0] /= magnitude;
-  light_direction[1] /= magnitude;
-  light_direction[2] /= magnitude;
-
-  cogl_program_uniform_float (priv->light_direction_uniform_location,
-                              3, 1,
-                              light_direction);
+  mash_light_set_direction_uniform (light,
+                                    priv->light_direction_uniform_location,
+                                    light_direction);
 }

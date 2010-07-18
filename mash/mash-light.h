@@ -94,6 +94,10 @@ void mash_light_append_shader (MashLight *light,
                                GString *shader_source,
                                const char *snippet);
 
+void mash_light_set_direction_uniform (MashLight *light,
+                                       int uniform_location,
+                                       const float *direction);
+
 G_END_DECLS
 
 #endif /* __MASH_LIGHT_H__ */

@@ -22,6 +22,7 @@
 
 #include <clutter/clutter.h>
 #include <string.h>
+#include <math.h>
 
 #include "mash-light.h"
 #include "mash-light-box.h"
@@ -420,6 +421,73 @@ mash_light_get_uniform_location (MashLight *light,
   g_free (unique_name);
 
   return location;
+}
+
+static void
+transpose_matrix (const CoglMatrix *matrix,
+                  CoglMatrix *transpose)
+{
+  const float *matrix_p = cogl_matrix_get_array (matrix);
+  float matrix_array[16];
+  int i, j;
+
+  /* This should probably be in Cogl */
+  for (j = 0; j < 4; j++)
+    for (i = 0; i < 4; i++)
+      matrix_array[i * 4 + j] = matrix_p[j * 4 + i];
+
+  cogl_matrix_init_from_array (transpose, matrix_array);
+}
+
+void
+mash_light_set_direction_uniform (MashLight *light,
+                                  int uniform_location,
+                                  const float *direction_in)
+{
+  float light_direction[4];
+  CoglMatrix matrix, inverse_matrix;
+  CoglMatrix parent_matrix;
+  CoglMatrix light_matrix;
+  float magnitude;
+
+  memcpy (light_direction, direction_in, sizeof (light_direction));
+
+  /* The update uniforms method is always called from the paint method
+     of the parent container so we know that the current cogl
+     modelview matrix contains the parent's transformation. Therefore
+     to get a transformation for the light position we just need apply
+     the actor's transform on top of that */
+  cogl_matrix_init_identity (&light_matrix);
+  clutter_actor_get_transformation_matrix (CLUTTER_ACTOR (light),
+                                           &light_matrix);
+
+  cogl_get_modelview_matrix (&parent_matrix);
+
+  cogl_matrix_multiply (&matrix, &parent_matrix, &light_matrix);
+
+  /* To safely transform the direction when the matrix might not be
+     orthogonal we need the transposed inverse matrix */
+
+  cogl_matrix_get_inverse (&matrix, &inverse_matrix);
+  transpose_matrix (&inverse_matrix, &matrix);
+
+  cogl_matrix_transform_point (&matrix,
+                               light_direction + 0,
+                               light_direction + 1,
+                               light_direction + 2,
+                               light_direction + 3);
+
+  /* Normalize the light direction */
+  magnitude = sqrtf ((light_direction[0] * light_direction[0])
+                     + (light_direction[1] * light_direction[1])
+                     + (light_direction[2] * light_direction[2]));
+  light_direction[0] /= magnitude;
+  light_direction[1] /= magnitude;
+  light_direction[2] /= magnitude;
+
+  cogl_program_uniform_float (uniform_location,
+                              3, 1,
+                              light_direction);
 }
 
 static void
