@@ -45,9 +45,6 @@ static void mash_light_real_generate_shader (MashLight *light,
 static void mash_light_real_update_uniforms (MashLight *light,
                                              CoglHandle program);
 
-static void mash_light_dispose (GObject *object);
-static void mash_light_finalize (GObject *object);
-
 /* Length in characters not including any terminating NULL of the
    unique string that we append to uniform symbols */
 #define MASH_LIGHT_UNIQUE_SYMBOL_SIZE (1 + 8)
@@ -112,8 +109,6 @@ mash_light_class_init (MashLightClass *klass)
   ClutterActorClass *actor_class = (ClutterActorClass *) klass;
   GParamSpec *pspec;
 
-  gobject_class->dispose = mash_light_dispose;
-  gobject_class->finalize = mash_light_finalize;
   gobject_class->get_property = mash_light_get_property;
   gobject_class->set_property = mash_light_set_property;
 
@@ -357,22 +352,6 @@ mash_light_update_uniforms (MashLight *light, CoglHandle program)
   g_return_if_fail (MASH_IS_LIGHT (light));
 
   MASH_LIGHT_GET_CLASS (light)->update_uniforms (light, program);
-}
-
-static void
-mash_light_dispose (GObject *object)
-{
-  MashLight *self = (MashLight *) object;
-
-  G_OBJECT_CLASS (mash_light_parent_class)->dispose (object);
-}
-
-static void
-mash_light_finalize (GObject *object)
-{
-  MashLight *self = (MashLight *) object;
-
-  G_OBJECT_CLASS (mash_light_parent_class)->finalize (object);
 }
 
 void
