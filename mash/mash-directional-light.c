@@ -21,12 +21,16 @@
 #endif
 
 #include <clutter/clutter.h>
+#include <math.h>
 
 #include "mash-light.h"
 #include "mash-directional-light.h"
 
-static void mash_directional_light_dispose (GObject *object);
-static void mash_directional_light_finalize (GObject *object);
+static void mash_directional_light_generate_shader (MashLight *light,
+                                                    GString *uniform_source,
+                                                    GString *main_source);
+static void mash_directional_light_update_uniforms (MashLight *light,
+                                                    CoglHandle program);
 
 G_DEFINE_TYPE (MashDirectionalLight, mash_directional_light, MASH_TYPE_LIGHT);
 
@@ -36,16 +40,49 @@ G_DEFINE_TYPE (MashDirectionalLight, mash_directional_light, MASH_TYPE_LIGHT);
 
 struct _MashDirectionalLightPrivate
 {
-  int stub;
+  int light_direction_uniform_location;
+
+  /* TRUE if the shader has changed since we last called
+     cogl_program_get_uniform_location for the uniforms */
+  gboolean uniform_locations_dirty;
 };
+
+static const char
+mash_directional_light_shader[] =
+  /* Add the ambient light term */
+  "  vec3 lit_color$ = gl_FrontMaterial.ambient.rgb * ambient_light$;\n"
+  /* Calculate the diffuse factor based on the angle between the
+     vertex normal and light direction */
+  "  float diffuse_factor$ = max (0.0, dot (light_direction$, normal));\n"
+  /* Skip the specular and diffuse terms if the vertex is not facing
+     the light */
+  "  if (diffuse_factor$ > 0.0)\n"
+  "    {\n"
+  /* Add the diffuse term */
+  "      lit_color$ += (diffuse_factor$ * gl_FrontMaterial.diffuse.rgb\n"
+  "                     * diffuse_light$);\n"
+  /* Direction for maximum specular highlights is half way between the
+     eye vector and the light vector. The eye vector is hard-coded to
+     look down the negative z axis */
+  "      vec3 half_vector$ = normalize (light_direction$\n"
+  "                                     + vec3 (0.0, 0.0, 1.0));\n"
+  "      float spec_factor$ = max (0.0, dot (half_vector$, normal));\n"
+  "      float spec_power$ = pow (spec_factor$, gl_FrontMaterial.shininess);\n"
+  /* Add the specular term */
+  "      lit_color$ += (gl_FrontMaterial.specular.rgb\n"
+  "                     * specular_light$ * spec_power$);\n"
+  "    }\n"
+  /* Add it to the total computed color value */
+  "  gl_FrontColor.xyz += lit_color$;\n"
+  ;
 
 static void
 mash_directional_light_class_init (MashDirectionalLightClass *klass)
 {
-  GObjectClass *gobject_class = (GObjectClass *) klass;
+  MashLightClass *light_class = (MashLightClass *) klass;
 
-  gobject_class->dispose = mash_directional_light_dispose;
-  gobject_class->finalize = mash_directional_light_finalize;
+  light_class->generate_shader = mash_directional_light_generate_shader;
+  light_class->update_uniforms = mash_directional_light_update_uniforms;
 
   g_type_class_add_private (klass, sizeof (MashDirectionalLightPrivate));
 }
@@ -53,23 +90,11 @@ mash_directional_light_class_init (MashDirectionalLightClass *klass)
 static void
 mash_directional_light_init (MashDirectionalLight *self)
 {
-  self->priv = MASH_DIRECTIONAL_LIGHT_GET_PRIVATE (self);
-}
+  MashDirectionalLightPrivate *priv;
 
-static void
-mash_directional_light_dispose (GObject *object)
-{
-  MashDirectionalLight *self = (MashDirectionalLight *) object;
+  priv = self->priv = MASH_DIRECTIONAL_LIGHT_GET_PRIVATE (self);
 
-  G_OBJECT_CLASS (mash_directional_light_parent_class)->dispose (object);
-}
-
-static void
-mash_directional_light_finalize (GObject *object)
-{
-  MashDirectionalLight *self = (MashDirectionalLight *) object;
-
-  G_OBJECT_CLASS (mash_directional_light_parent_class)->finalize (object);
+  priv->uniform_locations_dirty = TRUE;
 }
 
 ClutterActor *
@@ -78,4 +103,109 @@ mash_directional_light_new (void)
   ClutterActor *self = g_object_new (MASH_TYPE_DIRECTIONAL_LIGHT, NULL);
 
   return self;
+}
+
+static void
+mash_directional_light_generate_shader (MashLight *light,
+                                        GString *uniform_source,
+                                        GString *main_source)
+{
+  MashDirectionalLight *plight = MASH_DIRECTIONAL_LIGHT (light);
+  MashDirectionalLightPrivate *priv = plight->priv;
+
+  MASH_LIGHT_CLASS (mash_directional_light_parent_class)
+    ->generate_shader (light, uniform_source, main_source);
+
+  /* If the shader is being generated then the uniform locations also
+     need updating */
+  priv->uniform_locations_dirty = TRUE;
+
+  mash_light_append_shader (light, uniform_source,
+                            "uniform vec3 light_direction$;\n");
+
+  mash_light_append_shader (light, main_source, mash_directional_light_shader);
+}
+
+static void
+transpose_matrix (const CoglMatrix *matrix,
+                  CoglMatrix *transpose)
+{
+  const float *matrix_p = cogl_matrix_get_array (matrix);
+  float matrix_array[16];
+  int i, j;
+
+  /* This should probably be in Cogl */
+  for (j = 0; j < 4; j++)
+    for (i = 0; i < 4; i++)
+      matrix_array[i * 4 + j] = matrix_p[j * 4 + i];
+
+  cogl_matrix_init_from_array (transpose, matrix_array);
+}
+
+static void
+mash_directional_light_update_uniforms (MashLight *light,
+                                        CoglHandle program)
+{
+  MashDirectionalLight *dlight = MASH_DIRECTIONAL_LIGHT (light);
+  MashDirectionalLightPrivate *priv = dlight->priv;
+  /* The light is assumed to always be pointing directly down. This
+     can be modified by rotating the actor */
+  gfloat light_direction[4] = { 0.0f, -1.0f, 0.0f, 0.0f };
+  CoglMatrix matrix, inverse_matrix;
+  CoglMatrix parent_matrix;
+  CoglMatrix light_matrix;
+  float magnitude;
+
+  MASH_LIGHT_CLASS (mash_directional_light_parent_class)
+    ->update_uniforms (light, program);
+
+  if (priv->uniform_locations_dirty)
+    {
+      priv->light_direction_uniform_location
+        = mash_light_get_uniform_location (light, program, "light_direction");
+      priv->uniform_locations_dirty = FALSE;
+    }
+
+  /* I can't think of a good way to recognise when the transformation
+     of the actor may have changed so this just always updates the
+     light eye coordinates. Any transformations in the parent
+     hierarchy could cause the transformation to change without
+     affecting the allocation */
+
+  /* The update uniforms method is always called from the paint method
+     of the parent container so we know that the current cogl
+     modelview matrix contains the parent's transformation. Therefore
+     to get a transformation for the light position we just need apply
+     the actor's transform on top of that */
+  cogl_matrix_init_identity (&light_matrix);
+  clutter_actor_get_transformation_matrix (CLUTTER_ACTOR (light),
+                                           &light_matrix);
+
+  cogl_get_modelview_matrix (&parent_matrix);
+
+  cogl_matrix_multiply (&matrix, &parent_matrix, &light_matrix);
+
+  /* To safely transform the direction when the matrix might not be
+     orthogonal we need the transposed inverse matrix */
+
+  cogl_matrix_get_inverse (&matrix, &inverse_matrix);
+  transpose_matrix (&inverse_matrix, &matrix);
+
+  cogl_matrix_transform_point (&matrix,
+                               light_direction + 0,
+                               light_direction + 1,
+                               light_direction + 2,
+                               light_direction + 3);
+
+  /* Normalize the light direction */
+  magnitude = sqrtf ((light_direction[0] * light_direction[0])
+                     + (light_direction[1] * light_direction[1])
+                     + (light_direction[2] * light_direction[2]));
+  light_direction[0] /= magnitude;
+  light_direction[1] /= magnitude;
+  light_direction[2] /= magnitude;
+
+  cogl_program_uniform_float (priv->light_direction_uniform_location,
+                              3, 1,
+                              light_direction);
 }
