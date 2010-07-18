@@ -41,6 +41,7 @@
 /example/Makefile
 /example/Makefile.in
 /example/viewer
+/example/lights
 /install-sh
 /libtool
 /ltmain.sh
