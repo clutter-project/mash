@@ -34,9 +34,6 @@ static void mash_point_light_set_property (GObject *object,
                                            const GValue *value,
                                            GParamSpec *pspec);
 
-static void mash_point_light_dispose (GObject *object);
-static void mash_point_light_finalize (GObject *object);
-
 static void mash_point_light_generate_shader (MashLight *light,
                                               GString *uniform_source,
                                               GString *main_source);
@@ -126,8 +123,6 @@ mash_point_light_class_init (MashPointLightClass *klass)
   MashLightClass *light_class = (MashLightClass *) klass;
   GParamSpec *pspec;
 
-  gobject_class->dispose = mash_point_light_dispose;
-  gobject_class->finalize = mash_point_light_finalize;
   gobject_class->get_property = mash_point_light_get_property;
   gobject_class->set_property = mash_point_light_set_property;
 
@@ -271,22 +266,6 @@ mash_point_light_set_property (GObject *object,
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
     }
-}
-
-static void
-mash_point_light_dispose (GObject *object)
-{
-  MashPointLight *self = (MashPointLight *) object;
-
-  G_OBJECT_CLASS (mash_point_light_parent_class)->dispose (object);
-}
-
-static void
-mash_point_light_finalize (GObject *object)
-{
-  MashPointLight *self = (MashPointLight *) object;
-
-  G_OBJECT_CLASS (mash_point_light_parent_class)->finalize (object);
 }
 
 ClutterActor *
