@@ -16,6 +16,26 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * SECTION:mash-spot-light
+ * @short_description: A light with a position which emits light
+ *   within a cone shape.
+ *
+ * A #MashSpotLight is a subclass of #MashPointLight which
+ * additionally restricts the light emitted to a cone shape eminating
+ * from the light's position. The same attenuation properties provided
+ * by #MashPointLight can be used to modify the intensity based on the
+ * distance to the light. The angle of the cone can be modified with
+ * the spot-cutoff property and the spot-exponent property. The cutoff
+ * sets a hard restriction on the maximum angle which light will be
+ * emitted. The exponent sets the rate at which light dims as the
+ * angle expands out.
+ *
+ * The direction of a spot light is always along the positive y axis
+ * which is towards the bottom of the stage in a default Clutter
+ * scene. The direction is affected by the actor's transformation so
+ * it can be modified or animated by rotating the actor.
+ */
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -243,6 +263,13 @@ mash_spot_light_set_property (GObject *object,
     }
 }
 
+/**
+ * mash_spot_light_new:
+ *
+ * Constructs a new #MashSpotLight.
+ *
+ * Return value: the new light.
+ */
 ClutterActor *
 mash_spot_light_new (void)
 {
@@ -251,6 +278,15 @@ mash_spot_light_new (void)
   return self;
 }
 
+/**
+ * mash_spot_light_set_spot_cutoff
+ * @light: The light to modify
+ * @cutoff: The new value
+ *
+ * Sets the spot cut off value on a light. This is an angle in degrees
+ * which defines the shape of the cone of light emitted from the
+ * light. It should be within the range 0° to 90°
+ */
 void
 mash_spot_light_set_spot_cutoff (MashSpotLight *light,
                                  gfloat cutoff)
@@ -269,6 +305,12 @@ mash_spot_light_set_spot_cutoff (MashSpotLight *light,
     }
 }
 
+/**
+ * mash_spot_light_get_spot_cutoff
+ * @light: The light to query
+ *
+ * Return value: the spot cut off value
+ */
 gfloat
 mash_spot_light_get_spot_cutoff (MashSpotLight *light)
 {
@@ -277,6 +319,16 @@ mash_spot_light_get_spot_cutoff (MashSpotLight *light)
   return light->priv->spot_cutoff;
 }
 
+/**
+ * mash_spot_light_set_spot_exponent
+ * @light: The light to modify
+ * @exponent: The new value
+ *
+ * Sets the spot exponent value on a light. The light intensity is
+ * multiplied by the angle between the light direction and the vector
+ * to the vertex raised to the power of the exponent. A higher
+ * exponent value makes the cone of the light appear smaller.
+ */
 void
 mash_spot_light_set_spot_exponent (MashSpotLight *light,
                                    gfloat exponent)
@@ -295,6 +347,12 @@ mash_spot_light_set_spot_exponent (MashSpotLight *light,
     }
 }
 
+/**
+ * mash_spot_light_get_spot_exponent
+ * @light: The light to query
+ *
+ * Return value: the spot exponent value
+ */
 gfloat
 mash_spot_light_get_spot_exponent (MashSpotLight *light)
 {

@@ -52,13 +52,25 @@ typedef struct _MashDirectionalLight        MashDirectionalLight;
 typedef struct _MashDirectionalLightClass   MashDirectionalLightClass;
 typedef struct _MashDirectionalLightPrivate MashDirectionalLightPrivate;
 
+/**
+ * MashDirectionalLight:
+ *
+ * The #MashDirectionalLight structure contains only private data.
+ */
 struct _MashDirectionalLightClass
 {
+  /*< private >*/
   MashLightClass parent_class;
 };
 
+/**
+ * MashDirectionalLight:
+ *
+ * The #MashDirectionalLight structure contains only private data.
+ */
 struct _MashDirectionalLight
 {
+  /*< private >*/
   MashLight parent;
 
   MashDirectionalLightPrivate *priv;

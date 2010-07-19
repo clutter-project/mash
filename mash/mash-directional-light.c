@@ -16,6 +16,26 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * SECTION:mash-directional-light
+ * @short_description: An light with a direction
+ *
+ * #MashDirectionalLight is the simplest light type implemented in
+ * Mash. It is intended to model a light that has a direction but it
+ * is infinitely far away. This means that the light will always reach
+ * the model regardless of its position. The light does however have a
+ * direction so the light intensity will be altered depending on the
+ * orientation of the vertex. Directional lights are useful for
+ * example to model the light emitted from the sun in an outdoor
+ * scene.
+ *
+ * The actor position of a #MashDirectionalLight is ignored. The
+ * direction of the light is always along the positive y axis (which
+ * is towards the bottom of the stage by default in Clutter). However
+ * the direction of the light is affected by the actor's
+ * transformation so it can be modified using the rotation properties.
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -96,6 +116,13 @@ mash_directional_light_init (MashDirectionalLight *self)
   priv->uniform_locations_dirty = TRUE;
 }
 
+/**
+ * mash_directional_light_new:
+ *
+ * Constructs a new directional light actor.
+ *
+ * Return value: the new light.
+ */
 ClutterActor *
 mash_directional_light_new (void)
 {

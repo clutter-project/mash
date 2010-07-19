@@ -16,6 +16,32 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * SECTION:mash-light
+ * @short_description: An object for the common state of all light types
+ *
+ * #MashLight is the abstract base class of all lights in Mash. It can
+ * not be instantiated directly. Instead one of its subclasses should
+ * be used such as #MashPointLight, #MashSpotLight or
+ * #MashDirectionalLight.
+ *
+ * #MashLight<!-- -->s must be added to a #MashLightBox before they
+ * will have any effect. They will not work from any other kind of
+ * container or even from within a container that is nested in a
+ * #MashLightBox.
+ *
+ * #MashLight contains three light colors that are common to all
+ * three light types that Mash supports. These are ambient, diffuse
+ * and specular. The colors are of the lights are combined with the
+ * corresponding colors of the #CoglMaterial to give a final fragment
+ * color. The material colors can be changed for a #MashModel by
+ * extracting the #CoglMaterial with mash_model_get_material() and
+ * then calling functions such as cogl_material_set_diffuse().
+ *
+ * #MashLight can be subclassed in an application to provide custom
+ * lighting algorithms.
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -256,6 +282,20 @@ mash_light_set_property (GObject *object,
     }
 }
 
+/**
+ * mash_light_set_ambient:
+ * @light: The #MashLight to modify
+ * @ambient: The new color value
+ *
+ * Sets the ‘ambient’ color emitted by the light. If the light reaches
+ * a vertex at all then the ambient color affects the vertex
+ * regardless of its orientation or distance from the light. In
+ * real-world lighting, even if an object isn't in a direct line of
+ * sight to a light it can still be partially lit due to the fact that
+ * light can bounce off other objects to reach it. The Mash lighting
+ * model doesn't simulate this bouncing so the ambient color is often
+ * used to give an approximation of the effect.
+ */
 void
 mash_light_set_ambient (MashLight *light, const ClutterColor *ambient)
 {
@@ -274,6 +314,13 @@ mash_light_set_ambient (MashLight *light, const ClutterColor *ambient)
     }
 }
 
+/**
+ * mash_light_get_ambient:
+ * @light: The #MashLight to query
+ * @ambient: A return location for the color
+ *
+ * Retrieves the ‘ambient’ color emitted by the light.
+ */
 void
 mash_light_get_ambient (MashLight *light, ClutterColor *ambient)
 {
@@ -282,6 +329,17 @@ mash_light_get_ambient (MashLight *light, ClutterColor *ambient)
   *ambient = light->priv->light_colors[MASH_LIGHT_COLOR_AMBIENT];
 }
 
+/**
+ * mash_light_set_diffuse:
+ * @light: The #MashLight to modify
+ * @diffuse: The new color value
+ *
+ * Sets the ‘diffuse’ color emitted by the light. The diffuse color is
+ * only visible on an object if is facing the light. The orientation
+ * of the object is determined per-vertex using the vertex's
+ * normal. The diffuse color will be darkened depending on how
+ * directly the object faces the light.
+ */
 void
 mash_light_set_diffuse (MashLight *light, const ClutterColor *diffuse)
 {
@@ -300,6 +358,13 @@ mash_light_set_diffuse (MashLight *light, const ClutterColor *diffuse)
     }
 }
 
+/**
+ * mash_light_get_diffuse:
+ * @light: The #MashLight to query
+ * @diffuse: A return location for the color
+ *
+ * Retrieves the ‘diffuse’ color emitted by the light.
+ */
 void
 mash_light_get_diffuse (MashLight *light, ClutterColor *diffuse)
 {
@@ -308,6 +373,19 @@ mash_light_get_diffuse (MashLight *light, ClutterColor *diffuse)
   *diffuse = light->priv->light_colors[MASH_LIGHT_COLOR_DIFFUSE];
 }
 
+/**
+ * mash_light_set_specular:
+ * @light: The #MashLight to modify
+ * @specular: The new color value
+ *
+ * Sets the ‘specular’ color emitted by the light. The specular color
+ * is used to add highlights to an object wherever the angle to the
+ * light is close to the angle that the object is being viewed
+ * from. For example, if you were modelling a snooker ball with a
+ * bright light above it, this property will allow you add a bright
+ * part where the light can directly reflect off the ball into the
+ * eye. It is common to set this to a bright white value.
+ */
 void
 mash_light_set_specular (MashLight *light, const ClutterColor *specular)
 {
@@ -326,6 +404,13 @@ mash_light_set_specular (MashLight *light, const ClutterColor *specular)
     }
 }
 
+/**
+ * mash_light_get_specular:
+ * @light: The #MashLight to query
+ * @specular: A return location for the color
+ *
+ * Retrieves the ‘specular’ color emitted by the light.
+ */
 void
 mash_light_get_specular (MashLight *light, ClutterColor *specular)
 {
@@ -334,6 +419,65 @@ mash_light_get_specular (MashLight *light, ClutterColor *specular)
   *specular = light->priv->light_colors[MASH_LIGHT_COLOR_SPECULAR];
 }
 
+/**
+ * mash_light_generate_shader:
+ * @light: A #MashLight
+ * @uniform_source: A location to append uniforms declarations to
+ * @main_source: A location to append lighting algorithm snippets to
+ *
+ * This function is used to generate the shader code required to
+ * implement a paraticular. It would not usually need to be called
+ * from an application. Instead it is called within the paint method
+ * of #MashLightBox.
+ *
+ * This function can be overriden in subclasses of #MashLight to
+ * implement custom lighting algorithms. The function will be called
+ * from within the paint method of #MashLightBox before any children
+ * have been painted whenever it deems that the shader needs to be
+ * regenerated. It currently will do this whenever a light is added or
+ * removed from the box. The implementation should append any GLSL
+ * code to @uniform_source and @main_source needed to implement the
+ * algorithm.
+ *
+ * The implementation should use mash_light_append_shader() to append
+ * code to either of the shader strings so that it can declare
+ * variables that are unique to the indidual actor.
+ *
+ * The code in @uniform_source is inserted at the global level of a
+ * vertex shader. It is expected that the light will add uniform
+ * declarations here. For example, if the light depends on the light's
+ * position it could define a uniform for the position like so:
+ *
+ * |[
+ *   mash_light_append_shader (light, uniform_source,
+ *                             "uniform vec3 position$;\n");
+ * ]|
+ *
+ * The code in @main_source is inserted with the main function of a
+ * vertex shader. The snippet added by a light is expected to modify
+ * the gl_FrontColor attribute according to its algorithm. The snippet
+ * can also use the following variables which will be initialized
+ * before the snippet is run:
+ *
+ * normal: This will be a vec3 which is initialized to the transformed
+ * and normalized vertex normal.
+ *
+ * eye_coord: This will be a vec3 containing the vertex coordinates in
+ * eye-space.
+ *
+ * ambient_light: A vec3 uniform containing the ambient light color.
+ *
+ * diffuse_light: A vec3 uniform containing the diffuse light color.
+ *
+ * specular_light: A vec3 uniform containing the specular light color.
+ *
+ * In addition to these variables the shader can use all of the
+ * built-in GLSL uniforms such al gl_FrontMaterial.diffuse. A good
+ * general book on GLSL will help explain these.
+ *
+ * The implementation should always chain up to the #MashLight
+ * implementation so that it can declare the built-in uniforms.
+ */
 void
 mash_light_generate_shader (MashLight *light,
                             GString *uniform_source,
@@ -346,6 +490,30 @@ mash_light_generate_shader (MashLight *light,
                                                  main_source);
 }
 
+/**
+ * mash_light_update_uniforms:
+ * @light: The #MashLight that needs updating
+ * @program: A #CoglProgram containing the uniforms
+ *
+ * This function is used by #MashLightBox to implement the lights. It
+ * should not need to be called by an application directly.
+ *
+ * This function is virtual and can be overriden by subclasses to
+ * implement custom lighting algorithms. The function is called during
+ * the paint sequence of #MashLightBox on every light before any other
+ * actors are painted. This gives the light implementation a chance to
+ * update any uniforms it may have declared in the override of
+ * mash_light_generate_shader().
+ *
+ * The program is always made current with cogl_program_use() before
+ * this method is called so it is safe to directly call
+ * cogl_program_uniform_1f() and friends to update the uniforms. The
+ * @program handle is passed in so that the program can also be
+ * queried to the locations of named
+ * uniforms. mash_light_get_uniform_location() can be used to make
+ * this easier when a uniform is named uniquely using the ‘$’ symbol
+ * in mash_light_append_shader().
+ */
 void
 mash_light_update_uniforms (MashLight *light, CoglHandle program)
 {
@@ -354,6 +522,33 @@ mash_light_update_uniforms (MashLight *light, CoglHandle program)
   MASH_LIGHT_GET_CLASS (light)->update_uniforms (light, program);
 }
 
+/**
+ * mash_light_append_shader:
+ * @light: The #MashLight which is generating the shader
+ * @shader_source: The string to append to
+ * @snippet: A snippet of GLSL
+ *
+ * This is a convenience intended to be used within
+ * mash_light_generate_shader() to generate shader snippets with
+ * actor-specific variable names. It should not generally need to be
+ * called by an application unless it is implementing its own lighting
+ * algorithms.
+ *
+ * The code in @snippet is appended to @shader_source but all
+ * occurences of the ‘$’ symbol are replaced with a string that is
+ * unique to @light object. This is useful when multiple lights of the
+ * same type are added to a single light box. For example, if a light
+ * needs to have a position uniform it could make a call like the
+ * following:
+ *
+ * |[
+ *   mash_light_append_shader (light, uniform_source,
+ *                             "uniform vec3 position$;\n");
+ * ]|
+ *
+ * The ‘position’ will get translated to something like
+ * ‘positiong00000002’.
+ */
 void
 mash_light_append_shader (MashLight *light,
                           GString *shader_source,
@@ -379,6 +574,22 @@ mash_light_append_shader (MashLight *light,
   g_string_append (shader_source, snippet);
 }
 
+/**
+ * mash_light_get_uniform_location:
+ * @light: The #MashLight which is generating the shader
+ * @program: The program passed in from cogl_program_generate_shader()
+ * @uniform_name: The name of a uniform
+ *
+ * This is a convenience intended to be used within
+ * mash_light_update_uniforms() to help query uniform locations. It
+ * should not generally need to be called by an application unless it
+ * is implementing its own lighting algorithms.
+ *
+ * This is a wrapper around cogl_program_get_uniform_location() which
+ * appends an actor specific string to the uniform name. This is
+ * useful when uniforms have been declared like ‘position$’ within
+ * mash_light_append_shader().
+ */
 int
 mash_light_get_uniform_location (MashLight *light,
                                  CoglHandle program,
@@ -418,6 +629,23 @@ transpose_matrix (const CoglMatrix *matrix,
   cogl_matrix_init_from_array (transpose, matrix_array);
 }
 
+/**
+ * mash_light_set_direction_uniform:
+ * @light: The #MashLight which is generating the shader
+ * @uniform_location: The location of the uniform
+ * @direction_in: The untransformed direction uniform
+ *
+ * This is a convenience intended to be used within
+ * mash_light_update_uniforms() to help set uniforms. It
+ * should not generally need to be called by an application unless it
+ * is implementing its own lighting algorithms.
+ *
+ * This is intended to help when setting a direction
+ * uniform. @direction_in should be an untransformed array of 3 floats
+ * representing a vector. The vector will be transformed into eye
+ * space according to the inverse transposed matrix of @light so that
+ * it won't change direction for non-uniform scaling transformations.
+ */
 void
 mash_light_set_direction_uniform (MashLight *light,
                                   int uniform_location,

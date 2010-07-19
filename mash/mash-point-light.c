@@ -16,6 +16,28 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * SECTION:mash-point-light
+ * @short_description: An actor for a light with a position that emits
+ *   light in all directions.
+ *
+ * A #MashPointLight models a light that has a position and emits
+ * light evenly in all directions. The position of the light is taken
+ * from the actor's position so it can be easily modified and even
+ * animated using the #ClutterActor properties. The intensity of the
+ * light can be attenuated using the attenuation properties to make
+ * objects that are further from the light receive less intensity. The
+ * intensity of the light is divided by ad² + bd + c, where d is the
+ * distance between the light and the vertex and a, b and c are the
+ * following properties which can be modified on the light:
+ * quadratic-attenuation, linear-attenuation and constant-attenuation.
+ *
+ * By default the attenuation values are all zero except for the
+ * constant attenuation. This causes the light to never be attenuated
+ * so that the light intensity is not affected by the distance from
+ * the light.
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -268,6 +290,13 @@ mash_point_light_set_property (GObject *object,
     }
 }
 
+/**
+ * mash_point_light_new:
+ *
+ * Constructs a new #MashPointLight.
+ *
+ * Return value: the new light.
+ */
 ClutterActor *
 mash_point_light_new (void)
 {
@@ -276,6 +305,15 @@ mash_point_light_new (void)
   return self;
 }
 
+/**
+ * mash_point_light_set_constant_attenuation:
+ * @light: The light to modify
+ * @attenuation: The new value
+ *
+ * Sets the constant attenuation value on a light. The light intensity
+ * is divided by this value. Setting a higher value will cause the
+ * light to appear dimmer.
+ */
 void
 mash_point_light_set_constant_attenuation (MashPointLight *light,
                                            gfloat attenuation)
@@ -294,6 +332,12 @@ mash_point_light_set_constant_attenuation (MashPointLight *light,
     }
 }
 
+/**
+ * mash_point_light_get_constant_attenuation:
+ * @light: The light to query
+ *
+ * Return value: the constant light attenuation value.
+ */
 gfloat
 mash_point_light_get_constant_attenuation (MashPointLight *light)
 {
@@ -302,6 +346,16 @@ mash_point_light_get_constant_attenuation (MashPointLight *light)
   return light->priv->attenuation[MASH_POINT_LIGHT_ATTENUATION_CONSTANT];
 }
 
+/**
+ * mash_point_light_set_linear_attenuation:
+ * @light: The light to modify
+ * @attenuation: The new value
+ *
+ * Sets the linear attenuation value on a light. The light intensity
+ * is divided by this value multiplied by the distance to the
+ * light. Setting a higher value will cause the intensity to dim faster
+ * as the vertex moves away from the light.
+ */
 void
 mash_point_light_set_linear_attenuation (MashPointLight *light,
                                          gfloat attenuation)
@@ -320,6 +374,12 @@ mash_point_light_set_linear_attenuation (MashPointLight *light,
     }
 }
 
+/**
+ * mash_point_light_get_linear_attenuation:
+ * @light: The light to query
+ *
+ * Return value: the linear light attenuation value.
+ */
 gfloat
 mash_point_light_get_linear_attenuation (MashPointLight *light)
 {
@@ -328,6 +388,16 @@ mash_point_light_get_linear_attenuation (MashPointLight *light)
   return light->priv->attenuation[MASH_POINT_LIGHT_ATTENUATION_LINEAR];
 }
 
+/**
+ * mash_point_light_set_quadratic_attenuation:
+ * @light: The light to modify
+ * @attenuation: The new value
+ *
+ * Sets the quadratic attenuation value on a light. The light
+ * intensity is divided by this value multiplied by the square of the
+ * distance to the light. Setting a higher value will cause the
+ * intensity to dim sharply as the vertex moves away from the light.
+ */
 void
 mash_point_light_set_quadratic_attenuation (MashPointLight *light,
                                             gfloat attenuation)
@@ -346,6 +416,12 @@ mash_point_light_set_quadratic_attenuation (MashPointLight *light,
     }
 }
 
+/**
+ * mash_point_light_get_quadratic_attenuation:
+ * @light: The light to query
+ *
+ * Return value: the quadratic light attenuation value.
+ */
 gfloat
 mash_point_light_get_quadratic_attenuation (MashPointLight *light)
 {

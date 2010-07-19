@@ -52,13 +52,25 @@ typedef struct _MashSpotLight        MashSpotLight;
 typedef struct _MashSpotLightClass   MashSpotLightClass;
 typedef struct _MashSpotLightPrivate MashSpotLightPrivate;
 
+/**
+ * MashSpotLightClass:
+ *
+ * The #MashSpotLightClass structure contains only private data.
+ */
 struct _MashSpotLightClass
 {
+  /*< private >*/
   MashPointLightClass parent_class;
 };
 
+/**
+ * MashSpotLight:
+ *
+ * The #MashSpotLight structure contains only private data.
+ */
 struct _MashSpotLight
 {
+  /*< private >*/
   MashPointLight parent;
 
   MashSpotLightPrivate *priv;

@@ -44,9 +44,17 @@
   </bookinfo>
 
   <chapter>
-    <title>Core reference</title>
+    <title>Models</title>
     <xi:include href="xml/mash-model.xml"/>
     <xi:include href="xml/mash-data.xml"/>
+  </chapter>
+  <chapter>
+    <title>Lights</title>
+    <xi:include href="xml/mash-light-box.xml"/>
+    <xi:include href="xml/mash-light.xml"/>
+    <xi:include href="xml/mash-directional-light.xml"/>
+    <xi:include href="xml/mash-point-light.xml"/>
+    <xi:include href="xml/mash-spot-light.xml"/>
   </chapter>
   <chapter id="object-tree">
     <title>Object Hierarchy</title>

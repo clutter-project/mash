@@ -44,7 +44,117 @@ mash_model_get_type
 MASH_MODEL_CLASS
 MASH_IS_MODEL_CLASS
 MASH_MODEL_GET_CLASS
-
 <SUBSECTION Private>
 MashModelPrivate
+</SECTION>
+
+<SECTION>
+<FILE>mash-light-box</FILE>
+<TITLE>MashLightBox</TITLE>
+MashLightBox
+MashLightBoxClass
+mash_light_box_new
+<SUBSECTION Standard>
+MASH_LIGHT_BOX
+MASH_IS_LIGHT_BOX
+MASH_TYPE_LIGHT_BOX
+mash_light_box_get_type
+MASH_LIGHT_BOX_CLASS
+MASH_IS_LIGHT_BOX_CLASS
+MASH_LIGHT_BOX_GET_CLASS
+<SUBSECTION Private>
+MashLightBoxPrivate
+</SECTION>
+
+<SECTION>
+<FILE>mash-light</FILE>
+<TITLE>MashLight</TITLE>
+MashLight
+MashLightClass
+mash_light_set_ambient
+mash_light_get_ambient
+mash_light_set_diffuse
+mash_light_get_diffuse
+mash_light_set_specular
+mash_light_get_specular
+<SUBSECTION>
+mash_light_generate_shader
+mash_light_update_uniforms
+mash_light_append_shader
+mash_light_get_uniform_location
+mash_light_set_direction_uniform
+<SUBSECTION Standard>
+MASH_LIGHT
+MASH_IS_LIGHT
+MASH_TYPE_LIGHT
+mash_light_get_type
+MASH_LIGHT_CLASS
+MASH_IS_LIGHT_CLASS
+MASH_LIGHT_GET_CLASS
+<SUBSECTION Private>
+MashLightPrivate
+</SECTION>
+
+<SECTION>
+<FILE>mash-directional-light</FILE>
+<TITLE>MashDirectionalLight</TITLE>
+MashDirectionalLight
+MashDirectionalLightClass
+mash_directional_light_new
+<SUBSECTION Standard>
+MASH_DIRECTIONAL_LIGHT
+MASH_IS_DIRECTIONAL_LIGHT
+MASH_TYPE_DIRECTIONAL_LIGHT
+mash_directional_light_get_type
+MASH_DIRECTIONAL_LIGHT_CLASS
+MASH_IS_DIRECTIONAL_LIGHT_CLASS
+MASH_DIRECTIONAL_LIGHT_GET_CLASS
+<SUBSECTION Private>
+MashDirectionalLightPrivate
+</SECTION>
+
+<SECTION>
+<FILE>mash-point-light</FILE>
+<TITLE>MashPointLight</TITLE>
+MashPointLight
+MashPointLightClass
+mash_point_light_new
+mash_point_light_set_constant_attenuation
+mash_point_light_get_constant_attenuation
+mash_point_light_set_linear_attenuation
+mash_point_light_get_linear_attenuation
+mash_point_light_set_quadratic_attenuation
+mash_point_light_get_quadratic_attenuation
+<SUBSECTION Standard>
+MASH_POINT_LIGHT
+MASH_IS_POINT_LIGHT
+MASH_TYPE_POINT_LIGHT
+mash_point_light_get_type
+MASH_POINT_LIGHT_CLASS
+MASH_IS_POINT_LIGHT_CLASS
+MASH_POINT_LIGHT_GET_CLASS
+<SUBSECTION Private>
+MashPointLightPrivate
+</SECTION>
+
+<SECTION>
+<FILE>mash-spot-light</FILE>
+<TITLE>MashSpotLight</TITLE>
+MashSpotLight
+MashSpotLightClass
+mash_spot_light_new
+mash_spot_light_set_spot_cutoff
+mash_spot_light_get_spot_cutoff
+mash_spot_light_set_spot_exponent
+mash_spot_light_get_spot_exponent
+<SUBSECTION Standard>
+MASH_SPOT_LIGHT
+MASH_IS_SPOT_LIGHT
+MASH_TYPE_SPOT_LIGHT
+mash_spot_light_get_type
+MASH_SPOT_LIGHT_CLASS
+MASH_IS_SPOT_LIGHT_CLASS
+MASH_SPOT_LIGHT_GET_CLASS
+<SUBSECTION Private>
+MashSpotLightPrivate
 </SECTION>

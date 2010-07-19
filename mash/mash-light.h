@@ -52,10 +52,17 @@ typedef struct _MashLight        MashLight;
 typedef struct _MashLightClass   MashLightClass;
 typedef struct _MashLightPrivate MashLightPrivate;
 
+/**
+ * MashLightClass:
+ * @generate_shader: Virtual used for creating custom light types
+ * @update_uniforms: Virtual used for creating custom light types
+ */
 struct _MashLightClass
 {
+  /*< private >*/
   ClutterActorClass parent_class;
 
+  /*< public >*/
   void (* generate_shader) (MashLight *light,
                             GString *uniform_source,
                             GString *main_source);
@@ -63,8 +70,14 @@ struct _MashLightClass
                             CoglHandle program);
 };
 
+/**
+ * MashLight:
+ *
+ * The #MashLight structure contains only private data.
+ */
 struct _MashLight
 {
+  /*< private >*/
   ClutterActor parent;
 
   MashLightPrivate *priv;
@@ -96,7 +109,7 @@ void mash_light_append_shader (MashLight *light,
 
 void mash_light_set_direction_uniform (MashLight *light,
                                        int uniform_location,
-                                       const float *direction);
+                                       const float *direction_in);
 
 G_END_DECLS
 

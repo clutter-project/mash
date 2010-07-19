@@ -52,13 +52,25 @@ typedef struct _MashLightBox        MashLightBox;
 typedef struct _MashLightBoxClass   MashLightBoxClass;
 typedef struct _MashLightBoxPrivate MashLightBoxPrivate;
 
+/**
+ * MashLightBoxClass:
+ *
+ * The #MashLightBoxClass structure contains only private data.
+ */
 struct _MashLightBoxClass
 {
+  /*< private >*/
   ClutterBoxClass parent_class;
 };
 
+/**
+ * MashLightBox:
+ *
+ * The #MashLightBox structure contains only private data.
+ */
 struct _MashLightBox
 {
+  /*< private >*/
   ClutterBox parent;
 
   MashLightBoxPrivate *priv;
@@ -66,7 +78,7 @@ struct _MashLightBox
 
 GType mash_light_box_get_type (void) G_GNUC_CONST;
 
-ClutterActor *mash_light_box_new (ClutterLayoutManager *manager);
+ClutterActor *mash_light_box_new (ClutterLayoutManager *layout_manager);
 
 G_END_DECLS
 

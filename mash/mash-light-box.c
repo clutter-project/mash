@@ -16,6 +16,40 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * SECTION:mash-light-box
+ * @short_description: A container which enables lighting on its children.
+ *
+ * #MashLightBox is a subclass of #ClutterBox with the special
+ * property that it will apply a lighting model to all of its
+ * children. The intention is that the children will be #MashModel<!--
+ * -->s but it can apply the lighting to any actors. All of the
+ * builtin light types depend on a ‘normal’ attribute being defined on
+ * each vertex of the children so it would only make sense to use
+ * these with #MashModel<!-- -->s containing normals.
+ *
+ * The box implements the Blinn-Phong lighting model which is the
+ * standard model used in fixed function version of OpenGL and
+ * Direct3D. The lighting calculations are performed per-vertex and
+ * then interpolated across the surface of the primitives.
+ *
+ * Lights are positioned within the light box by adding #MashLight<!--
+ * -->s to the container. The lights must be direct children of the
+ * box to work (ie, they can be within another container in the
+ * box). The lights are subclasses of #ClutterActor so they can be
+ * positioned and animated using the usual Clutter animation
+ * framework.
+ *
+ * The lighting implementation requires GLSL support from Clutter. If
+ * the application can still work without lighting it would be worth
+ * checking for shader support by passing %COGL_FEATURE.
+ *
+ * It should be possible to extend the lighting model and implement
+ * application-specific lighting algorithms by subclassing #MashLight
+ * and adding shader snippets by overriding
+ * mash_light_generate_shader().
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -95,6 +129,24 @@ mash_light_box_finalize (GObject *object)
   G_OBJECT_CLASS (mash_light_box_parent_class)->finalize (object);
 }
 
+/**
+ * mash_light_box_new:
+ * @layout_manager: A #ClutterLayoutManager subclass
+ *
+ * Constructs a new #MashLightBox. A layout manager must be specified
+ * with @layout_manager. To get similar fixed positioning semantics as
+ * #ClutterGroup, a #ClutterFixedLayout instance could be used like
+ * so:
+ *
+ * |[
+ *   ClutterActor *box = mash_light_box_new (clutter_fixed_layout_new ());
+ * ]|
+ *
+ * For details of other layouts that can be used, see
+ * clutter_box_new().
+ *
+ * Return value: a new #MashLightBox.
+ */
 ClutterActor *
 mash_light_box_new (ClutterLayoutManager *layout_manager)
 {

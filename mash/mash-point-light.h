@@ -52,13 +52,25 @@ typedef struct _MashPointLight        MashPointLight;
 typedef struct _MashPointLightClass   MashPointLightClass;
 typedef struct _MashPointLightPrivate MashPointLightPrivate;
 
+/**
+ * MashPointLightClass:
+ *
+ * The #MashPointLightClass structure contains only private data.
+ */
 struct _MashPointLightClass
 {
+  /*< private >*/
   MashLightClass parent_class;
 };
 
+/**
+ * MashPointLight:
+ *
+ * The #MashLightClass structure contains only private data.
+ */
 struct _MashPointLight
 {
+  /*< private >*/
   MashLight parent;
 
   MashPointLightPrivate *priv;
@@ -69,15 +81,15 @@ GType mash_point_light_get_type (void) G_GNUC_CONST;
 ClutterActor *mash_point_light_new (void);
 
 void mash_point_light_set_constant_attenuation (MashPointLight *light,
-                                                gfloat value);
+                                                gfloat attenuation);
 gfloat mash_point_light_get_constant_attenuation (MashPointLight *light);
 
 void mash_point_light_set_linear_attenuation (MashPointLight *light,
-                                              gfloat value);
+                                              gfloat attenuation);
 gfloat mash_point_light_get_linear_attenuation (MashPointLight *light);
 
 void mash_point_light_set_quadratic_attenuation (MashPointLight *light,
-                                                 gfloat value);
+                                                 gfloat attenuation);
 gfloat mash_point_light_get_quadratic_attenuation (MashPointLight *light);
 
 G_END_DECLS
