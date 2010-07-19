@@ -42,7 +42,8 @@
  *
  * The lighting implementation requires GLSL support from Clutter. If
  * the application can still work without lighting it would be worth
- * checking for shader support by passing %COGL_FEATURE.
+ * checking for shader support by passing %COGL_FEATURE_SHADERS_GLSL
+ * to cogl_features_available().
  *
  * It should be possible to extend the lighting model and implement
  * application-specific lighting algorithms by subclassing #MashLight
