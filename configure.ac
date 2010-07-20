@@ -60,6 +60,11 @@ AC_SUBST(MASH_LT_CURRENT)
 AC_SUBST(MASH_LT_REVISION)
 AC_SUBST(MASH_LT_AGE)
 
+dnl Check if we need to link to -lm
+AC_SEARCH_LIBS([atan2f], [m], [have_atan2f=yes], [have_atan2f=no])
+AS_IF([test "x$have_atan2f" = "xno"],
+      AC_MSG_ERROR([Could not find math library]))
+
 PKG_PROG_PKG_CONFIG
 
 PKG_CHECK_MODULES(GLIB, [glib-2.0 >= 2.16 gobject-2.0 >= 2.16])
