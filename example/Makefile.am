@@ -13,7 +13,7 @@ viewer_SOURCES = \
 
 viewer_LDADD = \
 	@CLUTTER_LIBS@ \
-	$(top_builddir)/mash/libmash.la
+	$(top_builddir)/mash/libmash-@MASH_API_VERSION@.la
 
 if HAVE_MX
 
@@ -28,7 +28,7 @@ lights_SOURCES = \
 lights_LDADD = \
 	@CLUTTER_LIBS@ \
 	@MX_LIBS@ \
-	$(top_builddir)/mash/libmash.la
+	$(top_builddir)/mash/libmash-@MASH_API_VERSION@.la
 
 endif # HAVE_MX
 

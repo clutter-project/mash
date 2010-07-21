@@ -2,14 +2,14 @@
 /Makefile.in
 /aclocal.m4
 /autom4te.cache
-/mash.pc
+/mash-*.pc
 /mash/Makefile
 /mash/Makefile.in
 /mash/rply/Makefile
 /mash/rply/Makefile.in
 /mash/rply/convert
-/mash/ClutterPly.gir
-/mash/ClutterPly.typelib
+/mash/Mash-*.gir
+/mash/Mash-*.typelib
 /mash/mash-enum-types.[ch]
 /mash/stamp-enum-types
 /docs/Makefile

@@ -1,6 +1,6 @@
 SUBDIRS = rply
 
-lib_LTLIBRARIES = libmash.la
+lib_LTLIBRARIES = libmash-@MASH_API_VERSION@.la
 
 INCLUDES = \
 	-I$(top_srcdir)
@@ -27,7 +27,7 @@ built_source_h = \
 built_source_c = \
 	$(builddir)/mash-enum-types.c
 
-libmash_la_SOURCES = \
+libmash_@MASH_API_VERSION@_la_SOURCES = \
 	$(source_h) \
 	$(srcdir)/mash-data.c \
 	$(srcdir)/mash-model.c \
@@ -37,11 +37,11 @@ libmash_la_SOURCES = \
 	$(srcdir)/mash-spot-light.c \
 	$(srcdir)/mash-point-light.c
 
-nodist_libmash_la_SOURCES = \
+nodist_libmash_@MASH_API_VERSION@_la_SOURCES = \
 	$(built_source_h) \
 	$(built_source_c)
 
-mashdir = $(includedir)/mash
+mashdir = $(includedir)/mash-@MASH_API_VERSION@/mash
 
 mash_HEADERS = \
 	$(source_h)
@@ -49,7 +49,10 @@ mash_HEADERS = \
 nodist_mash_HEADERS = \
 	$(built_source_h)
 
-libmash_la_LIBADD = \
+libmash_@MASH_API_VERSION@_la_LDFLAGS = \
+	-version-info "@MASH_LT_CURRENT@:@MASH_LT_REVISION@:@MASH_LT_AGE@"
+
+libmash_@MASH_API_VERSION@_la_LIBADD = \
 	@CLUTTER_LIBS@ \
 	rply/librply.la
 
@@ -59,20 +62,20 @@ BUILT_GIRSOURCES =
 
 if HAVE_INTROSPECTION
 
-ClutterPly.gir: $(INTROSPECTION_SCANNER) libmash.la
+Mash-@MASH_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libmash-@MASH_API_VERSION@.la
 	$(QUIET_GEN)$(INTROSPECTION_SCANNER) -v \
-		--namespace ClutterPly --nsversion=0.1 \
+		--namespace Mash \
+		--nsversion=@MASH_API_VERSION@ \
 		$(INCLUDES) \
 		$(AM_CPPFLAGS) \
-		--add-include-path=cogl/cogl \
 		$(json_gir_include_path) \
 		--c-include='mash/mash.h' \
 		--include=Clutter-1.0 \
 		--output $@ \
-		--library=libmash.la \
-		$(libmash_la_SOURCES)
+		--library=libmash-@MASH_API_VERSION@.la \
+		$(libmash_@MASH_API_VERSION@_la_SOURCES)
 
-BUILT_GIRSOURCES += ClutterPly.gir
+BUILT_GIRSOURCES += Mash-@MASH_API_VERSION@.gir
 
 # INTROSPECTION_GIRDIR/INTROSPECTION_TYPELIBDIR aren't the right place to
 # install anything - we need to install inside our prefix.
@@ -83,7 +86,7 @@ typelibsdir = $(libdir)/girepository-1.0/
 
 typelibs_DATA = $(BUILT_GIRSOURCES:.gir=.typelib)
 
-%.typelib: %.gir $(INTROSPECTION_COMPILER)
+.gir.typelib : %.typelib: $(INTROSPECTION_COMPILER)
 	$(QUIET_GEN) \
 	LD_LIBRARY_PATH=.libs$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH} \
 	$(INTROSPECTION_COMPILER) \

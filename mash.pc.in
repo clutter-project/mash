@@ -6,7 +6,7 @@ requires=clutter-1.0
 
 Name: Mash
 Description: A library for adding PLY files to a Clutter scene
-Version: @VERSION@
-Libs: -L${libdir} -lmash
-Cflags: -I${includedir}
+Version: @MASH_VERSION@
+Libs: -L${libdir} -lmash-@MASH_API_VERSION@
+Cflags: -I${includedir}/mash-@MASH_API_VERSION@
 Requires: ${requires}
