@@ -103,7 +103,11 @@ mash_spot_light_shader[] =
   "  light_vec$ /= d$;\n"
   /* Check if the point on the surface is inside the cone of
      illumination */
-  "  float spot_cos$ = dot (-light_vec$, spot_direction$);\n"
+  /* FIXME: This is doing light_vec$ * -1.0 instead of using unary
+     negation (-light_vec$) because the latter appears to trigger a
+     bug in Mesa:
+     https://bugs.freedesktop.org/show_bug.cgi?id=29199 */
+  "  float spot_cos$ = dot (light_vec$ * -1.0, spot_direction$);\n"
   "  if (spot_cos$ > spot_cos_cutoff$)\n"
   "    {\n"
   /* Add the ambient light term */
