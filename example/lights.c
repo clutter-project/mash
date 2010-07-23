@@ -517,10 +517,23 @@ main (int argc, char **argv)
     ClutterActor *button;
     ClutterActor *table;
     CoglHandle material;
+    float maximum_shininess;
 
     material = mash_model_get_material (MASH_MODEL (data.model));
 
-    cogl_material_set_shininess (material, 1.0f);
+    /* Before version 1.3.10 on the 1.3 branch and 1.2.14 on the 1.2
+       branch Cogl would remap the shininess property to the range
+       [0,1]. After this it is just a value greater or equal to zero
+       (but GL imposes a limit of 128.0) */
+    if (clutter_check_version (1, 3, 9)
+        || (clutter_major_version == 1
+            && clutter_minor_version == 2
+            && clutter_micro_version >= 13))
+      maximum_shininess = 128.0f;
+    else
+      maximum_shininess = 1.0f;
+
+    cogl_material_set_shininess (material, maximum_shininess);
 
     button = mx_button_new_with_label ("Material");
     data.notebook_buttons[i] = button;
@@ -539,7 +552,7 @@ main (int argc, char **argv)
                              cogl_material_set_specular,
                              cogl_material_get_specular);
     add_material_float_prop (table, "shininess", material,
-                             0.0f, 1.0f,
+                             0.0f, maximum_shininess,
                              cogl_material_set_shininess,
                              cogl_material_get_shininess);
   }
