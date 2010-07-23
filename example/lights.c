@@ -5,15 +5,29 @@
 #define N_LIGHTS 3
 #define N_PAGES (N_LIGHTS + 1)
 
-typedef void (* MaterialColorSetFunc) (CoglHandle material,
+/* Since version 1.3.8 of Clutter, Cogl has started using
+   CoglMaterial* instead of CoglHandle to point to materials. This
+   doesn't usually cause any problems because CoglHandle is typedef'd
+   to a gpointer so it gets silently cast to and from
+   CoglMaterial*. However in this case we are using a function pointer
+   with CoglHandle as one of the arguments so GCC will give a warning
+   that the function doesn't match the typedef */
+
+#if CLUTTER_CHECK_VERSION (1, 3, 8)
+typedef CoglMaterial *MaterialType;
+#else
+typedef CoglHandle MaterialType;
+#endif
+
+typedef void (* MaterialColorSetFunc) (MaterialType material,
                                        const CoglColor *color);
 
-typedef void (* MaterialColorGetFunc) (CoglHandle material,
+typedef void (* MaterialColorGetFunc) (MaterialType material,
                                        CoglColor *color);
 
-typedef void (* MaterialFloatSetFunc) (CoglHandle material, float value);
+typedef void (* MaterialFloatSetFunc) (MaterialType material, float value);
 
-typedef float (* MaterialFloatGetFunc) (CoglHandle material);
+typedef float (* MaterialFloatGetFunc) (MaterialType material);
 
 typedef struct
 {
