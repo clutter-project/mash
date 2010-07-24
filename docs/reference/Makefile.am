@@ -56,6 +56,7 @@ EXTRA_HFILES=
 # Header files to ignore when scanning. Use base file name, no paths
 # e.g. IGNORE_HFILES=gtkdebug.h gtkintl.h
 IGNORE_HFILES= \
+	mash-enum-types.h \
 	rply
 
 # Images to copy into HTML directory.
