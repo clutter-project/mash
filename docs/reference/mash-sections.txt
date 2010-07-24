@@ -5,6 +5,7 @@ MASH_DATA_ERROR
 MashData
 MashDataClass
 MashDataError
+MashDataFlags
 mash_data_new
 mash_data_load
 mash_data_render

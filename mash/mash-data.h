@@ -106,11 +106,47 @@ typedef enum
     MASH_DATA_ERROR_UNSUPPORTED
   } MashDataError;
 
+/**
+ * MashDataFlags:
+ * @MASH_DATA_NONE: No flags
+ * @MASH_DATA_NEGATE_X: Negate the X axis
+ * @MASH_DATA_NEGATE_Y: Negate the Y axis
+ * @MASH_DATA_NEGATE_Z: Negate the Z axis
+ *
+ * Flags used for modifying the data as it is loaded. These can be
+ * passed to mash_data_load().
+ *
+ * If any of the negate flags are set then they cause the vertex and
+ * normal coordinates for the specified axis to be negated. This could
+ * be useful when loading a model from a tool which uses a different
+ * coordinate system than the one used in your application. For
+ * example, in Blender if the view is rotated such that the x-axis is
+ * pointing to the right, and the z-axis is pointing out of the screen
+ * then y-axis would be pointing directly up. However in Clutter the
+ * default transformation is set up such that the y-axis would be
+ * pointing down. Therefore if a model is loaded from Blender it would
+ * appear upside-down. Also all of the front faces would be in
+ * clockwise order. If backface culling is then enabled then the wrong
+ * faces would be culled with the default Cogl settings.
+ *
+ * To avoid these issues when exporting from Blender it is common to
+ * pass the %MASH_DATA_NEGATE_Y flag.
+ */
+/* The flip flags must be in sequential order */
+typedef enum
+  {
+    MASH_DATA_NONE = 0,
+    MASH_DATA_NEGATE_X = 1,
+    MASH_DATA_NEGATE_Y = 2,
+    MASH_DATA_NEGATE_Z = 4
+  } MashDataFlags;
+
 GType mash_data_get_type (void) G_GNUC_CONST;
 
 MashData *mash_data_new (void);
 
 gboolean mash_data_load (MashData *self,
+                         MashDataFlags flags,
                          const gchar *filename,
                          GError **error);
 

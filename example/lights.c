@@ -412,7 +412,8 @@ main (int argc, char **argv)
 
   mx_table_add_actor (MX_TABLE (side_box), data.notebook, 1, 0);
 
-  data.model = mash_model_new_from_file (argc > 1
+  data.model = mash_model_new_from_file (MASH_DATA_NONE,
+                                         argc > 1
                                          ? argv[1]
                                          : "TheMonkey.ply",
                                          &error);

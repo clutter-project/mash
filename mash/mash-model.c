@@ -223,6 +223,7 @@ mash_model_new (void)
 
 /**
  * mash_model_new_from_file:
+ * @flags: Flags for loading the data.
  * @filename: The name of a PLY file to load.
  * @error: Return location for a #GError or %NULL.
  *
@@ -237,13 +238,14 @@ mash_model_new (void)
  * Return value: a new #MashModel or %NULL if the load failed.
  */
 ClutterActor *
-mash_model_new_from_file (const gchar *filename,
+mash_model_new_from_file (MashDataFlags flags,
+                          const gchar *filename,
                           GError **error)
 {
   MashData *data = mash_data_new ();
   ClutterActor *model = NULL;
 
-  if (mash_data_load (data, filename, error))
+  if (mash_data_load (data, flags, filename, error))
     {
       model = mash_model_new ();
       mash_model_set_data (MASH_MODEL (model), data);

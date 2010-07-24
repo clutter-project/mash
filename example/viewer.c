@@ -37,7 +37,7 @@ main (int argc, char **argv)
 
   stage = clutter_stage_get_default ();
 
-  if ((model = mash_model_new_from_file (argv[1], &error))
+  if ((model = mash_model_new_from_file (MASH_DATA_NONE, argv[1], &error))
       == NULL)
     {
       g_warning ("%s", error->message);

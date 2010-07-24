@@ -96,6 +96,7 @@ struct _MashDataLoadData
   GByteArray *vertices;
   GArray *faces;
   CoglIndicesType indices_type;
+  MashDataFlags flags;
 
   /* Bounding cuboid of the data */
   ClutterVertex min_vertex, max_vertex;
@@ -232,6 +233,26 @@ mash_data_vertex_read_cb (p_ply_argument argument)
   if (data->got_props == data->available_props)
     {
       int i;
+
+      /* Flip any axes that have been specified in the MashDataFlags */
+      if ((data->available_props & MASH_DATA_VERTEX_PROPS)
+          == MASH_DATA_VERTEX_PROPS)
+        for (i = 0; i < 3; i++)
+          if ((data->flags & (MASH_DATA_NEGATE_X << i)))
+            {
+              gfloat *pos = (gfloat *) (data->current_vertex
+                                        + data->prop_map[i]);
+              *pos = -*pos;
+            }
+      if ((data->available_props & MASH_DATA_NORMAL_PROPS)
+          == MASH_DATA_NORMAL_PROPS)
+        for (i = 0; i < 3; i++)
+          if ((data->flags & (MASH_DATA_NEGATE_X << i)))
+            {
+              gfloat *pos = (gfloat *) (data->current_vertex
+                                        + data->prop_map[i + 3]);
+              *pos = -*pos;
+            }
 
       g_byte_array_append (data->vertices, data->current_vertex,
                            data->n_vertex_bytes);
@@ -380,6 +401,7 @@ mash_data_face_read_cb (p_ply_argument argument)
 /**
  * mash_data_load:
  * @self: The #MashData instance
+ * @flags: Flags used to specify load-time modifications to the data
  * @filename: The name of a PLY file to load
  * @error: Return location for an error or %NULL
  *
@@ -392,6 +414,7 @@ mash_data_face_read_cb (p_ply_argument argument)
  */
 gboolean
 mash_data_load (MashData *self,
+                MashDataFlags flags,
                 const gchar *filename,
                 GError **error)
 {
@@ -419,6 +442,7 @@ mash_data_load (MashData *self,
   data.max_vertex.z = -G_MAXFLOAT;
   data.min_index = G_MAXUINT;
   data.max_index = 0;
+  data.flags = flags;
 
   display_name = g_filename_display_name (filename);
 

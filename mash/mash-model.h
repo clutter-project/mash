@@ -82,7 +82,8 @@ GType mash_model_get_type (void) G_GNUC_CONST;
 
 ClutterActor *mash_model_new (void);
 
-ClutterActor *mash_model_new_from_file (const gchar *filename,
+ClutterActor *mash_model_new_from_file (MashDataFlags flags,
+                                        const gchar *filename,
                                         GError **error);
 
 CoglHandle mash_model_get_material (MashModel *self);
