@@ -255,9 +255,14 @@ mash_light_box_get_program (MashLightBox *light_box)
       g_string_append_len (data.uniform_source,
                            data.main_source->str,
                            data.main_source->len);
-      /* Perform the standard vertex transformation */
+      /* Perform the standard vertex transformation and copy the
+         texture coordinates. FIXME: This is limited to CoglMaterials
+         that only have one layer. Hopefully this could be fixed when
+         Cogl has a way to insert shader snippets rather than having
+         to replace the whole pipeline. */
       g_string_append (data.uniform_source,
                        "  gl_Position = ftransform ();\n"
+                       "  gl_TexCoord[0] = gl_MultiTexCoord0;\n"
                        "}\n");
 
       full_source = g_string_free (data.uniform_source, FALSE);
