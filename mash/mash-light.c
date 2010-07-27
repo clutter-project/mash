@@ -577,7 +577,7 @@ mash_light_append_shader (MashLight *light,
 /**
  * mash_light_get_uniform_location:
  * @light: The #MashLight which is generating the shader
- * @program: The program passed in from cogl_program_generate_shader()
+ * @program: The program passed in from mash_light_update_uniforms().
  * @uniform_name: The name of a uniform
  *
  * This is a convenience intended to be used within
