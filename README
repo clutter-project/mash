@@ -1,7 +1,10 @@
 Mash - README
 ===============================================================================
 
-Mash is small library for using real 3D models within a Clutter scene.
+Mash is a small library for using real 3D models within a Clutter
+scene. Models can be exported from Blender or other 3D modelling
+software as PLY files and then used as actors. It also supports a
+lighting model with animatable lights.
 
 REQUIREMENTS
 -------------------------------------------------------------------------------
@@ -20,15 +23,15 @@ RESOURCES
 
 The official Mash website is:
 
-   http://www.clutter-project.org/mash/
+   http://wiki.clutter-project.org/wiki/Mash
 
 The API reference for the latest stable release is available at:
 
-   http://docs.clutter-project.org/mash/docs/
+   http://docs.clutter-project.org/docs/mash/
 
 New releases of Mash are available at:
 
-   http://source.clutter-project.org/mash/sources/
+   http://source.clutter-project.org/sources/mash/
 
 New bug page on Bugzilla:
 
