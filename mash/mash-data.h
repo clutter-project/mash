@@ -85,13 +85,13 @@ struct _MashData
 
 /**
  * MashDataError:
- * @MASH_DATA_ERROR_PLY: The underlying PLY library reported an
- *  error.
+ * @MASH_DATA_ERROR_UNKNOWN_FORMAT: The file has an unknown format.
+ * @MASH_DATA_ERROR_UNKNOWN: The underlying library reported an error.
  * @MASH_DATA_ERROR_MISSING_PROPERTY: A property that is needed
  *  by #MashData is not present in the file. For example, this
  *  will happen if the file does not contain the x, y and z properties.
- * @MASH_DATA_ERROR_INVALID: The PLY file is not valid.
- * @MASH_DATA_ERROR_UNSUPPORTED: The PLY file is not supported
+ * @MASH_DATA_ERROR_INVALID: The file is not valid.
+ * @MASH_DATA_ERROR_UNSUPPORTED: The file is not supported
  *  by your GL driver. This will happen if your driver can't support
  *  GL_UNSIGNED_INT indices but the model has more than 65,536
  *  vertices.
@@ -100,7 +100,8 @@ struct _MashData
  */
 typedef enum
   {
-    MASH_DATA_ERROR_PLY,
+    MASH_DATA_ERROR_UNKNOWN_FORMAT,
+    MASH_DATA_ERROR_UNKNOWN,
     MASH_DATA_ERROR_MISSING_PROPERTY,
     MASH_DATA_ERROR_INVALID,
     MASH_DATA_ERROR_UNSUPPORTED

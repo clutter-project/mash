@@ -9,9 +9,15 @@ AM_CPPFLAGS = \
 	-DMASH_COMPILATION=1 \
 	@CLUTTER_CFLAGS@
 
-enum_h = $(srcdir)/mash-data.h
+enum_h = \
+	$(srcdir)/mash-data.h
 
-source_h = \
+private_h = \
+	$(srcdir)/mash-data-loaders.h \
+	$(srcdir)/mash-data-loader.h \
+	$(srcdir)/mash-ply-loader.h
+
+public_h = \
 	$(enum_h) \
 	$(srcdir)/mash.h \
 	$(srcdir)/mash-model.h \
@@ -21,15 +27,24 @@ source_h = \
 	$(srcdir)/mash-spot-light.h \
 	$(srcdir)/mash-point-light.h
 
+source_h = \
+	$(public_h) \
+	$(private_h)
+
 built_source_h = \
 	$(builddir)/mash-enum-types.h
 
 built_source_c = \
 	$(builddir)/mash-enum-types.c
 
+loaders_c = \
+	$(srcdir)/mash-ply-loader.c
+
 libmash_@MASH_API_VERSION@_la_SOURCES = \
 	$(source_h) \
+	$(loaders_c) \
 	$(srcdir)/mash-data.c \
+	$(srcdir)/mash-data-loader.c \
 	$(srcdir)/mash-model.c \
 	$(srcdir)/mash-light-box.c \
 	$(srcdir)/mash-light.c \
@@ -44,7 +59,7 @@ nodist_libmash_@MASH_API_VERSION@_la_SOURCES = \
 mashdir = $(includedir)/mash-@MASH_API_VERSION@/mash
 
 mash_HEADERS = \
-	$(source_h)
+	$(public_h)
 
 nodist_mash_HEADERS = \
 	$(built_source_h)
