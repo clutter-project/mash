@@ -415,7 +415,7 @@ main (int argc, char **argv)
   data.model = mash_model_new_from_file (MASH_DATA_NONE,
                                          argc > 1
                                          ? argv[1]
-                                         : "TheMonkey.ply",
+                                         : "suzanne.ply",
                                          &error);
   if (data.model == NULL)
     {

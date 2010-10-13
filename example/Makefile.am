@@ -32,4 +32,4 @@ lights_LDADD = \
 
 endif # HAVE_MX
 
-EXTRA_DIST = TheMonkey.ply
+EXTRA_DIST = suzanne.ply
