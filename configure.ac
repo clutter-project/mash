@@ -68,7 +68,7 @@ AS_IF([test "x$have_atan2f" = "xno"],
 PKG_PROG_PKG_CONFIG
 
 PKG_CHECK_MODULES(GLIB, [glib-2.0 >= 2.16 gobject-2.0 >= 2.16])
-PKG_CHECK_MODULES(CLUTTER, [clutter-1.0 >= 1.2])
+PKG_CHECK_MODULES(CLUTTER, [clutter-1.0 >= 1.5.10])
 
 dnl Optionally depend on Mx just for the test-lights example
 PKG_CHECK_MODULES(MX, [mx-1.0 >= 1.1.0], [have_mx=yes], [have_mx=no])
