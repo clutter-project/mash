@@ -179,6 +179,7 @@ mash_directional_light_update_uniforms (MashLight *light,
      allocation */
 
   mash_light_set_direction_uniform (light,
+                                    program,
                                     priv->light_direction_uniform_location,
                                     light_direction);
 }

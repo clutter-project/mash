@@ -461,8 +461,6 @@ mash_point_light_update_uniforms (MashLight *light,
   MashPointLightPrivate *priv = plight->priv;
   gfloat light_eye_coord[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
   CoglMatrix matrix;
-  CoglMatrix parent_matrix;
-  CoglMatrix light_matrix;
 
   MASH_LIGHT_CLASS (mash_point_light_parent_class)
     ->update_uniforms (light, program);
@@ -478,9 +476,10 @@ mash_point_light_update_uniforms (MashLight *light,
 
   if (priv->attenuation_dirty)
     {
-      cogl_program_uniform_float (priv->attenuation_uniform_location,
-                                  3, 1,
-                                  priv->attenuation);
+      cogl_program_set_uniform_float (program,
+                                      priv->attenuation_uniform_location,
+                                      3, 1,
+                                      priv->attenuation);
       priv->attenuation_dirty = FALSE;
     }
 
@@ -489,18 +488,8 @@ mash_point_light_update_uniforms (MashLight *light,
      coordinates. Any transformations in the parent hierarchy could
      cause the position to change without affecting the allocation */
 
-  /* The update uniforms method is always called from the paint method
-     of the parent container so we know that the current cogl
-     modelview matrix contains the parent's transformation. Therefore
-     to get a transformation for the light position we just need apply
-     the actor's transform on top of that */
-  cogl_matrix_init_identity (&light_matrix);
-  clutter_actor_get_transformation_matrix (CLUTTER_ACTOR (light),
-                                           &light_matrix);
-
-  cogl_get_modelview_matrix (&parent_matrix);
-
-  cogl_matrix_multiply (&matrix, &parent_matrix, &light_matrix);
+  mash_light_get_modelview_matrix (light,
+                                   &matrix);
 
   cogl_matrix_transform_point (&matrix,
                                light_eye_coord + 0,
@@ -511,7 +500,8 @@ mash_point_light_update_uniforms (MashLight *light,
   light_eye_coord[1] /= light_eye_coord[3];
   light_eye_coord[2] /= light_eye_coord[3];
 
-  cogl_program_uniform_float (priv->light_eye_coord_uniform_location,
-                              3, 1,
-                              light_eye_coord);
+  cogl_program_set_uniform_float (program,
+                                  priv->light_eye_coord_uniform_location,
+                                  3, 1,
+                                  light_eye_coord);
 }

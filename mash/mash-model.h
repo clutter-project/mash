@@ -26,6 +26,7 @@
 #include <glib-object.h>
 #include <clutter/clutter.h>
 #include <mash/mash-data.h>
+#include <mash/mash-light-set.h>
 
 G_BEGIN_DECLS
 
@@ -93,6 +94,10 @@ void mash_model_set_material (MashModel *self,
 MashData *mash_model_get_data (MashModel *self);
 void mash_model_set_data (MashModel *self,
                           MashData *data);
+
+MashLightSet *mash_model_get_light_set (MashModel *self);
+void mash_model_set_light_set (MashModel *self,
+                               MashLightSet *light_set);
 
 gboolean mash_model_get_fit_to_allocation (MashModel *self);
 void mash_model_set_fit_to_allocation (MashModel *self,

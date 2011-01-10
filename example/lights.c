@@ -392,8 +392,9 @@ main (int argc, char **argv)
   ClutterActor *stage = stage;
   ClutterActor *side_box;
   ClutterActor *button_box;
-  ClutterActor *light_box;
+  ClutterActor *box;
   ClutterAnimation *anim;
+  MashLightSet *light_set;
   MxStyle *style;
   GError *error = NULL;
   Data data;
@@ -441,18 +442,20 @@ main (int argc, char **argv)
       return 1;
     }
 
-  light_box = mash_light_box_new (clutter_fixed_layout_new ());
+  light_set = mash_light_set_new ();
+
+  box = clutter_box_new (clutter_fixed_layout_new ());
 
   clutter_actor_set_size (data.model, 400, 400);
   clutter_actor_set_position (data.model, 50.0, 100.0);
-  clutter_container_add_actor (CLUTTER_CONTAINER (light_box), data.model);
+  clutter_container_add_actor (CLUTTER_CONTAINER (box), data.model);
 
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), light_box);
+  clutter_container_add_actor (CLUTTER_CONTAINER (stage), box);
 
-  g_signal_connect_swapped (light_box, "paint",
+  g_signal_connect_swapped (box, "paint",
                             G_CALLBACK (cogl_set_depth_test_enabled),
                             GINT_TO_POINTER (TRUE));
-  g_signal_connect_data (light_box, "paint",
+  g_signal_connect_data (box, "paint",
                          G_CALLBACK (cogl_set_depth_test_enabled),
                          GINT_TO_POINTER (FALSE), NULL,
                          G_CONNECT_AFTER | G_CONNECT_SWAPPED);
@@ -505,8 +508,8 @@ main (int argc, char **argv)
 
       data.notebook_buttons[i] = button;
 
-      clutter_container_add_actor (CLUTTER_CONTAINER (light_box),
-                                   data.lights[i]);
+      clutter_container_add_actor (CLUTTER_CONTAINER (box), data.lights[i]);
+      mash_light_set_add_light (light_set, MASH_LIGHT (data.lights[i]));
 
       add_color_prop (table, "ambient light",
                       G_OBJECT (data.lights[i]), "ambient");
@@ -588,6 +591,9 @@ main (int argc, char **argv)
                              cogl_material_set_shininess,
                              cogl_material_get_shininess);
   }
+
+  mash_model_set_light_set (MASH_MODEL (data.model), light_set);
+  g_object_unref (light_set);
 
   for (i = 0; i < N_PAGES; i++)
     {

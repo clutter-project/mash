@@ -50,7 +50,7 @@
   </chapter>
   <chapter>
     <title>Lights</title>
-    <xi:include href="xml/mash-light-box.xml"/>
+    <xi:include href="xml/mash-light-set.xml"/>
     <xi:include href="xml/mash-light.xml"/>
     <xi:include href="xml/mash-directional-light.xml"/>
     <xi:include href="xml/mash-point-light.xml"/>

@@ -21,7 +21,7 @@ public_h = \
 	$(enum_h) \
 	$(srcdir)/mash.h \
 	$(srcdir)/mash-model.h \
-	$(srcdir)/mash-light-box.h \
+	$(srcdir)/mash-light-set.h \
 	$(srcdir)/mash-light.h \
 	$(srcdir)/mash-directional-light.h \
 	$(srcdir)/mash-spot-light.h \
@@ -46,7 +46,7 @@ libmash_@MASH_API_VERSION@_la_SOURCES = \
 	$(srcdir)/mash-data.c \
 	$(srcdir)/mash-data-loader.c \
 	$(srcdir)/mash-model.c \
-	$(srcdir)/mash-light-box.c \
+	$(srcdir)/mash-light-set.c \
 	$(srcdir)/mash-light.c \
 	$(srcdir)/mash-directional-light.c \
 	$(srcdir)/mash-spot-light.c \

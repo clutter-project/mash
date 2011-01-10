@@ -37,6 +37,8 @@ mash_model_get_data
 mash_model_set_data
 mash_model_get_fit_to_allocation
 mash_model_set_fit_to_allocation
+mash_model_get_light_set
+mash_model_set_light_set
 <SUBSECTION Standard>
 MASH_MODEL
 MASH_IS_MODEL
@@ -50,21 +52,24 @@ MashModelPrivate
 </SECTION>
 
 <SECTION>
-<FILE>mash-light-box</FILE>
-<TITLE>MashLightBox</TITLE>
-MashLightBox
-MashLightBoxClass
-mash_light_box_new
+<FILE>mash-light-set</FILE>
+<TITLE>MashLightSet</TITLE>
+MashLightSet
+MashLightSetClass
+mash_light_set_new
+mash_light_set_add_light
+mash_light_set_remove_light
+mash_light_set_begin_paint
 <SUBSECTION Standard>
-MASH_LIGHT_BOX
-MASH_IS_LIGHT_BOX
-MASH_TYPE_LIGHT_BOX
-mash_light_box_get_type
-MASH_LIGHT_BOX_CLASS
-MASH_IS_LIGHT_BOX_CLASS
-MASH_LIGHT_BOX_GET_CLASS
+MASH_LIGHT_SET
+MASH_IS_LIGHT_SET
+MASH_TYPE_LIGHT_SET
+mash_light_set_get_type
+MASH_LIGHT_SET_CLASS
+MASH_IS_LIGHT_SET_CLASS
+MASH_LIGHT_SET_GET_CLASS
 <SUBSECTION Private>
-MashLightBoxPrivate
+MashLightSetPrivate
 </SECTION>
 
 <SECTION>
@@ -84,6 +89,7 @@ mash_light_update_uniforms
 mash_light_append_shader
 mash_light_get_uniform_location
 mash_light_set_direction_uniform
+mash_light_get_modelview_matrix
 <SUBSECTION Standard>
 MASH_LIGHT
 MASH_IS_LIGHT

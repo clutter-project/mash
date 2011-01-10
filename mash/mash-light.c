@@ -25,10 +25,8 @@
  * be used such as #MashPointLight, #MashSpotLight or
  * #MashDirectionalLight.
  *
- * #MashLight<!-- -->s must be added to a #MashLightBox before they
- * will have any effect. They will not work from any other kind of
- * container or even from within a container that is nested in a
- * #MashLightBox.
+ * #MashLight<!-- -->s must be added to a #MashLightSet and a parent
+ * container before they will have any effect.
  *
  * #MashLight contains three light colors that are common to all
  * three light types that Mash supports. These are ambient, diffuse
@@ -51,7 +49,7 @@
 #include <math.h>
 
 #include "mash-light.h"
-#include "mash-light-box.h"
+#include "mash-light-set.h"
 
 static void mash_light_get_property (GObject *object,
                                      guint prop_id,
@@ -61,9 +59,6 @@ static void mash_light_set_property (GObject *object,
                                      guint prop_id,
                                      const GValue *value,
                                      GParamSpec *pspec);
-
-static void mash_light_parent_set (ClutterActor *self,
-                                   ClutterActor *old_parent);
 
 static void mash_light_real_generate_shader (MashLight *light,
                                              GString *uniform_source,
@@ -117,6 +112,14 @@ struct _MashLightPrivate
      value has changed since we last copied the values to the
      uniforms */
   guint dirty_uniforms;
+
+  /* This contains the modelview matrix for the light including all of
+     its parent's transformations. It is probably expensive to
+     calculate and the matrix is used to update the uniforms for both
+     spot lights and point lights so it is cached to avoid calculating
+     it twice */
+  gboolean modelview_matrix_dirty;
+  CoglMatrix modelview_matrix;
 };
 
 enum
@@ -132,13 +135,10 @@ static void
 mash_light_class_init (MashLightClass *klass)
 {
   GObjectClass *gobject_class = (GObjectClass *) klass;
-  ClutterActorClass *actor_class = (ClutterActorClass *) klass;
   GParamSpec *pspec;
 
   gobject_class->get_property = mash_light_get_property;
   gobject_class->set_property = mash_light_set_property;
-
-  actor_class->parent_set = mash_light_parent_set;
 
   klass->generate_shader = mash_light_real_generate_shader;
   klass->update_uniforms = mash_light_real_update_uniforms;
@@ -196,22 +196,8 @@ mash_light_init (MashLight *self)
 
   priv->uniform_locations_dirty = TRUE;
   priv->dirty_uniforms = (1 << MASH_LIGHT_COLOR_COUNT) - 1;
-}
 
-static void
-mash_light_parent_set (ClutterActor *self,
-                       ClutterActor *old_parent)
-{
-  ClutterActor *new_parent = clutter_actor_get_parent (self);
-
-  if (new_parent && !MASH_IS_LIGHT_BOX (new_parent))
-    g_warning ("A MashLight is being added to a %s. The light will only "
-               "have any effect if it is added directly to a MashLightBox",
-               G_OBJECT_TYPE_NAME (new_parent));
-
-  if (CLUTTER_ACTOR_CLASS (mash_light_parent_class)->parent_set)
-    CLUTTER_ACTOR_CLASS (mash_light_parent_class)
-      ->parent_set (self, old_parent);
+  priv->modelview_matrix_dirty = TRUE;
 }
 
 static void
@@ -427,21 +413,20 @@ mash_light_get_specular (MashLight *light, ClutterColor *specular)
  *
  * This function is used to generate the shader code required to
  * implement a paraticular. It would not usually need to be called
- * from an application. Instead it is called within the paint method
- * of #MashLightBox.
+ * from an application. Instead it is called automatically by
+ * #MashLightSet.
  *
  * This function can be overriden in subclasses of #MashLight to
  * implement custom lighting algorithms. The function will be called
- * from within the paint method of #MashLightBox before any children
- * have been painted whenever it deems that the shader needs to be
- * regenerated. It currently will do this whenever a light is added or
- * removed from the box. The implementation should append any GLSL
- * code to @uniform_source and @main_source needed to implement the
- * algorithm.
+ * before the first actor that is using the light set is painted
+ * whenever it deems that the shader needs to be regenerated. It
+ * currently will do this whenever a light is added or removed from
+ * the box. The implementation should append any GLSL code to
+ * @uniform_source and @main_source needed to implement the algorithm.
  *
  * The implementation should use mash_light_append_shader() to append
  * code to either of the shader strings so that it can declare
- * variables that are unique to the indidual actor.
+ * variables that are unique to the individual actor.
  *
  * The code in @uniform_source is inserted at the global level of a
  * vertex shader. It is expected that the light will add uniform
@@ -471,9 +456,27 @@ mash_light_get_specular (MashLight *light, ClutterColor *specular)
  *
  * specular_light: A vec3 uniform containing the specular light color.
  *
+ * mash_material.ambient: A vec4 containing the current material's
+ *   ambient color.
+ *
+ * mash_material.diffuse: A vec4 containing the current material's
+ *   diffuse color.
+ *
+ * mash_material.specular: A vec4 containing the current material's
+ *   specular color.
+ *
+ * mash_material.emission: A vec4 containing the current material's
+ *   emission color.
+ *
+ * mash_material.shininess: A float containing the current material's
+ *   shininess value.
+ *
+ * mash_normal_matrix: A version of the modelview matrix used to
+ * transform normals.
+ *
  * In addition to these variables the shader can use all of the
- * built-in GLSL uniforms such al gl_FrontMaterial.diffuse. A good
- * general book on GLSL will help explain these.
+ * built-in Cogl uniforms. Please see a future version of the Cogl
+ * documentation for a description of these.
  *
  * The implementation should always chain up to the #MashLight
  * implementation so that it can declare the built-in uniforms.
@@ -495,12 +498,12 @@ mash_light_generate_shader (MashLight *light,
  * @light: The #MashLight that needs updating
  * @program: A #CoglProgram containing the uniforms
  *
- * This function is used by #MashLightBox to implement the lights. It
+ * This function is used by #MashLightSet to implement the lights. It
  * should not need to be called by an application directly.
  *
  * This function is virtual and can be overriden by subclasses to
  * implement custom lighting algorithms. The function is called during
- * the paint sequence of #MashLightBox on every light before any other
+ * the paint sequence of #MashLightSet on every light before any other
  * actors are painted. This gives the light implementation a chance to
  * update any uniforms it may have declared in the override of
  * mash_light_generate_shader().
@@ -630,6 +633,57 @@ transpose_matrix (const CoglMatrix *matrix,
 }
 
 /**
+ * mash_light_get_modelview_matrix:
+ * @light: A #MashLight
+ * @matrix: The return location for the matrix
+ *
+ * Gets the modelview matrix for the light including all of the
+ * transformations for its parent actors. This should be used for
+ * updating uniforms that depend on the actor's transformation or
+ * position.
+ */
+void
+mash_light_get_modelview_matrix (MashLight *light,
+                                 CoglMatrix *matrix)
+{
+  MashLightPrivate *priv = light->priv;
+
+  if (priv->modelview_matrix_dirty)
+    {
+      ClutterActor *actor;
+      GSList *parents = NULL, *l;
+
+      cogl_matrix_init_identity (&priv->modelview_matrix);
+
+      /* Get the complete modelview matrix for light by applying all of
+         its parent transformations as well as its own in reverse */
+      for (actor = CLUTTER_ACTOR (light);
+           actor;
+           actor = clutter_actor_get_parent (actor))
+        parents = g_slist_prepend (parents, actor);
+
+      for (l = parents; l; l = l->next)
+        {
+          CoglMatrix actor_matrix;
+
+          cogl_matrix_init_identity (&actor_matrix);
+          clutter_actor_get_transformation_matrix (CLUTTER_ACTOR (l->data),
+                                                   &actor_matrix);
+
+          cogl_matrix_multiply (&priv->modelview_matrix,
+                                &priv->modelview_matrix,
+                                &actor_matrix);
+        }
+
+      g_slist_free (parents);
+
+      priv->modelview_matrix_dirty = FALSE;
+    }
+
+  *matrix = priv->modelview_matrix;
+}
+
+/**
  * mash_light_set_direction_uniform:
  * @light: The #MashLight which is generating the shader
  * @uniform_location: The location of the uniform
@@ -648,29 +702,17 @@ transpose_matrix (const CoglMatrix *matrix,
  */
 void
 mash_light_set_direction_uniform (MashLight *light,
+                                  CoglHandle program,
                                   int uniform_location,
                                   const float *direction_in)
 {
   float light_direction[4];
   CoglMatrix matrix, inverse_matrix;
-  CoglMatrix parent_matrix;
-  CoglMatrix light_matrix;
   float magnitude;
 
   memcpy (light_direction, direction_in, sizeof (light_direction));
 
-  /* The update uniforms method is always called from the paint method
-     of the parent container so we know that the current cogl
-     modelview matrix contains the parent's transformation. Therefore
-     to get a transformation for the light position we just need apply
-     the actor's transform on top of that */
-  cogl_matrix_init_identity (&light_matrix);
-  clutter_actor_get_transformation_matrix (CLUTTER_ACTOR (light),
-                                           &light_matrix);
-
-  cogl_get_modelview_matrix (&parent_matrix);
-
-  cogl_matrix_multiply (&matrix, &parent_matrix, &light_matrix);
+  mash_light_get_modelview_matrix (light, &matrix);
 
   /* To safely transform the direction when the matrix might not be
      orthogonal we need the transposed inverse matrix */
@@ -692,9 +734,10 @@ mash_light_set_direction_uniform (MashLight *light,
   light_direction[1] /= magnitude;
   light_direction[2] /= magnitude;
 
-  cogl_program_uniform_float (uniform_location,
-                              3, 1,
-                              light_direction);
+  cogl_program_set_uniform_float (program,
+                                  uniform_location,
+                                  3, 1,
+                                  light_direction);
 }
 
 static void
@@ -724,6 +767,12 @@ mash_light_real_update_uniforms (MashLight *light,
   MashLightPrivate *priv = light->priv;
   int i;
 
+  /* We need to recalculate the light's transformation matrix. It is
+     assumed the subclasses will chain-up first before calling
+     mash_light_get_transformation_matrix(), otherwise this won't work
+     correctly */
+  priv->modelview_matrix_dirty = TRUE;
+
   if (priv->uniform_locations_dirty)
     {
       for (i = 0; i < MASH_LIGHT_COLOR_COUNT; i++)
@@ -744,8 +793,9 @@ mash_light_real_update_uniforms (MashLight *light,
         vec[1] = color->green / 255.0f;
         vec[2] = color->blue / 255.0f;
 
-        cogl_program_uniform_float (priv->uniform_locations[i],
-                                    3, 1, vec);
+        cogl_program_set_uniform_float (program,
+                                        priv->uniform_locations[i],
+                                        3, 1, vec);
       }
 
   priv->dirty_uniforms = 0;

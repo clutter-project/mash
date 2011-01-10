@@ -97,7 +97,8 @@ void mash_light_get_specular (MashLight *light, ClutterColor *specular);
 void mash_light_generate_shader (MashLight *light,
                                  GString *uniform_source,
                                  GString *main_source);
-void mash_light_update_uniforms (MashLight *light, CoglHandle program);
+void mash_light_update_uniforms (MashLight *light,
+                                 CoglHandle program);
 
 int mash_light_get_uniform_location (MashLight *light,
                                      CoglHandle program,
@@ -107,7 +108,11 @@ void mash_light_append_shader (MashLight *light,
                                GString *shader_source,
                                const char *snippet);
 
+void mash_light_get_modelview_matrix (MashLight *light,
+                                      CoglMatrix *matrix);
+
 void mash_light_set_direction_uniform (MashLight *light,
+                                       CoglHandle program,
                                        int uniform_location,
                                        const float *direction_in);
 
