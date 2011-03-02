@@ -370,6 +370,22 @@ notebook_button_cb (ClutterActor *button, GParamSpec *spec, Data *data)
     }
 }
 
+static gboolean
+motion_event_cb (ClutterActor *stage,
+                 const ClutterButtonEvent *event,
+                 Data *data)
+{
+  int i;
+
+  /* Move all of the lights to follow the cursor */
+  for (i = 0; i < N_LIGHTS; i++)
+    clutter_actor_set_position (data->lights[i],
+                                event->x,
+                                event->y);
+
+  return FALSE;
+}
+
 int
 main (int argc, char **argv)
 {
@@ -581,6 +597,10 @@ main (int argc, char **argv)
     }
 
   mx_button_set_toggled (MX_BUTTON (data.notebook_buttons[0]), TRUE);
+
+  g_signal_connect (stage, "motion-event",
+                    G_CALLBACK (motion_event_cb),
+                    &data);
 
   clutter_actor_show (stage);
 
