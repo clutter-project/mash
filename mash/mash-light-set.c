@@ -75,6 +75,52 @@ G_DEFINE_TYPE (MashLightSet, mash_light_set, G_TYPE_OBJECT);
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), MASH_TYPE_LIGHT_SET, \
                                 MashLightSetPrivate))
 
+typedef void (* MaterialColorGetFunc) (CoglMaterial *material,
+                                       CoglColor *color);
+
+typedef float (* MaterialFloatGetFunc) (CoglMaterial *material);
+
+typedef enum
+{
+  MATERIAL_PROP_TYPE_COLOR,
+  MATERIAL_PROP_TYPE_FLOAT
+} MaterialPropType;
+
+static struct
+{
+  MaterialPropType type;
+  const char *uniform_name;
+  void *get_func;
+}
+mash_light_set_material_properties[] =
+  {
+    {
+      MATERIAL_PROP_TYPE_COLOR,
+      "mash_material.emission",
+      cogl_material_get_emission
+    },
+    {
+      MATERIAL_PROP_TYPE_COLOR,
+      "mash_material.ambient",
+      cogl_material_get_ambient
+    },
+    {
+      MATERIAL_PROP_TYPE_COLOR,
+      "mash_material.diffuse",
+      cogl_material_get_diffuse
+    },
+    {
+      MATERIAL_PROP_TYPE_COLOR,
+      "mash_material.specular",
+      cogl_material_get_specular
+    },
+    {
+      MATERIAL_PROP_TYPE_FLOAT,
+      "mash_material.shininess",
+      cogl_material_get_shininess
+    }
+  };
+
 struct _MashLightSetPrivate
 {
   CoglHandle program;
@@ -82,6 +128,10 @@ struct _MashLightSetPrivate
   GSList *lights;
 
   guint repaint_func_id;
+
+  int normal_matrix_uniform;
+
+  int material_uniforms[G_N_ELEMENTS (mash_light_set_material_properties)];
 
   /* Set to TRUE at the beginning of every paint so that we know we
      need to update the uniforms on the program before painting any
@@ -167,6 +217,7 @@ mash_light_set_get_program (MashLightSet *light_set)
       CoglHandle shader;
       char *info_log;
       GSList *l;
+      int i;
 
       uniform_source = g_string_new (NULL);
       main_source = g_string_new (NULL);
@@ -181,19 +232,31 @@ mash_light_set_get_program (MashLightSet *light_set)
       /* Append the shader boiler plate */
       g_string_append (uniform_source,
                        "\n"
+                       "uniform mat3 mash_normal_matrix;\n"
+                       "\n"
+                       "struct MashMaterialParameters {\n"
+                       "  vec4 emission;\n"
+                       "  vec4 ambient;\n"
+                       "  vec4 diffuse;\n"
+                       "  vec4 specular;\n"
+                       "  float shininess;\n"
+                       "};\n"
+                       "\n"
+                       "uniform MashMaterialParameters mash_material;\n"
+                       "\n"
                        "void\n"
                        "main ()\n"
                        "{\n"
                        /* Start with a completely unlit vertex. The
                           lights should add to this color */
-                       "  gl_FrontColor = vec4 (0.0, 0.0, 0.0, 1.0);\n"
+                       "  cogl_color_out = vec4 (0.0, 0.0, 0.0, 1.0);\n"
                        /* Calculate a transformed and normalized
                           vertex normal */
-                       "  vec3 normal = normalize (gl_NormalMatrix\n"
-                       "                           * gl_Normal);\n"
+                       "  vec3 normal = normalize (mash_normal_matrix\n"
+                       "                           * cogl_normal_in);\n"
                        /* Calculate the vertex position in eye coordinates */
                        "  vec4 homogenous_eye_coord\n"
-                       "    = gl_ModelViewMatrix * gl_Vertex;\n"
+                       "    = cogl_modelview_matrix * cogl_position_in;\n"
                        "  vec3 eye_coord = homogenous_eye_coord.xyz\n"
                        "    / homogenous_eye_coord.w;\n");
       /* Append the main source to the uniform source to get the full
@@ -207,8 +270,10 @@ mash_light_set_get_program (MashLightSet *light_set)
          Cogl has a way to insert shader snippets rather than having
          to replace the whole pipeline. */
       g_string_append (uniform_source,
-                       "  gl_Position = ftransform ();\n"
-                       "  gl_TexCoord[0] = gl_MultiTexCoord0;\n"
+                       "  cogl_position_out =\n"
+                       "    cogl_modelview_projection_matrix *\n"
+                       "    cogl_position_in;\n"
+                       "  cogl_tex_coord_out[0] = cogl_tex_coord_in;\n"
                        "}\n");
 
       full_source = g_string_free (uniform_source, FALSE);
@@ -239,6 +304,15 @@ mash_light_set_get_program (MashLightSet *light_set)
 
       priv->normal_matrix_uniform =
         cogl_program_get_uniform_location (priv->program, "mash_normal_matrix");
+
+      for (i = 0; i < G_N_ELEMENTS (mash_light_set_material_properties); i++)
+        {
+          const char *uniform_name =
+            mash_light_set_material_properties[i].uniform_name;
+
+          priv->material_uniforms[i] =
+            cogl_program_get_uniform_location (priv->program, uniform_name);
+        }
     }
 
   return priv->program;
@@ -269,10 +343,12 @@ mash_light_set_get_program (MashLightSet *light_set)
  * Since: 0.2
  */
 CoglHandle
-mash_light_set_begin_paint (MashLightSet *light_set)
+mash_light_set_begin_paint (MashLightSet *light_set,
+                            CoglHandle material)
 {
   MashLightSetPrivate *priv = light_set->priv;
   CoglHandle program = mash_light_set_get_program (light_set);
+  int i;
 
   if (priv->uniforms_dirty)
     {
@@ -285,6 +361,79 @@ mash_light_set_begin_paint (MashLightSet *light_set)
 
       priv->uniforms_dirty = FALSE;
     }
+
+  /* Calculate the normal matrix from the modelview matrix */
+  if (priv->normal_matrix_uniform != -1)
+    {
+      CoglMatrix modelview_matrix;
+      CoglMatrix inverse_matrix;
+      float transpose_matrix[3 * 3];
+
+      /* Invert the matrix */
+      cogl_get_modelview_matrix (&modelview_matrix);
+      cogl_matrix_get_inverse (&modelview_matrix, &inverse_matrix);
+
+      /* Transpose it while converting it to 3x3 */
+      transpose_matrix[0] = inverse_matrix.xx;
+      transpose_matrix[1] = inverse_matrix.xy;
+      transpose_matrix[2] = inverse_matrix.xz;
+
+      transpose_matrix[3] = inverse_matrix.yx;
+      transpose_matrix[4] = inverse_matrix.yy;
+      transpose_matrix[5] = inverse_matrix.yz;
+
+      transpose_matrix[6] = inverse_matrix.zx;
+      transpose_matrix[7] = inverse_matrix.zy;
+      transpose_matrix[8] = inverse_matrix.zz;
+
+      cogl_program_set_uniform_matrix (program,
+                                       priv->normal_matrix_uniform,
+                                       3, /* dimensions */
+                                       1, /* count */
+                                       FALSE, /* transpose */
+                                       transpose_matrix);
+    }
+
+  for (i = 0; i < G_N_ELEMENTS (mash_light_set_material_properties); i++)
+    if (priv->material_uniforms[i] != -1)
+      switch (mash_light_set_material_properties[i].type)
+        {
+        case MATERIAL_PROP_TYPE_COLOR:
+          {
+            CoglColor color;
+            MaterialColorGetFunc get_func =
+              mash_light_set_material_properties[i].get_func;
+            float vec[4];
+
+            get_func (material, &color);
+
+            vec[0] = cogl_color_get_red_float (&color);
+            vec[1] = cogl_color_get_green_float (&color);
+            vec[2] = cogl_color_get_blue_float (&color);
+            vec[3] = cogl_color_get_alpha_float (&color);
+
+            cogl_program_set_uniform_float (program,
+                                            priv->material_uniforms[i],
+                                            4, /* n_components */
+                                            1, /* count */
+                                            vec);
+          }
+          break;
+
+        case MATERIAL_PROP_TYPE_FLOAT:
+          {
+            MaterialFloatGetFunc get_func =
+              mash_light_set_material_properties[i].get_func;
+            float value;
+
+            value = get_func (material);
+
+            cogl_program_set_uniform_1f (program,
+                                         priv->material_uniforms[i],
+                                         value);
+          }
+          break;
+        }
 
   return program;
 }

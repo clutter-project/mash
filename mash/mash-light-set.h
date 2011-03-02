@@ -87,7 +87,8 @@ void mash_light_set_add_light (MashLightSet *light_set,
 void mash_light_set_remove_light (MashLightSet *light_set,
                                   MashLight *light);
 
-CoglHandle mash_light_set_begin_paint (MashLightSet *light_set);
+CoglHandle mash_light_set_begin_paint (MashLightSet *light_set,
+                                       CoglHandle material);
 
 G_END_DECLS
 

@@ -111,7 +111,7 @@ mash_spot_light_shader[] =
   "  if (spot_cos$ > spot_cos_cutoff$)\n"
   "    {\n"
   /* Add the ambient light term */
-  "      vec3 lit_color$ = gl_FrontMaterial.ambient.rgb * ambient_light$;\n"
+  "      vec3 lit_color$ = mash_material.ambient.rgb * ambient_light$;\n"
   /* Calculate the diffuse factor based on the angle between the
      vertex normal and the angle between the light and the vertex */
   "      float diffuse_factor$ = max (0.0, dot (light_vec$, normal));\n"
@@ -120,7 +120,7 @@ mash_spot_light_shader[] =
   "      if (diffuse_factor$ > 0.0)\n"
   "        {\n"
   /* Add the diffuse term */
-  "          lit_color$ += (diffuse_factor$ * gl_FrontMaterial.diffuse.rgb\n"
+  "          lit_color$ += (diffuse_factor$ * mash_material.diffuse.rgb\n"
   "                         * diffuse_light$);\n"
   /* Direction for maximum specular highlights is half way between the
      eye vector and the light vector. The eye vector is hard-coded to
@@ -129,9 +129,9 @@ mash_spot_light_shader[] =
   "                                         + vec3 (0.0, 0.0, 1.0));\n"
   "          float spec_factor$ = max (0.0, dot (half_vector$, normal));\n"
   "          float spec_power$ = pow (spec_factor$,\n"
-  "                                   gl_FrontMaterial.shininess);\n"
+  "                                   mash_material.shininess);\n"
   /* Add the specular term */
-  "          lit_color$ += (gl_FrontMaterial.specular.rgb\n"
+  "          lit_color$ += (mash_material.specular.rgb\n"
   "                         * specular_light$ * spec_power$);\n"
   "        }\n"
   /* Attenuate the lit color based on the distance to the light and
@@ -140,7 +140,7 @@ mash_spot_light_shader[] =
   /* Also attenuate based on the angle to the light and the spot exponent */
   "      att *= pow (spot_cos$, spot_exponent$);\n"
   /* Add it to the total computed color value */
-  "      gl_FrontColor.xyz += lit_color$ * att;\n"
+  "      cogl_color_out.xyz += lit_color$ * att;\n"
   "    }\n"
   ;
 

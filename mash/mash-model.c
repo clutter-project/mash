@@ -386,7 +386,8 @@ mash_model_paint (ClutterActor *actor)
 
   if (priv->light_set)
     {
-      CoglHandle program = mash_light_set_begin_paint (priv->light_set);
+      CoglHandle program = mash_light_set_begin_paint (priv->light_set,
+                                                       priv->material);
       cogl_material_set_user_program (priv->material, program);
     }
 

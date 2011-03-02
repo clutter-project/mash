@@ -440,7 +440,7 @@ mash_light_get_specular (MashLight *light, ClutterColor *specular)
  *
  * The code in @main_source is inserted with the main function of a
  * vertex shader. The snippet added by a light is expected to modify
- * the gl_FrontColor attribute according to its algorithm. The snippet
+ * the cogl_color_out attribute according to its algorithm. The snippet
  * can also use the following variables which will be initialized
  * before the snippet is run:
  *
