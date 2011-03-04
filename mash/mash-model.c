@@ -283,6 +283,8 @@ mash_model_dispose (GObject *object)
       priv->pick_material = COGL_INVALID_HANDLE;
     }
 
+  mash_model_set_light_set (self, NULL);
+
   G_OBJECT_CLASS (mash_model_parent_class)->dispose (object);
 }
 
