@@ -1,3 +1,26 @@
+Mash 0.2.0
+==========
+
+New features since 0.1.0:
+
+ • MashLightBox has changed to be a generic object so the lights don't
+   have to be a direct descendant of any particular actor. The
+   MashModel actors are now aware of lighting and set up their own
+   Cogl material based on the lighting parameters instead of assuming
+   the MashLightBox will install a global shader. This has changed the
+   API for using lights quite a lot but it is more flexible and it
+   ends up using Cogl more efficiently.
+
+ • The code has been refactored so that in future it can support more
+   file formats than just PLY. However there is currently no other
+   loaders yet.
+
+ • The lighting shaders are now compatible with GLES2.
+
+Many thanks to:
+
+  Luca Bruno
+
 Mash 0.1.0
 ==========
 
