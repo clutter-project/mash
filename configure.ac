@@ -71,10 +71,23 @@ PKG_CHECK_MODULES(GLIB, [glib-2.0 >= 2.16 gobject-2.0 >= 2.16])
 PKG_CHECK_MODULES(CLUTTER, [clutter-1.0 >= 1.5.10])
 
 dnl Optionally depend on Mx just for the test-lights example
-PKG_CHECK_MODULES(MX, [mx-1.0 >= 1.1.0], [have_mx=yes], [have_mx=no])
+AC_ARG_WITH(mx,
+            [AS_HELP_STRING([--with-mx],
+                            [build examples needing mx @<:@default=auto@:>@])],
+            [],
+            [with_mx=auto])
+AS_CASE([$with_mx],
+        [yes|no|auto], [],
+        [AC_MSG_ERROR([Invalid value for --with-mx])])
 
-AS_IF([test "x$have_mx" = "xno"],
-      AC_MSG_WARN([Mx was not found. It is not required but the lighting example will not be built without it]))
+have_mx=no
+
+AS_IF([test "x$with_mx" != "xno"],
+      [PKG_CHECK_MODULES(MX, [mx-1.0 >= 1.1.0], [have_mx=yes], [have_mx=no])
+       AS_IF([test "x$have_mx" = "xno"],
+             AS_IF([test "x$with_mx" = "xyes"],
+                   [AC_MSG_ERROR([Mx was requested but not found])],
+                   [AC_MSG_WARN([Mx was not found. It is not required but the lighting example will not be built without it])]))])
 
 AM_CONDITIONAL([HAVE_MX], [test "x$have_mx" = "xyes"])
 
