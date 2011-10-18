@@ -105,7 +105,7 @@ AC_CONFIG_FILES([
         Makefile
         mash/Makefile
         mash/rply/Makefile
-        example/Makefile
+        examples/Makefile
         docs/Makefile
         docs/reference/Makefile
         docs/reference/mash-docs.sgml

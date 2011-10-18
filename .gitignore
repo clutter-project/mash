@@ -38,10 +38,10 @@
 /config.sub
 /configure
 /depcomp
-/example/Makefile
-/example/Makefile.in
-/example/viewer
-/example/lights
+/examples/Makefile
+/examples/Makefile.in
+/examples/viewer
+/examples/lights
 /install-sh
 /libtool
 /ltmain.sh

@@ -1,4 +1,4 @@
-SUBDIRS = mash example docs
+SUBDIRS = mash examples docs
 
 ACLOCAL_AMFLAGS = -I m4
 
