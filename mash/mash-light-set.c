@@ -247,9 +247,10 @@ mash_light_set_get_program (MashLightSet *light_set)
                        "void\n"
                        "main ()\n"
                        "{\n"
-                       /* Start with a completely unlit vertex. The
-                          lights should add to this color */
-                       "  cogl_color_out = vec4 (0.0, 0.0, 0.0, 1.0);\n"
+                       /* Start with just the light emitted by the
+                          object itself. The lights should add to this
+                          color */
+                       "  cogl_color_out = mash_material.emission;\n"
                        /* Calculate a transformed and normalized
                           vertex normal */
                        "  vec3 normal = normalize (mash_normal_matrix\n"
