@@ -69,6 +69,8 @@ static void mash_light_set_finalize (GObject *object);
 
 static gboolean mash_light_set_repaint_func (gpointer data);
 
+static float mash_light_set_get_shininess_wrapper (CoglMaterial *material);
+
 G_DEFINE_TYPE (MashLightSet, mash_light_set, G_TYPE_OBJECT);
 
 #define MASH_LIGHT_SET_GET_PRIVATE(obj) \
@@ -117,7 +119,7 @@ mash_light_set_material_properties[] =
     {
       MATERIAL_PROP_TYPE_FLOAT,
       "mash_material.shininess",
-      cogl_material_get_shininess
+      mash_light_set_get_shininess_wrapper
     }
   };
 
@@ -529,4 +531,25 @@ mash_light_set_remove_light (MashLightSet *light_set,
       }
     else
       prev = l;
+}
+
+static float
+mash_light_set_get_shininess_wrapper (CoglMaterial *material)
+{
+  float shininess;
+
+  /* The shininess is used in the GLSL code for all of the lights as a
+     power to raise to. However the glsl pow function has undefined
+     results when the power is zero. On nvidia this seems to mess up
+     the calculations so much that even multiplying the result of the
+     pow call by zero ends up in a non-zero value. Therefore we just
+     want to avoid passing zero as the shininess value. I don't think
+     it would make much sense to pass a value less than one
+     anyway. Unfortunately the default value for the shininess on a
+     CoglMaterial is 0 so it's quite likely that an application would
+     hit this if they are trying not to use specular lighting */
+
+  shininess = cogl_material_get_shininess (material);
+
+  return MAX (0.0001, shininess);
 }
