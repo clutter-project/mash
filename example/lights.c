@@ -577,6 +577,9 @@ main (int argc, char **argv)
     data.notebook_pages[i] = table;
     clutter_container_add_actor (CLUTTER_CONTAINER (data.notebook), table);
 
+    add_material_color_prop (table, "emission", material,
+                             cogl_material_set_emission,
+                             cogl_material_get_emission);
     add_material_color_prop (table, "diffuse", material,
                              cogl_material_set_diffuse,
                              cogl_material_get_diffuse);
