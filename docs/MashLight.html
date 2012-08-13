@@ -1,0 +1,666 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>MashLight</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<link rel="home" href="index.html" title="Mash Reference Manual">
+<link rel="up" href="ch02.html" title="Lights">
+<link rel="prev" href="MashLightSet.html" title="MashLightSet">
+<link rel="next" href="MashDirectionalLight.html" title="MashDirectionalLight">
+<meta name="generator" content="GTK-Doc V1.16.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="MashLightSet.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="ch02.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">Mash Reference Manual</th>
+<td><a accesskey="n" href="MashDirectionalLight.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts">
+<a href="#MashLight.synopsis" class="shortcut">Top</a>
+                   | 
+                  <a href="#MashLight.description" class="shortcut">Description</a>
+                   | 
+                  <a href="#MashLight.object-hierarchy" class="shortcut">Object Hierarchy</a>
+                   | 
+                  <a href="#MashLight.implemented-interfaces" class="shortcut">Implemented Interfaces</a>
+                   | 
+                  <a href="#MashLight.properties" class="shortcut">Properties</a>
+</td></tr>
+</table>
+<div class="refentry">
+<a name="MashLight"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="MashLight.top_of_page"></a>MashLight</span></h2>
+<p>MashLight — An object for the common state of all light types</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<a name="MashLight.synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">                    <a class="link" href="MashLight.html#MashLight-struct" title="MashLight">MashLight</a>;
+struct              <a class="link" href="MashLight.html#MashLightClass" title="struct MashLightClass">MashLightClass</a>;
+<span class="returnvalue">void</span>                <a class="link" href="MashLight.html#mash-light-set-ambient" title="mash_light_set_ambient ()">mash_light_set_ambient</a>              (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">ClutterColor</span> *ambient</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashLight.html#mash-light-get-ambient" title="mash_light_get_ambient ()">mash_light_get_ambient</a>              (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">ClutterColor</span> *ambient</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashLight.html#mash-light-set-diffuse" title="mash_light_set_diffuse ()">mash_light_set_diffuse</a>              (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">ClutterColor</span> *diffuse</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashLight.html#mash-light-get-diffuse" title="mash_light_get_diffuse ()">mash_light_get_diffuse</a>              (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">ClutterColor</span> *diffuse</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashLight.html#mash-light-set-specular" title="mash_light_set_specular ()">mash_light_set_specular</a>             (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">ClutterColor</span> *specular</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashLight.html#mash-light-get-specular" title="mash_light_get_specular ()">mash_light_get_specular</a>             (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">ClutterColor</span> *specular</code></em>);
+
+<span class="returnvalue">void</span>                <a class="link" href="MashLight.html#mash-light-generate-shader" title="mash_light_generate_shader ()">mash_light_generate_shader</a>          (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">GString</span> *uniform_source</code></em>,
+                                                         <em class="parameter"><code><span class="type">GString</span> *main_source</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashLight.html#mash-light-update-uniforms" title="mash_light_update_uniforms ()">mash_light_update_uniforms</a>          (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">CoglHandle</span> program</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashLight.html#mash-light-append-shader" title="mash_light_append_shader ()">mash_light_append_shader</a>            (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">GString</span> *shader_source</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *snippet</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="MashLight.html#mash-light-get-uniform-location" title="mash_light_get_uniform_location ()">mash_light_get_uniform_location</a>     (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">CoglHandle</span> program</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *uniform_name</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashLight.html#mash-light-set-direction-uniform" title="mash_light_set_direction_uniform ()">mash_light_set_direction_uniform</a>    (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">CoglHandle</span> program</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> uniform_location</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">float</span> *direction_in</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashLight.html#mash-light-get-modelview-matrix" title="mash_light_get_modelview_matrix ()">mash_light_get_modelview_matrix</a>     (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">CoglMatrix</span> *matrix</code></em>);
+</pre>
+</div>
+<div class="refsect1">
+<a name="MashLight.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+  GObject
+   +----GInitiallyUnowned
+         +----ClutterActor
+               +----MashLight
+                     +----<a class="link" href="MashDirectionalLight.html" title="MashDirectionalLight">MashDirectionalLight</a>
+                     +----<a class="link" href="MashPointLight.html" title="MashPointLight">MashPointLight</a>
+</pre>
+</div>
+<div class="refsect1">
+<a name="MashLight.implemented-interfaces"></a><h2>Implemented Interfaces</h2>
+<p>
+MashLight implements
+ ClutterScriptable,  ClutterAnimatable and  AtkImplementorIface.</p>
+</div>
+<div class="refsect1">
+<a name="MashLight.properties"></a><h2>Properties</h2>
+<pre class="synopsis">
+  "<a class="link" href="MashLight.html#MashLight--ambient" title='The "ambient" property'>ambient</a>"                  <span class="type">ClutterColor</span>*         : Read / Write
+  "<a class="link" href="MashLight.html#MashLight--diffuse" title='The "diffuse" property'>diffuse</a>"                  <span class="type">ClutterColor</span>*         : Read / Write
+  "<a class="link" href="MashLight.html#MashLight--specular" title='The "specular" property'>specular</a>"                 <span class="type">ClutterColor</span>*         : Read / Write
+</pre>
+</div>
+<div class="refsect1">
+<a name="MashLight.description"></a><h2>Description</h2>
+<p>
+<a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> is the abstract base class of all lights in Mash. It can
+not be instantiated directly. Instead one of its subclasses should
+be used such as <a class="link" href="MashPointLight.html" title="MashPointLight"><span class="type">MashPointLight</span></a>, <a class="link" href="MashSpotLight.html" title="MashSpotLight"><span class="type">MashSpotLight</span></a> or
+<a class="link" href="MashDirectionalLight.html" title="MashDirectionalLight"><span class="type">MashDirectionalLight</span></a>.
+</p>
+<p>
+<a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a>s must be added to a <a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a> and a parent
+container before they will have any effect.
+</p>
+<p>
+<a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> contains three light colors that are common to all
+three light types that Mash supports. These are ambient, diffuse
+and specular. The colors are of the lights are combined with the
+corresponding colors of the <span class="type">CoglMaterial</span> to give a final fragment
+color. The material colors can be changed for a <a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> by
+extracting the <span class="type">CoglMaterial</span> with <a class="link" href="MashModel.html#mash-model-get-material" title="mash_model_get_material ()"><code class="function">mash_model_get_material()</code></a> and
+then calling functions such as <code class="function">cogl_material_set_diffuse()</code>.
+</p>
+<p>
+<a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> can be subclassed in an application to provide custom
+lighting algorithms.
+</p>
+</div>
+<div class="refsect1">
+<a name="MashLight.details"></a><h2>Details</h2>
+<div class="refsect2">
+<a name="MashLight-struct"></a><h3>MashLight</h3>
+<pre class="programlisting">typedef struct _MashLight MashLight;</pre>
+<p>
+The <a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> structure contains only private data.
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MashLightClass"></a><h3>struct MashLightClass</h3>
+<pre class="programlisting">struct MashLightClass {
+  void (* generate_shader) (MashLight *light,
+                            GString *uniform_source,
+                            GString *main_source);
+  void (* update_uniforms) (MashLight *light,
+                            CoglHandle program);
+};
+</pre>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="structfield"><code><a name="MashLightClass.generate-shader"></a>generate_shader</code></em> ()</span></p></td>
+<td>Virtual used for creating custom light types</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code><a name="MashLightClass.update-uniforms"></a>update_uniforms</code></em> ()</span></p></td>
+<td>Virtual used for creating custom light types</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-light-set-ambient"></a><h3>mash_light_set_ambient ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_light_set_ambient              (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">ClutterColor</span> *ambient</code></em>);</pre>
+<p>
+Sets the ‘ambient’ color emitted by the light. If the light reaches
+a vertex at all then the ambient color affects the vertex
+regardless of its orientation or distance from the light. In
+real-world lighting, even if an object isn't in a direct line of
+sight to a light it can still be partially lit due to the fact that
+light can bounce off other objects to reach it. The Mash lighting
+model doesn't simulate this bouncing so the ambient color is often
+used to give an approximation of the effect.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>The <a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> to modify</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ambient</code></em> :</span></p></td>
+<td>The new color value</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-light-get-ambient"></a><h3>mash_light_get_ambient ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_light_get_ambient              (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">ClutterColor</span> *ambient</code></em>);</pre>
+<p>
+Retrieves the ‘ambient’ color emitted by the light.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>The <a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> to query</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ambient</code></em> :</span></p></td>
+<td>A return location for the color</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-light-set-diffuse"></a><h3>mash_light_set_diffuse ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_light_set_diffuse              (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">ClutterColor</span> *diffuse</code></em>);</pre>
+<p>
+Sets the ‘diffuse’ color emitted by the light. The diffuse color is
+only visible on an object if is facing the light. The orientation
+of the object is determined per-vertex using the vertex's
+normal. The diffuse color will be darkened depending on how
+directly the object faces the light.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>The <a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> to modify</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>diffuse</code></em> :</span></p></td>
+<td>The new color value</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-light-get-diffuse"></a><h3>mash_light_get_diffuse ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_light_get_diffuse              (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">ClutterColor</span> *diffuse</code></em>);</pre>
+<p>
+Retrieves the ‘diffuse’ color emitted by the light.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>The <a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> to query</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>diffuse</code></em> :</span></p></td>
+<td>A return location for the color</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-light-set-specular"></a><h3>mash_light_set_specular ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_light_set_specular             (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">ClutterColor</span> *specular</code></em>);</pre>
+<p>
+Sets the ‘specular’ color emitted by the light. The specular color
+is used to add highlights to an object wherever the angle to the
+light is close to the angle that the object is being viewed
+from. For example, if you were modelling a snooker ball with a
+bright light above it, this property will allow you add a bright
+part where the light can directly reflect off the ball into the
+eye. It is common to set this to a bright white value.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>The <a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> to modify</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>specular</code></em> :</span></p></td>
+<td>The new color value</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-light-get-specular"></a><h3>mash_light_get_specular ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_light_get_specular             (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">ClutterColor</span> *specular</code></em>);</pre>
+<p>
+Retrieves the ‘specular’ color emitted by the light.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>The <a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> to query</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>specular</code></em> :</span></p></td>
+<td>A return location for the color</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-light-generate-shader"></a><h3>mash_light_generate_shader ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_light_generate_shader          (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">GString</span> *uniform_source</code></em>,
+                                                         <em class="parameter"><code><span class="type">GString</span> *main_source</code></em>);</pre>
+<p>
+This function is used to generate the shader code required to
+implement a paraticular. It would not usually need to be called
+from an application. Instead it is called automatically by
+<a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a>.
+</p>
+<p>
+This function can be overriden in subclasses of <a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> to
+implement custom lighting algorithms. The function will be called
+before the first actor that is using the light set is painted
+whenever it deems that the shader needs to be regenerated. It
+currently will do this whenever a light is added or removed from
+the box. The implementation should append any GLSL code to
+<em class="parameter"><code>uniform_source</code></em> and <em class="parameter"><code>main_source</code></em> needed to implement the algorithm.
+</p>
+<p>
+The implementation should use <a class="link" href="MashLight.html#mash-light-append-shader" title="mash_light_append_shader ()"><code class="function">mash_light_append_shader()</code></a> to append
+code to either of the shader strings so that it can declare
+variables that are unique to the individual actor.
+</p>
+<p>
+The code in <em class="parameter"><code>uniform_source</code></em> is inserted at the global level of a
+vertex shader. It is expected that the light will add uniform
+declarations here. For example, if the light depends on the light's
+position it could define a uniform for the position like so:
+</p>
+<p>
+</p>
+<div class="informalexample">
+  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td class="listing_lines" align="right"><pre>1
+2</pre></td>
+        <td class="listing_code"><pre class="programlisting"><span class="function"><a href="MashLight.html#mash-light-append-shader">mash_light_append_shader</a></span><span class="normal"> </span><span class="symbol">(</span><span class="normal">light</span><span class="symbol">,</span><span class="normal"> uniform_source</span><span class="symbol">,</span>
+<span class="normal">                          </span><span class="string">"uniform vec3 position$;</span><span class="specialchar">\n</span><span class="string">"</span><span class="symbol">);</span></pre></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p>
+</p>
+<p>
+The code in <em class="parameter"><code>main_source</code></em> is inserted with the main function of a
+vertex shader. The snippet added by a light is expected to modify
+the cogl_color_out attribute according to its algorithm. The snippet
+can also use the following variables which will be initialized
+before the snippet is run:
+</p>
+<p>
+normal: This will be a vec3 which is initialized to the transformed
+and normalized vertex normal.
+</p>
+<p>
+eye_coord: This will be a vec3 containing the vertex coordinates in
+eye-space.
+</p>
+<p>
+ambient_light: A vec3 uniform containing the ambient light color.
+</p>
+<p>
+diffuse_light: A vec3 uniform containing the diffuse light color.
+</p>
+<p>
+specular_light: A vec3 uniform containing the specular light color.
+</p>
+<p>
+mash_material.ambient: A vec4 containing the current material's
+  ambient color.
+</p>
+<p>
+mash_material.diffuse: A vec4 containing the current material's
+  diffuse color.
+</p>
+<p>
+mash_material.specular: A vec4 containing the current material's
+  specular color.
+</p>
+<p>
+mash_material.emission: A vec4 containing the current material's
+  emission color.
+</p>
+<p>
+mash_material.shininess: A float containing the current material's
+  shininess value.
+</p>
+<p>
+mash_normal_matrix: A version of the modelview matrix used to
+transform normals.
+</p>
+<p>
+In addition to these variables the shader can use all of the
+built-in Cogl uniforms. Please see a future version of the Cogl
+documentation for a description of these.
+</p>
+<p>
+The implementation should always chain up to the <a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a>
+implementation so that it can declare the built-in uniforms.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>A <a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>uniform_source</code></em> :</span></p></td>
+<td>A location to append uniforms declarations to</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>main_source</code></em> :</span></p></td>
+<td>A location to append lighting algorithm snippets to</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-light-update-uniforms"></a><h3>mash_light_update_uniforms ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_light_update_uniforms          (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">CoglHandle</span> program</code></em>);</pre>
+<p>
+This function is used by <a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a> to implement the lights. It
+should not need to be called by an application directly.
+</p>
+<p>
+This function is virtual and can be overriden by subclasses to
+implement custom lighting algorithms. The function is called during
+the paint sequence of <a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a> on every light before any other
+actors are painted. This gives the light implementation a chance to
+update any uniforms it may have declared in the override of
+<a class="link" href="MashLight.html#mash-light-generate-shader" title="mash_light_generate_shader ()"><code class="function">mash_light_generate_shader()</code></a>.
+</p>
+<p>
+The program is always made current with <code class="function">cogl_program_use()</code> before
+this method is called so it is safe to directly call
+<code class="function">cogl_program_uniform_1f()</code> and friends to update the uniforms. The
+<em class="parameter"><code>program</code></em> handle is passed in so that the program can also be
+queried to the locations of named
+uniforms. <a class="link" href="MashLight.html#mash-light-get-uniform-location" title="mash_light_get_uniform_location ()"><code class="function">mash_light_get_uniform_location()</code></a> can be used to make
+this easier when a uniform is named uniquely using the ‘$’ symbol
+in <a class="link" href="MashLight.html#mash-light-append-shader" title="mash_light_append_shader ()"><code class="function">mash_light_append_shader()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>The <a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> that needs updating</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>program</code></em> :</span></p></td>
+<td>A <span class="type">CoglProgram</span> containing the uniforms</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-light-append-shader"></a><h3>mash_light_append_shader ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_light_append_shader            (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">GString</span> *shader_source</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *snippet</code></em>);</pre>
+<p>
+This is a convenience intended to be used within
+<a class="link" href="MashLight.html#mash-light-generate-shader" title="mash_light_generate_shader ()"><code class="function">mash_light_generate_shader()</code></a> to generate shader snippets with
+actor-specific variable names. It should not generally need to be
+called by an application unless it is implementing its own lighting
+algorithms.
+</p>
+<p>
+The code in <em class="parameter"><code>snippet</code></em> is appended to <em class="parameter"><code>shader_source</code></em> but all
+occurences of the ‘$’ symbol are replaced with a string that is
+unique to <em class="parameter"><code>light</code></em> object. This is useful when multiple lights of the
+same type are added to a single light box. For example, if a light
+needs to have a position uniform it could make a call like the
+following:
+</p>
+<p>
+</p>
+<div class="informalexample">
+  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td class="listing_lines" align="right"><pre>1
+2</pre></td>
+        <td class="listing_code"><pre class="programlisting"><span class="function"><a href="MashLight.html#mash-light-append-shader">mash_light_append_shader</a></span><span class="normal"> </span><span class="symbol">(</span><span class="normal">light</span><span class="symbol">,</span><span class="normal"> uniform_source</span><span class="symbol">,</span>
+<span class="normal">                          </span><span class="string">"uniform vec3 position$;</span><span class="specialchar">\n</span><span class="string">"</span><span class="symbol">);</span></pre></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p>
+</p>
+<p>
+The ‘position’ will get translated to something like
+‘positiong00000002’.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>The <a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> which is generating the shader</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>shader_source</code></em> :</span></p></td>
+<td>The string to append to</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>snippet</code></em> :</span></p></td>
+<td>A snippet of GLSL</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-light-get-uniform-location"></a><h3>mash_light_get_uniform_location ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 mash_light_get_uniform_location     (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">CoglHandle</span> program</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *uniform_name</code></em>);</pre>
+<p>
+This is a convenience intended to be used within
+<a class="link" href="MashLight.html#mash-light-update-uniforms" title="mash_light_update_uniforms ()"><code class="function">mash_light_update_uniforms()</code></a> to help query uniform locations. It
+should not generally need to be called by an application unless it
+is implementing its own lighting algorithms.
+</p>
+<p>
+This is a wrapper around <code class="function">cogl_program_get_uniform_location()</code> which
+appends an actor specific string to the uniform name. This is
+useful when uniforms have been declared like ‘position$’ within
+<a class="link" href="MashLight.html#mash-light-append-shader" title="mash_light_append_shader ()"><code class="function">mash_light_append_shader()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>The <a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> which is generating the shader</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>program</code></em> :</span></p></td>
+<td>The program passed in from <a class="link" href="MashLight.html#mash-light-update-uniforms" title="mash_light_update_uniforms ()"><code class="function">mash_light_update_uniforms()</code></a>.</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>uniform_name</code></em> :</span></p></td>
+<td>The name of a uniform</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-light-set-direction-uniform"></a><h3>mash_light_set_direction_uniform ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_light_set_direction_uniform    (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">CoglHandle</span> program</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> uniform_location</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">float</span> *direction_in</code></em>);</pre>
+<p>
+This is a convenience intended to be used within
+<a class="link" href="MashLight.html#mash-light-update-uniforms" title="mash_light_update_uniforms ()"><code class="function">mash_light_update_uniforms()</code></a> to help set uniforms. It
+should not generally need to be called by an application unless it
+is implementing its own lighting algorithms.
+</p>
+<p>
+This is intended to help when setting a direction
+uniform. <em class="parameter"><code>direction_in</code></em> should be an untransformed array of 3 floats
+representing a vector. The vector will be transformed into eye
+space according to the inverse transposed matrix of <em class="parameter"><code>light</code></em> so that
+it won't change direction for non-uniform scaling transformations.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>The <a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> which is generating the shader</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>uniform_location</code></em> :</span></p></td>
+<td>The location of the uniform</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>direction_in</code></em> :</span></p></td>
+<td>The untransformed direction uniform</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-light-get-modelview-matrix"></a><h3>mash_light_get_modelview_matrix ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_light_get_modelview_matrix     (<em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">CoglMatrix</span> *matrix</code></em>);</pre>
+<p>
+Gets the modelview matrix for the light including all of the
+transformations for its parent actors. This should be used for
+updating uniforms that depend on the actor's transformation or
+position.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>A <a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>matrix</code></em> :</span></p></td>
+<td>The return location for the matrix</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1">
+<a name="MashLight.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="MashLight--ambient"></a><h3>The <code class="literal">"ambient"</code> property</h3>
+<pre class="programlisting">  "ambient"                  <span class="type">ClutterColor</span>*         : Read / Write</pre>
+<p>The ambient color emitted by the light.</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MashLight--diffuse"></a><h3>The <code class="literal">"diffuse"</code> property</h3>
+<pre class="programlisting">  "diffuse"                  <span class="type">ClutterColor</span>*         : Read / Write</pre>
+<p>The diffuse color emitted by the light.</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MashLight--specular"></a><h3>The <code class="literal">"specular"</code> property</h3>
+<pre class="programlisting">  "specular"                 <span class="type">ClutterColor</span>*         : Read / Write</pre>
+<p>The specular color emitted by the light.</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.16.1</div>
+</body>
+</html>

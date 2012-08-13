@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>MashDirectionalLight</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<link rel="home" href="index.html" title="Mash Reference Manual">
+<link rel="up" href="ch02.html" title="Lights">
+<link rel="prev" href="MashLight.html" title="MashLight">
+<link rel="next" href="MashPointLight.html" title="MashPointLight">
+<meta name="generator" content="GTK-Doc V1.16.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="MashLight.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="ch02.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">Mash Reference Manual</th>
+<td><a accesskey="n" href="MashPointLight.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts">
+<a href="#MashDirectionalLight.synopsis" class="shortcut">Top</a>
+                   | 
+                  <a href="#MashDirectionalLight.description" class="shortcut">Description</a>
+                   | 
+                  <a href="#MashDirectionalLight.object-hierarchy" class="shortcut">Object Hierarchy</a>
+                   | 
+                  <a href="#MashDirectionalLight.implemented-interfaces" class="shortcut">Implemented Interfaces</a>
+</td></tr>
+</table>
+<div class="refentry">
+<a name="MashDirectionalLight"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="MashDirectionalLight.top_of_page"></a>MashDirectionalLight</span></h2>
+<p>MashDirectionalLight — An light with a direction</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<a name="MashDirectionalLight.synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">                    <a class="link" href="MashDirectionalLight.html#MashDirectionalLight-struct" title="MashDirectionalLight">MashDirectionalLight</a>;
+struct              <a class="link" href="MashDirectionalLight.html#MashDirectionalLightClass" title="struct MashDirectionalLightClass">MashDirectionalLightClass</a>;
+<span class="returnvalue">ClutterActor</span> *      <a class="link" href="MashDirectionalLight.html#mash-directional-light-new" title="mash_directional_light_new ()">mash_directional_light_new</a>          (<em class="parameter"><code><span class="type">void</span></code></em>);
+</pre>
+</div>
+<div class="refsect1">
+<a name="MashDirectionalLight.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+  GObject
+   +----GInitiallyUnowned
+         +----ClutterActor
+               +----<a class="link" href="MashLight.html" title="MashLight">MashLight</a>
+                     +----MashDirectionalLight
+</pre>
+</div>
+<div class="refsect1">
+<a name="MashDirectionalLight.implemented-interfaces"></a><h2>Implemented Interfaces</h2>
+<p>
+MashDirectionalLight implements
+ ClutterScriptable,  ClutterAnimatable and  AtkImplementorIface.</p>
+</div>
+<div class="refsect1">
+<a name="MashDirectionalLight.description"></a><h2>Description</h2>
+<p>
+<a class="link" href="MashDirectionalLight.html" title="MashDirectionalLight"><span class="type">MashDirectionalLight</span></a> is the simplest light type implemented in
+Mash. It is intended to model a light that has a direction but it
+is infinitely far away. This means that the light will always reach
+the model regardless of its position. The light does however have a
+direction so the light intensity will be altered depending on the
+orientation of the vertex. Directional lights are useful for
+example to model the light emitted from the sun in an outdoor
+scene.
+</p>
+<p>
+The actor position of a <a class="link" href="MashDirectionalLight.html" title="MashDirectionalLight"><span class="type">MashDirectionalLight</span></a> is ignored. The
+direction of the light is always along the positive y axis (which
+is towards the bottom of the stage by default in Clutter). However
+the direction of the light is affected by the actor's
+transformation so it can be modified using the rotation properties.
+</p>
+</div>
+<div class="refsect1">
+<a name="MashDirectionalLight.details"></a><h2>Details</h2>
+<div class="refsect2">
+<a name="MashDirectionalLight-struct"></a><h3>MashDirectionalLight</h3>
+<pre class="programlisting">typedef struct _MashDirectionalLight MashDirectionalLight;</pre>
+<p>
+The <a class="link" href="MashDirectionalLight.html" title="MashDirectionalLight"><span class="type">MashDirectionalLight</span></a> structure contains only private data.
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MashDirectionalLightClass"></a><h3>struct MashDirectionalLightClass</h3>
+<pre class="programlisting">struct MashDirectionalLightClass {
+};
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-directional-light-new"></a><h3>mash_directional_light_new ()</h3>
+<pre class="programlisting"><span class="returnvalue">ClutterActor</span> *      mash_directional_light_new          (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<p>
+Constructs a new directional light actor.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>the new light.</td>
+</tr></tbody>
+</table></div>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.16.1</div>
+</body>
+</html>

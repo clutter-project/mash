@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE book PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "">
+<book xmlns="http://www.devhelp.net/book" title="Mash Reference Manual" link="index.html" author="" name="mash">
+  <chapters>
+    <sub name="Models" link="ch01.html">
+      <sub name="MashModel" link="MashModel.html"/>
+      <sub name="MashData" link="MashData.html"/>
+    </sub>
+    <sub name="Lights" link="ch02.html">
+      <sub name="MashLightSet" link="MashLightSet.html"/>
+      <sub name="MashLight" link="MashLight.html"/>
+      <sub name="MashDirectionalLight" link="MashDirectionalLight.html"/>
+      <sub name="MashPointLight" link="MashPointLight.html"/>
+      <sub name="MashSpotLight" link="MashSpotLight.html"/>
+    </sub>
+    <sub name="Object Hierarchy" link="object-tree.html"/>
+    <sub name="API Index" link="api-index-full.html"/>
+  </chapters>
+  <functions>
+    <function name="MashModel" link="MashModel.html#MashModel-struct"/>
+    <function name="struct MashModelClass" link="MashModel.html#MashModelClass"/>
+    <function name="mash_model_new ()" link="MashModel.html#mash-model-new"/>
+    <function name="mash_model_new_from_file ()" link="MashModel.html#mash-model-new-from-file"/>
+    <function name="mash_model_get_material ()" link="MashModel.html#mash-model-get-material"/>
+    <function name="mash_model_set_material ()" link="MashModel.html#mash-model-set-material"/>
+    <function name="mash_model_get_data ()" link="MashModel.html#mash-model-get-data"/>
+    <function name="mash_model_set_data ()" link="MashModel.html#mash-model-set-data"/>
+    <function name="mash_model_get_fit_to_allocation ()" link="MashModel.html#mash-model-get-fit-to-allocation"/>
+    <function name="mash_model_set_fit_to_allocation ()" link="MashModel.html#mash-model-set-fit-to-allocation"/>
+    <function name="mash_model_get_light_set ()" link="MashModel.html#mash-model-get-light-set"/>
+    <function name="mash_model_set_light_set ()" link="MashModel.html#mash-model-set-light-set"/>
+    <function name="The &quot;data&quot; property" link="MashModel.html#MashModel--data"/>
+    <function name="The &quot;fit-to-allocation&quot; property" link="MashModel.html#MashModel--fit-to-allocation"/>
+    <function name="The &quot;light-set&quot; property" link="MashModel.html#MashModel--light-set"/>
+    <function name="The &quot;material&quot; property" link="MashModel.html#MashModel--material"/>
+    <function name="MASH_DATA_ERROR" link="MashData.html#MASH-DATA-ERROR:CAPS"/>
+    <function name="MashData" link="MashData.html#MashData-struct"/>
+    <function name="struct MashDataClass" link="MashData.html#MashDataClass"/>
+    <function name="enum MashDataError" link="MashData.html#MashDataError"/>
+    <function name="enum MashDataFlags" link="MashData.html#MashDataFlags"/>
+    <function name="mash_data_new ()" link="MashData.html#mash-data-new"/>
+    <function name="mash_data_load ()" link="MashData.html#mash-data-load"/>
+    <function name="mash_data_render ()" link="MashData.html#mash-data-render"/>
+    <function name="mash_data_get_extents ()" link="MashData.html#mash-data-get-extents"/>
+    <function name="MashLightSet" link="MashLightSet.html#MashLightSet-struct"/>
+    <function name="struct MashLightSetClass" link="MashLightSet.html#MashLightSetClass"/>
+    <function name="mash_light_set_new ()" link="MashLightSet.html#mash-light-set-new"/>
+    <function name="mash_light_set_add_light ()" link="MashLightSet.html#mash-light-set-add-light"/>
+    <function name="mash_light_set_remove_light ()" link="MashLightSet.html#mash-light-set-remove-light"/>
+    <function name="mash_light_set_begin_paint ()" link="MashLightSet.html#mash-light-set-begin-paint"/>
+    <function name="MashLight" link="MashLight.html#MashLight-struct"/>
+    <function name="struct MashLightClass" link="MashLight.html#MashLightClass"/>
+    <function name="mash_light_set_ambient ()" link="MashLight.html#mash-light-set-ambient"/>
+    <function name="mash_light_get_ambient ()" link="MashLight.html#mash-light-get-ambient"/>
+    <function name="mash_light_set_diffuse ()" link="MashLight.html#mash-light-set-diffuse"/>
+    <function name="mash_light_get_diffuse ()" link="MashLight.html#mash-light-get-diffuse"/>
+    <function name="mash_light_set_specular ()" link="MashLight.html#mash-light-set-specular"/>
+    <function name="mash_light_get_specular ()" link="MashLight.html#mash-light-get-specular"/>
+    <function name="mash_light_generate_shader ()" link="MashLight.html#mash-light-generate-shader"/>
+    <function name="mash_light_update_uniforms ()" link="MashLight.html#mash-light-update-uniforms"/>
+    <function name="mash_light_append_shader ()" link="MashLight.html#mash-light-append-shader"/>
+    <function name="mash_light_get_uniform_location ()" link="MashLight.html#mash-light-get-uniform-location"/>
+    <function name="mash_light_set_direction_uniform ()" link="MashLight.html#mash-light-set-direction-uniform"/>
+    <function name="mash_light_get_modelview_matrix ()" link="MashLight.html#mash-light-get-modelview-matrix"/>
+    <function name="The &quot;ambient&quot; property" link="MashLight.html#MashLight--ambient"/>
+    <function name="The &quot;diffuse&quot; property" link="MashLight.html#MashLight--diffuse"/>
+    <function name="The &quot;specular&quot; property" link="MashLight.html#MashLight--specular"/>
+    <function name="MashDirectionalLight" link="MashDirectionalLight.html#MashDirectionalLight-struct"/>
+    <function name="struct MashDirectionalLightClass" link="MashDirectionalLight.html#MashDirectionalLightClass"/>
+    <function name="mash_directional_light_new ()" link="MashDirectionalLight.html#mash-directional-light-new"/>
+    <function name="MashPointLight" link="MashPointLight.html#MashPointLight-struct"/>
+    <function name="struct MashPointLightClass" link="MashPointLight.html#MashPointLightClass"/>
+    <function name="mash_point_light_new ()" link="MashPointLight.html#mash-point-light-new"/>
+    <function name="mash_point_light_set_constant_attenuation ()" link="MashPointLight.html#mash-point-light-set-constant-attenuation"/>
+    <function name="mash_point_light_get_constant_attenuation ()" link="MashPointLight.html#mash-point-light-get-constant-attenuation"/>
+    <function name="mash_point_light_set_linear_attenuation ()" link="MashPointLight.html#mash-point-light-set-linear-attenuation"/>
+    <function name="mash_point_light_get_linear_attenuation ()" link="MashPointLight.html#mash-point-light-get-linear-attenuation"/>
+    <function name="mash_point_light_set_quadratic_attenuation ()" link="MashPointLight.html#mash-point-light-set-quadratic-attenuation"/>
+    <function name="mash_point_light_get_quadratic_attenuation ()" link="MashPointLight.html#mash-point-light-get-quadratic-attenuation"/>
+    <function name="The &quot;constant-attenuation&quot; property" link="MashPointLight.html#MashPointLight--constant-attenuation"/>
+    <function name="The &quot;linear-attenuation&quot; property" link="MashPointLight.html#MashPointLight--linear-attenuation"/>
+    <function name="The &quot;quadratic-attenuation&quot; property" link="MashPointLight.html#MashPointLight--quadratic-attenuation"/>
+    <function name="MashSpotLight" link="MashSpotLight.html#MashSpotLight-struct"/>
+    <function name="struct MashSpotLightClass" link="MashSpotLight.html#MashSpotLightClass"/>
+    <function name="mash_spot_light_new ()" link="MashSpotLight.html#mash-spot-light-new"/>
+    <function name="mash_spot_light_set_spot_cutoff ()" link="MashSpotLight.html#mash-spot-light-set-spot-cutoff"/>
+    <function name="mash_spot_light_get_spot_cutoff ()" link="MashSpotLight.html#mash-spot-light-get-spot-cutoff"/>
+    <function name="mash_spot_light_set_spot_exponent ()" link="MashSpotLight.html#mash-spot-light-set-spot-exponent"/>
+    <function name="mash_spot_light_get_spot_exponent ()" link="MashSpotLight.html#mash-spot-light-get-spot-exponent"/>
+    <function name="The &quot;spot-cutoff&quot; property" link="MashSpotLight.html#MashSpotLight--spot-cutoff"/>
+    <function name="The &quot;spot-exponent&quot; property" link="MashSpotLight.html#MashSpotLight--spot-exponent"/>
+  </functions>
+</book>

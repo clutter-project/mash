@@ -1,0 +1,334 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>MashData</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<link rel="home" href="index.html" title="Mash Reference Manual">
+<link rel="up" href="ch01.html" title="Models">
+<link rel="prev" href="MashModel.html" title="MashModel">
+<link rel="next" href="ch02.html" title="Lights">
+<meta name="generator" content="GTK-Doc V1.16.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="MashModel.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">Mash Reference Manual</th>
+<td><a accesskey="n" href="ch02.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts">
+<a href="#MashData.synopsis" class="shortcut">Top</a>
+                   | 
+                  <a href="#MashData.description" class="shortcut">Description</a>
+                   | 
+                  <a href="#MashData.object-hierarchy" class="shortcut">Object Hierarchy</a>
+</td></tr>
+</table>
+<div class="refentry">
+<a name="MashData"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="MashData.top_of_page"></a>MashData</span></h2>
+<p>MashData — An object that contains the data for a model.</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<a name="MashData.synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">#define             <a class="link" href="MashData.html#MASH-DATA-ERROR:CAPS" title="MASH_DATA_ERROR">MASH_DATA_ERROR</a>
+                    <a class="link" href="MashData.html#MashData-struct" title="MashData">MashData</a>;
+struct              <a class="link" href="MashData.html#MashDataClass" title="struct MashDataClass">MashDataClass</a>;
+enum                <a class="link" href="MashData.html#MashDataError" title="enum MashDataError">MashDataError</a>;
+enum                <a class="link" href="MashData.html#MashDataFlags" title="enum MashDataFlags">MashDataFlags</a>;
+<a class="link" href="MashData.html" title="MashData"><span class="returnvalue">MashData</span></a> *          <a class="link" href="MashData.html#mash-data-new" title="mash_data_new ()">mash_data_new</a>                       (<em class="parameter"><code><span class="type">void</span></code></em>);
+<span class="returnvalue">gboolean</span>            <a class="link" href="MashData.html#mash-data-load" title="mash_data_load ()">mash_data_load</a>                      (<em class="parameter"><code><a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a> *self</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="MashData.html#MashDataFlags" title="enum MashDataFlags"><span class="type">MashDataFlags</span></a> flags</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *filename</code></em>,
+                                                         <em class="parameter"><code><span class="type">GError</span> **error</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashData.html#mash-data-render" title="mash_data_render ()">mash_data_render</a>                    (<em class="parameter"><code><a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a> *self</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashData.html#mash-data-get-extents" title="mash_data_get_extents ()">mash_data_get_extents</a>               (<em class="parameter"><code><a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a> *self</code></em>,
+                                                         <em class="parameter"><code><span class="type">ClutterVertex</span> *min_vertex</code></em>,
+                                                         <em class="parameter"><code><span class="type">ClutterVertex</span> *max_vertex</code></em>);
+</pre>
+</div>
+<div class="refsect1">
+<a name="MashData.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+  GObject
+   +----MashData
+</pre>
+</div>
+<div class="refsect1">
+<a name="MashData.description"></a><h2>Description</h2>
+<p>
+<a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a> is an object that can represent the data contained
+in a 3D model file. The data is internally converted to a
+Cogl vertex buffer so that it can be rendered efficiently.
+</p>
+<p>
+The <a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a> object is usually associated with a
+<a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> so that it can be animated as a regular actor. The
+data is separated from the actor in this way to make it easy to
+share data with multiple actors without having to keep two copies
+of the data.
+</p>
+</div>
+<div class="refsect1">
+<a name="MashData.details"></a><h2>Details</h2>
+<div class="refsect2">
+<a name="MASH-DATA-ERROR:CAPS"></a><h3>MASH_DATA_ERROR</h3>
+<pre class="programlisting">#define MASH_DATA_ERROR mash_data_error_quark ()
+</pre>
+<p>
+Error domain for <a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a> errors
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MashData-struct"></a><h3>MashData</h3>
+<pre class="programlisting">typedef struct _MashData MashData;</pre>
+<p>
+The <a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a> structure contains only private data.
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MashDataClass"></a><h3>struct MashDataClass</h3>
+<pre class="programlisting">struct MashDataClass {
+};
+</pre>
+<p>
+The <a class="link" href="MashData.html#MashDataClass" title="struct MashDataClass"><span class="type">MashDataClass</span></a> structure contains only private data.
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MashDataError"></a><h3>enum MashDataError</h3>
+<pre class="programlisting">typedef enum
+  {
+    MASH_DATA_ERROR_UNKNOWN_FORMAT,
+    MASH_DATA_ERROR_UNKNOWN,
+    MASH_DATA_ERROR_MISSING_PROPERTY,
+    MASH_DATA_ERROR_INVALID,
+    MASH_DATA_ERROR_UNSUPPORTED
+  } MashDataError;
+</pre>
+<p>
+Error enumeration for <a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><a name="MASH-DATA-ERROR-UNKNOWN-FORMAT:CAPS"></a><span class="term"><code class="literal">MASH_DATA_ERROR_UNKNOWN_FORMAT</code></span></p></td>
+<td>The file has an unknown format.
+</td>
+</tr>
+<tr>
+<td><p><a name="MASH-DATA-ERROR-UNKNOWN:CAPS"></a><span class="term"><code class="literal">MASH_DATA_ERROR_UNKNOWN</code></span></p></td>
+<td>The underlying library reported an error.
+</td>
+</tr>
+<tr>
+<td><p><a name="MASH-DATA-ERROR-MISSING-PROPERTY:CAPS"></a><span class="term"><code class="literal">MASH_DATA_ERROR_MISSING_PROPERTY</code></span></p></td>
+<td>A property that is needed
+ by <a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a> is not present in the file. For example, this
+ will happen if the file does not contain the x, y and z properties.
+</td>
+</tr>
+<tr>
+<td><p><a name="MASH-DATA-ERROR-INVALID:CAPS"></a><span class="term"><code class="literal">MASH_DATA_ERROR_INVALID</code></span></p></td>
+<td>The file is not valid.
+</td>
+</tr>
+<tr>
+<td><p><a name="MASH-DATA-ERROR-UNSUPPORTED:CAPS"></a><span class="term"><code class="literal">MASH_DATA_ERROR_UNSUPPORTED</code></span></p></td>
+<td>The file is not supported
+ by your GL driver. This will happen if your driver can't support
+ GL_UNSIGNED_INT indices but the model has more than 65,536
+ vertices.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MashDataFlags"></a><h3>enum MashDataFlags</h3>
+<pre class="programlisting">typedef enum
+  {
+    MASH_DATA_NONE = 0,
+    MASH_DATA_NEGATE_X = 1,
+    MASH_DATA_NEGATE_Y = 2,
+    MASH_DATA_NEGATE_Z = 4
+  } MashDataFlags;
+</pre>
+<p>
+Flags used for modifying the data as it is loaded. These can be
+passed to <a class="link" href="MashData.html#mash-data-load" title="mash_data_load ()"><code class="function">mash_data_load()</code></a>.
+</p>
+<p>
+If any of the negate flags are set then they cause the vertex and
+normal coordinates for the specified axis to be negated. This could
+be useful when loading a model from a tool which uses a different
+coordinate system than the one used in your application. For
+example, in Blender if the view is rotated such that the x-axis is
+pointing to the right, and the z-axis is pointing out of the screen
+then y-axis would be pointing directly up. However in Clutter the
+default transformation is set up such that the y-axis would be
+pointing down. Therefore if a model is loaded from Blender it would
+appear upside-down. Also all of the front faces would be in
+clockwise order. If backface culling is then enabled then the wrong
+faces would be culled with the default Cogl settings.
+</p>
+<p>
+To avoid these issues when exporting from Blender it is common to
+pass the <a class="link" href="MashData.html#MASH-DATA-NEGATE-Y:CAPS"><code class="literal">MASH_DATA_NEGATE_Y</code></a> flag.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><a name="MASH-DATA-NONE:CAPS"></a><span class="term"><code class="literal">MASH_DATA_NONE</code></span></p></td>
+<td>No flags
+</td>
+</tr>
+<tr>
+<td><p><a name="MASH-DATA-NEGATE-X:CAPS"></a><span class="term"><code class="literal">MASH_DATA_NEGATE_X</code></span></p></td>
+<td>Negate the X axis
+</td>
+</tr>
+<tr>
+<td><p><a name="MASH-DATA-NEGATE-Y:CAPS"></a><span class="term"><code class="literal">MASH_DATA_NEGATE_Y</code></span></p></td>
+<td>Negate the Y axis
+</td>
+</tr>
+<tr>
+<td><p><a name="MASH-DATA-NEGATE-Z:CAPS"></a><span class="term"><code class="literal">MASH_DATA_NEGATE_Z</code></span></p></td>
+<td>Negate the Z axis
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-data-new"></a><h3>mash_data_new ()</h3>
+<pre class="programlisting"><a class="link" href="MashData.html" title="MashData"><span class="returnvalue">MashData</span></a> *          mash_data_new                       (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<p>
+Constructs a new <a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a> instance. The object initially has
+no data so nothing will be drawn when <a class="link" href="MashData.html#mash-data-render" title="mash_data_render ()"><code class="function">mash_data_render()</code></a> is
+called. To load data into the object, call <a class="link" href="MashData.html#mash-data-load" title="mash_data_load ()"><code class="function">mash_data_load()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>a new <a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a>.</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-data-load"></a><h3>mash_data_load ()</h3>
+<pre class="programlisting"><span class="returnvalue">gboolean</span>            mash_data_load                      (<em class="parameter"><code><a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a> *self</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="MashData.html#MashDataFlags" title="enum MashDataFlags"><span class="type">MashDataFlags</span></a> flags</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *filename</code></em>,
+                                                         <em class="parameter"><code><span class="type">GError</span> **error</code></em>);</pre>
+<p>
+Loads the data from the file called <em class="parameter"><code>filename</code></em> into <em class="parameter"><code>self</code></em>. The
+model can then be rendered using <a class="link" href="MashData.html#mash-data-render" title="mash_data_render ()"><code class="function">mash_data_render()</code></a>. If
+there is an error loading the file it will return <code class="literal">FALSE</code> and <em class="parameter"><code>error</code></em>
+will be set to a GError instance.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>self</code></em> :</span></p></td>
+<td>The <a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a> instance</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>flags</code></em> :</span></p></td>
+<td>Flags used to specify load-time modifications to the data</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>filename</code></em> :</span></p></td>
+<td>The name of a file to load</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em> :</span></p></td>
+<td>Return location for an error or <code class="literal">NULL</code>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>
+<code class="literal">TRUE</code> if the load succeeded or <code class="literal">FALSE</code> otherwise.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-data-render"></a><h3>mash_data_render ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_data_render                    (<em class="parameter"><code><a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a> *self</code></em>);</pre>
+<p>
+Renders the data contained in the model to the Clutter
+scene. The current Cogl source material will be used to affect the
+appearance of the model. This function is not usually called
+directly but instead the <a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a> instance is added to a
+<a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> and this function will be automatically called by
+the paint method of the model.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>self</code></em> :</span></p></td>
+<td>A <a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a> instance</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-data-get-extents"></a><h3>mash_data_get_extents ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_data_get_extents               (<em class="parameter"><code><a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a> *self</code></em>,
+                                                         <em class="parameter"><code><span class="type">ClutterVertex</span> *min_vertex</code></em>,
+                                                         <em class="parameter"><code><span class="type">ClutterVertex</span> *max_vertex</code></em>);</pre>
+<p>
+Gets the bounding cuboid of the vertices in <em class="parameter"><code>self</code></em>. The cuboid is
+represented by two vertices representing the minimum and maximum
+extents. The x, y and z components of <em class="parameter"><code>min_vertex</code></em> will contain the
+minimum x, y and z values of all the vertices and <em class="parameter"><code>max_vertex</code></em> will
+contain the maximum. The extents of the model are cached so it is
+cheap to call this function.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>self</code></em> :</span></p></td>
+<td>A <a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a> instance</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>min_vertex</code></em> :</span></p></td>
+<td>A location to return the minimum vertex</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>max_vertex</code></em> :</span></p></td>
+<td>A location to return the maximum vertex</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.16.1</div>
+</body>
+</html>

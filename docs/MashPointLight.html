@@ -1,0 +1,313 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>MashPointLight</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<link rel="home" href="index.html" title="Mash Reference Manual">
+<link rel="up" href="ch02.html" title="Lights">
+<link rel="prev" href="MashDirectionalLight.html" title="MashDirectionalLight">
+<link rel="next" href="MashSpotLight.html" title="MashSpotLight">
+<meta name="generator" content="GTK-Doc V1.16.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="MashDirectionalLight.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="ch02.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">Mash Reference Manual</th>
+<td><a accesskey="n" href="MashSpotLight.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts">
+<a href="#MashPointLight.synopsis" class="shortcut">Top</a>
+                   | 
+                  <a href="#MashPointLight.description" class="shortcut">Description</a>
+                   | 
+                  <a href="#MashPointLight.object-hierarchy" class="shortcut">Object Hierarchy</a>
+                   | 
+                  <a href="#MashPointLight.implemented-interfaces" class="shortcut">Implemented Interfaces</a>
+                   | 
+                  <a href="#MashPointLight.properties" class="shortcut">Properties</a>
+</td></tr>
+</table>
+<div class="refentry">
+<a name="MashPointLight"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="MashPointLight.top_of_page"></a>MashPointLight</span></h2>
+<p>MashPointLight — An actor for a light with a position that emits
+  light in all directions.</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<a name="MashPointLight.synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">                    <a class="link" href="MashPointLight.html#MashPointLight-struct" title="MashPointLight">MashPointLight</a>;
+struct              <a class="link" href="MashPointLight.html#MashPointLightClass" title="struct MashPointLightClass">MashPointLightClass</a>;
+<span class="returnvalue">ClutterActor</span> *      <a class="link" href="MashPointLight.html#mash-point-light-new" title="mash_point_light_new ()">mash_point_light_new</a>                (<em class="parameter"><code><span class="type">void</span></code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashPointLight.html#mash-point-light-set-constant-attenuation" title="mash_point_light_set_constant_attenuation ()">mash_point_light_set_constant_attenuation</a>
+                                                        (<em class="parameter"><code><a class="link" href="MashPointLight.html" title="MashPointLight"><span class="type">MashPointLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">gfloat</span> attenuation</code></em>);
+<span class="returnvalue">gfloat</span>              <a class="link" href="MashPointLight.html#mash-point-light-get-constant-attenuation" title="mash_point_light_get_constant_attenuation ()">mash_point_light_get_constant_attenuation</a>
+                                                        (<em class="parameter"><code><a class="link" href="MashPointLight.html" title="MashPointLight"><span class="type">MashPointLight</span></a> *light</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashPointLight.html#mash-point-light-set-linear-attenuation" title="mash_point_light_set_linear_attenuation ()">mash_point_light_set_linear_attenuation</a>
+                                                        (<em class="parameter"><code><a class="link" href="MashPointLight.html" title="MashPointLight"><span class="type">MashPointLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">gfloat</span> attenuation</code></em>);
+<span class="returnvalue">gfloat</span>              <a class="link" href="MashPointLight.html#mash-point-light-get-linear-attenuation" title="mash_point_light_get_linear_attenuation ()">mash_point_light_get_linear_attenuation</a>
+                                                        (<em class="parameter"><code><a class="link" href="MashPointLight.html" title="MashPointLight"><span class="type">MashPointLight</span></a> *light</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashPointLight.html#mash-point-light-set-quadratic-attenuation" title="mash_point_light_set_quadratic_attenuation ()">mash_point_light_set_quadratic_attenuation</a>
+                                                        (<em class="parameter"><code><a class="link" href="MashPointLight.html" title="MashPointLight"><span class="type">MashPointLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">gfloat</span> attenuation</code></em>);
+<span class="returnvalue">gfloat</span>              <a class="link" href="MashPointLight.html#mash-point-light-get-quadratic-attenuation" title="mash_point_light_get_quadratic_attenuation ()">mash_point_light_get_quadratic_attenuation</a>
+                                                        (<em class="parameter"><code><a class="link" href="MashPointLight.html" title="MashPointLight"><span class="type">MashPointLight</span></a> *light</code></em>);
+</pre>
+</div>
+<div class="refsect1">
+<a name="MashPointLight.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+  GObject
+   +----GInitiallyUnowned
+         +----ClutterActor
+               +----<a class="link" href="MashLight.html" title="MashLight">MashLight</a>
+                     +----MashPointLight
+                           +----<a class="link" href="MashSpotLight.html" title="MashSpotLight">MashSpotLight</a>
+</pre>
+</div>
+<div class="refsect1">
+<a name="MashPointLight.implemented-interfaces"></a><h2>Implemented Interfaces</h2>
+<p>
+MashPointLight implements
+ ClutterScriptable,  ClutterAnimatable and  AtkImplementorIface.</p>
+</div>
+<div class="refsect1">
+<a name="MashPointLight.properties"></a><h2>Properties</h2>
+<pre class="synopsis">
+  "<a class="link" href="MashPointLight.html#MashPointLight--constant-attenuation" title='The "constant-attenuation" property'>constant-attenuation</a>"     <span class="type">gfloat</span>                : Read / Write
+  "<a class="link" href="MashPointLight.html#MashPointLight--linear-attenuation" title='The "linear-attenuation" property'>linear-attenuation</a>"       <span class="type">gfloat</span>                : Read / Write
+  "<a class="link" href="MashPointLight.html#MashPointLight--quadratic-attenuation" title='The "quadratic-attenuation" property'>quadratic-attenuation</a>"    <span class="type">gfloat</span>                : Read / Write
+</pre>
+</div>
+<div class="refsect1">
+<a name="MashPointLight.description"></a><h2>Description</h2>
+<p>
+A <a class="link" href="MashPointLight.html" title="MashPointLight"><span class="type">MashPointLight</span></a> models a light that has a position and emits
+light evenly in all directions. The position of the light is taken
+from the actor's position so it can be easily modified and even
+animated using the <span class="type">ClutterActor</span> properties. The intensity of the
+light can be attenuated using the attenuation properties to make
+objects that are further from the light receive less intensity. The
+intensity of the light is divided by ad² + bd + c, where d is the
+distance between the light and the vertex and a, b and c are the
+following properties which can be modified on the light:
+quadratic-attenuation, linear-attenuation and constant-attenuation.
+</p>
+<p>
+By default the attenuation values are all zero except for the
+constant attenuation. This causes the light to never be attenuated
+so that the light intensity is not affected by the distance from
+the light.
+</p>
+</div>
+<div class="refsect1">
+<a name="MashPointLight.details"></a><h2>Details</h2>
+<div class="refsect2">
+<a name="MashPointLight-struct"></a><h3>MashPointLight</h3>
+<pre class="programlisting">typedef struct _MashPointLight MashPointLight;</pre>
+<p>
+The <a class="link" href="MashLight.html#MashLightClass" title="struct MashLightClass"><span class="type">MashLightClass</span></a> structure contains only private data.
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MashPointLightClass"></a><h3>struct MashPointLightClass</h3>
+<pre class="programlisting">struct MashPointLightClass {
+};
+</pre>
+<p>
+The <a class="link" href="MashPointLight.html#MashPointLightClass" title="struct MashPointLightClass"><span class="type">MashPointLightClass</span></a> structure contains only private data.
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-point-light-new"></a><h3>mash_point_light_new ()</h3>
+<pre class="programlisting"><span class="returnvalue">ClutterActor</span> *      mash_point_light_new                (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<p>
+Constructs a new <a class="link" href="MashPointLight.html" title="MashPointLight"><span class="type">MashPointLight</span></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>the new light.</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-point-light-set-constant-attenuation"></a><h3>mash_point_light_set_constant_attenuation ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_point_light_set_constant_attenuation
+                                                        (<em class="parameter"><code><a class="link" href="MashPointLight.html" title="MashPointLight"><span class="type">MashPointLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">gfloat</span> attenuation</code></em>);</pre>
+<p>
+Sets the constant attenuation value on a light. The light intensity
+is divided by this value. Setting a higher value will cause the
+light to appear dimmer.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>The light to modify</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>attenuation</code></em> :</span></p></td>
+<td>The new value</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-point-light-get-constant-attenuation"></a><h3>mash_point_light_get_constant_attenuation ()</h3>
+<pre class="programlisting"><span class="returnvalue">gfloat</span>              mash_point_light_get_constant_attenuation
+                                                        (<em class="parameter"><code><a class="link" href="MashPointLight.html" title="MashPointLight"><span class="type">MashPointLight</span></a> *light</code></em>);</pre>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>The light to query</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>the constant light attenuation value.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-point-light-set-linear-attenuation"></a><h3>mash_point_light_set_linear_attenuation ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_point_light_set_linear_attenuation
+                                                        (<em class="parameter"><code><a class="link" href="MashPointLight.html" title="MashPointLight"><span class="type">MashPointLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">gfloat</span> attenuation</code></em>);</pre>
+<p>
+Sets the linear attenuation value on a light. The light intensity
+is divided by this value multiplied by the distance to the
+light. Setting a higher value will cause the intensity to dim faster
+as the vertex moves away from the light.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>The light to modify</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>attenuation</code></em> :</span></p></td>
+<td>The new value</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-point-light-get-linear-attenuation"></a><h3>mash_point_light_get_linear_attenuation ()</h3>
+<pre class="programlisting"><span class="returnvalue">gfloat</span>              mash_point_light_get_linear_attenuation
+                                                        (<em class="parameter"><code><a class="link" href="MashPointLight.html" title="MashPointLight"><span class="type">MashPointLight</span></a> *light</code></em>);</pre>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>The light to query</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>the linear light attenuation value.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-point-light-set-quadratic-attenuation"></a><h3>mash_point_light_set_quadratic_attenuation ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_point_light_set_quadratic_attenuation
+                                                        (<em class="parameter"><code><a class="link" href="MashPointLight.html" title="MashPointLight"><span class="type">MashPointLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">gfloat</span> attenuation</code></em>);</pre>
+<p>
+Sets the quadratic attenuation value on a light. The light
+intensity is divided by this value multiplied by the square of the
+distance to the light. Setting a higher value will cause the
+intensity to dim sharply as the vertex moves away from the light.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>The light to modify</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>attenuation</code></em> :</span></p></td>
+<td>The new value</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-point-light-get-quadratic-attenuation"></a><h3>mash_point_light_get_quadratic_attenuation ()</h3>
+<pre class="programlisting"><span class="returnvalue">gfloat</span>              mash_point_light_get_quadratic_attenuation
+                                                        (<em class="parameter"><code><a class="link" href="MashPointLight.html" title="MashPointLight"><span class="type">MashPointLight</span></a> *light</code></em>);</pre>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>The light to query</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>the quadratic light attenuation value.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1">
+<a name="MashPointLight.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="MashPointLight--constant-attenuation"></a><h3>The <code class="literal">"constant-attenuation"</code> property</h3>
+<pre class="programlisting">  "constant-attenuation"     <span class="type">gfloat</span>                : Read / Write</pre>
+<p>A constant number to add to the attenuation value.</p>
+<p>Allowed values: &gt;= 0</p>
+<p>Default value: 1</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MashPointLight--linear-attenuation"></a><h3>The <code class="literal">"linear-attenuation"</code> property</h3>
+<pre class="programlisting">  "linear-attenuation"       <span class="type">gfloat</span>                : Read / Write</pre>
+<p>This number is multiplied by the distance from the vertex to the light source and added to the attenuation factor.</p>
+<p>Allowed values: &gt;= 0</p>
+<p>Default value: 0</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MashPointLight--quadratic-attenuation"></a><h3>The <code class="literal">"quadratic-attenuation"</code> property</h3>
+<pre class="programlisting">  "quadratic-attenuation"    <span class="type">gfloat</span>                : Read / Write</pre>
+<p>This number is multiplied by the square of the distance from the vertex to the light source and added to the attenuation factor.</p>
+<p>Allowed values: &gt;= 0</p>
+<p>Default value: 0</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.16.1</div>
+</body>
+</html>

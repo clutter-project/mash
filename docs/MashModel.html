@@ -1,0 +1,492 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>MashModel</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<link rel="home" href="index.html" title="Mash Reference Manual">
+<link rel="up" href="ch01.html" title="Models">
+<link rel="prev" href="ch01.html" title="Models">
+<link rel="next" href="MashData.html" title="MashData">
+<meta name="generator" content="GTK-Doc V1.16.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="ch01.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">Mash Reference Manual</th>
+<td><a accesskey="n" href="MashData.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts">
+<a href="#MashModel.synopsis" class="shortcut">Top</a>
+                   | 
+                  <a href="#MashModel.description" class="shortcut">Description</a>
+                   | 
+                  <a href="#MashModel.object-hierarchy" class="shortcut">Object Hierarchy</a>
+                   | 
+                  <a href="#MashModel.implemented-interfaces" class="shortcut">Implemented Interfaces</a>
+                   | 
+                  <a href="#MashModel.properties" class="shortcut">Properties</a>
+</td></tr>
+</table>
+<div class="refentry">
+<a name="MashModel"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="MashModel.top_of_page"></a>MashModel</span></h2>
+<p>MashModel — An actor that can be used to render a PLY model.</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<a name="MashModel.synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">                    <a class="link" href="MashModel.html#MashModel-struct" title="MashModel">MashModel</a>;
+struct              <a class="link" href="MashModel.html#MashModelClass" title="struct MashModelClass">MashModelClass</a>;
+<span class="returnvalue">ClutterActor</span> *      <a class="link" href="MashModel.html#mash-model-new" title="mash_model_new ()">mash_model_new</a>                      (<em class="parameter"><code><span class="type">void</span></code></em>);
+<span class="returnvalue">ClutterActor</span> *      <a class="link" href="MashModel.html#mash-model-new-from-file" title="mash_model_new_from_file ()">mash_model_new_from_file</a>            (<em class="parameter"><code><a class="link" href="MashData.html#MashDataFlags" title="enum MashDataFlags"><span class="type">MashDataFlags</span></a> flags</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *filename</code></em>,
+                                                         <em class="parameter"><code><span class="type">GError</span> **error</code></em>);
+<span class="returnvalue">CoglHandle</span>          <a class="link" href="MashModel.html#mash-model-get-material" title="mash_model_get_material ()">mash_model_get_material</a>             (<em class="parameter"><code><a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> *self</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashModel.html#mash-model-set-material" title="mash_model_set_material ()">mash_model_set_material</a>             (<em class="parameter"><code><a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> *self</code></em>,
+                                                         <em class="parameter"><code><span class="type">CoglHandle</span> material</code></em>);
+<a class="link" href="MashData.html" title="MashData"><span class="returnvalue">MashData</span></a> *          <a class="link" href="MashModel.html#mash-model-get-data" title="mash_model_get_data ()">mash_model_get_data</a>                 (<em class="parameter"><code><a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> *self</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashModel.html#mash-model-set-data" title="mash_model_set_data ()">mash_model_set_data</a>                 (<em class="parameter"><code><a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> *self</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a> *data</code></em>);
+<span class="returnvalue">gboolean</span>            <a class="link" href="MashModel.html#mash-model-get-fit-to-allocation" title="mash_model_get_fit_to_allocation ()">mash_model_get_fit_to_allocation</a>    (<em class="parameter"><code><a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> *self</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashModel.html#mash-model-set-fit-to-allocation" title="mash_model_set_fit_to_allocation ()">mash_model_set_fit_to_allocation</a>    (<em class="parameter"><code><a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> *self</code></em>,
+                                                         <em class="parameter"><code><span class="type">gboolean</span> fit_to_allocation</code></em>);
+<a class="link" href="MashLightSet.html" title="MashLightSet"><span class="returnvalue">MashLightSet</span></a> *      <a class="link" href="MashModel.html#mash-model-get-light-set" title="mash_model_get_light_set ()">mash_model_get_light_set</a>            (<em class="parameter"><code><a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> *self</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashModel.html#mash-model-set-light-set" title="mash_model_set_light_set ()">mash_model_set_light_set</a>            (<em class="parameter"><code><a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> *self</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a> *light_set</code></em>);
+</pre>
+</div>
+<div class="refsect1">
+<a name="MashModel.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+  GObject
+   +----GInitiallyUnowned
+         +----ClutterActor
+               +----MashModel
+</pre>
+</div>
+<div class="refsect1">
+<a name="MashModel.implemented-interfaces"></a><h2>Implemented Interfaces</h2>
+<p>
+MashModel implements
+ ClutterScriptable,  ClutterAnimatable and  AtkImplementorIface.</p>
+</div>
+<div class="refsect1">
+<a name="MashModel.properties"></a><h2>Properties</h2>
+<pre class="synopsis">
+  "<a class="link" href="MashModel.html#MashModel--data" title='The "data" property'>data</a>"                     <a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a>*             : Read / Write
+  "<a class="link" href="MashModel.html#MashModel--fit-to-allocation" title='The "fit-to-allocation" property'>fit-to-allocation</a>"        <span class="type">gboolean</span>              : Read / Write
+  "<a class="link" href="MashModel.html#MashModel--light-set" title='The "light-set" property'>light-set</a>"                <a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a>*         : Read / Write
+  "<a class="link" href="MashModel.html#MashModel--material" title='The "material" property'>material</a>"                 <span class="type">CoglHandle</span>*           : Read / Write
+</pre>
+</div>
+<div class="refsect1">
+<a name="MashModel.description"></a><h2>Description</h2>
+<p>
+<a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> is an actor subclass that can be used to render a
+3D model. The model is a normal <span class="type">ClutterActor</span> that can be animated
+and positioned with the methods of <span class="type">ClutterActor</span>.
+</p>
+<p>
+By default the model will be scaled to best fit within the size of
+the actor. Therefore it is possible to take a small model that may
+have positions ranging between -1 and 1 and draw it at a larger
+size just by setting the size on the actor. This behaviour can be
+disabled with <a class="link" href="MashModel.html#mash-model-set-fit-to-allocation" title="mash_model_set_fit_to_allocation ()"><code class="function">mash_model_set_fit_to_allocation()</code></a>.
+</p>
+<p>
+The actual data for the model is stored in a separate object called
+<a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a>. This can be used to share the data for a model
+between multiple actors without having to duplicate resources of
+the data. Alternatively <a class="link" href="MashModel.html#mash-model-new-from-file" title="mash_model_new_from_file ()"><code class="function">mash_model_new_from_file()</code></a> can be
+used as a convenience wrapper to easily make an actor out of a PLY
+without having to worry about <a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a>. To share the data
+with another actor, call <a class="link" href="MashModel.html#mash-model-get-data" title="mash_model_get_data ()"><code class="function">mash_model_get_data()</code></a> on an
+existing actor then call <a class="link" href="MashModel.html#mash-model-set-data" title="mash_model_set_data ()"><code class="function">mash_model_set_data()</code></a> with the
+return value on a new actor.
+</p>
+<p>
+The model can be rendered with any Cogl material. By default the
+model will use a solid white material. The material color is
+blended with the model's vertex colors so the white material will
+cause the vertex colors to be used directly. <a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a> is
+able to load texture coordinates from the PLY file so it is
+possible to render a textured model by setting a texture layer on
+the material, like so:
+</p>
+<p>
+</p>
+<div class="informalexample">
+  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td class="listing_lines" align="right"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15</pre></td>
+        <td class="listing_code"><pre class="programlisting"><span class="comment">/* Create an actor out of a PLY model file */</span>
+<span class="normal">ClutterActor </span><span class="symbol">*</span><span class="normal">model</span>
+<span class="normal">  </span><span class="symbol">=</span><span class="normal"> </span><span class="function"><a href="MashModel.html#mash-model-new-from-file">mash_model_new_from_file</a></span><span class="normal"> </span><span class="symbol">(</span><span class="string">"some-model.ply"</span><span class="symbol">,</span><span class="normal"> NULL</span><span class="symbol">);</span>
+<span class="comment">/* Get a handle to the default material for the actor */</span>
+<span class="normal">CoglHandle material</span>
+<span class="normal">  </span><span class="symbol">=</span><span class="normal"> </span><span class="function"><a href="MashModel.html#mash-model-get-material">mash_model_get_material</a></span><span class="normal"> </span><span class="symbol">(</span><span class="function">MASH_MODEL</span><span class="normal"> </span><span class="symbol">(</span><span class="normal">model</span><span class="symbol">));</span>
+<span class="comment">/* Load a texture image from a file */</span>
+<span class="normal">CoglHandle texture</span>
+<span class="normal">  </span><span class="symbol">=</span><span class="normal"> </span><span class="function">cogl_texture_new_from_file</span><span class="normal"> </span><span class="symbol">(</span><span class="string">"some-image.png"</span><span class="symbol">,</span><span class="normal"> COGL_TEXTURE_NONE</span><span class="symbol">,</span>
+<span class="normal">                                COGL_PIXEL_FORMAT_ANY</span><span class="symbol">,</span><span class="normal"> NULL</span><span class="symbol">);</span>
+<span class="comment">/* Set a texture layer on the material */</span>
+<span class="function">cogl_material_set_layer</span><span class="normal"> </span><span class="symbol">(</span><span class="normal">material</span><span class="symbol">,</span><span class="normal"> </span><span class="number">0</span><span class="symbol">,</span><span class="normal"> texture</span><span class="symbol">);</span>
+<span class="comment">/* The texture is now referenced by the material so we can</span>
+<span class="comment">  drop the reference we have */</span>
+<span class="function">cogl_handle_unref</span><span class="normal"> </span><span class="symbol">(</span><span class="normal">texture</span><span class="symbol">);</span></pre></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p>
+</p>
+</div>
+<div class="refsect1">
+<a name="MashModel.details"></a><h2>Details</h2>
+<div class="refsect2">
+<a name="MashModel-struct"></a><h3>MashModel</h3>
+<pre class="programlisting">typedef struct _MashModel MashModel;</pre>
+<p>
+The <a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> structure contains only private data.
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MashModelClass"></a><h3>struct MashModelClass</h3>
+<pre class="programlisting">struct MashModelClass {
+};
+</pre>
+<p>
+The <a class="link" href="MashModel.html#MashModelClass" title="struct MashModelClass"><span class="type">MashModelClass</span></a> structure contains only private data.
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-model-new"></a><h3>mash_model_new ()</h3>
+<pre class="programlisting"><span class="returnvalue">ClutterActor</span> *      mash_model_new                      (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<p>
+Constructs a new <a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a>. Nothing will be rendered by the
+model until a <a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a> is attached using
+<a class="link" href="MashModel.html#mash-model-set-data" title="mash_model_set_data ()"><code class="function">mash_model_set_data()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>a new <a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a>.</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-model-new-from-file"></a><h3>mash_model_new_from_file ()</h3>
+<pre class="programlisting"><span class="returnvalue">ClutterActor</span> *      mash_model_new_from_file            (<em class="parameter"><code><a class="link" href="MashData.html#MashDataFlags" title="enum MashDataFlags"><span class="type">MashDataFlags</span></a> flags</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *filename</code></em>,
+                                                         <em class="parameter"><code><span class="type">GError</span> **error</code></em>);</pre>
+<p>
+This is a convenience function that creates a new <a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a>
+and immediately loads the data in <em class="parameter"><code>filename</code></em>. If the load succeeds a
+new <a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> will be created for the data. The model has a
+default white material so that if vertices of the model have any
+color attributes they will be used directly. The material does not
+have textures by default so if you want the model to be textured
+you will need to modify the material.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>flags</code></em> :</span></p></td>
+<td>Flags for loading the data.</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>filename</code></em> :</span></p></td>
+<td>The name of a PLY file to load.</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em> :</span></p></td>
+<td>Return location for a <span class="type">GError</span> or <code class="literal">NULL</code>.</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>a new <a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> or <code class="literal">NULL</code> if the load failed.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-model-get-material"></a><h3>mash_model_get_material ()</h3>
+<pre class="programlisting"><span class="returnvalue">CoglHandle</span>          mash_model_get_material             (<em class="parameter"><code><a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> *self</code></em>);</pre>
+<p>
+Gets the material that will be used to render the model. The
+material can be modified to affect the appearence of the model. By
+default the material will be solid white.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>self</code></em> :</span></p></td>
+<td>A <a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> instance</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>a handle to the Cogl material used by the model.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-model-set-material"></a><h3>mash_model_set_material ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_model_set_material             (<em class="parameter"><code><a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> *self</code></em>,
+                                                         <em class="parameter"><code><span class="type">CoglHandle</span> material</code></em>);</pre>
+<p>
+Replaces the material that will be used to render the model with
+the given one. By default a <a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> will use a solid white
+material. However the color of the material is still blended with
+the vertex colors so the white material will cause the vertex
+colors to be used directly. If you want the model to be textured
+you will need to create a material that has a texture layer and set
+it with this function.
+</p>
+<p>
+If a <a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a> is used with the model then the material given
+here will be modified to use the program generated by that light
+set. If multiple models are expected to use the same material with
+different light sets, it would be better to use a different copy of
+the same material for each set of models so that they don't
+repeatedly change the program on the material during paint.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>self</code></em> :</span></p></td>
+<td>A <a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> instance</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>material</code></em> :</span></p></td>
+<td>A handle to a Cogl material</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-model-get-data"></a><h3>mash_model_get_data ()</h3>
+<pre class="programlisting"><a class="link" href="MashData.html" title="MashData"><span class="returnvalue">MashData</span></a> *          mash_model_get_data                 (<em class="parameter"><code><a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> *self</code></em>);</pre>
+<p>
+Gets the model data that will be used to render the actor.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>self</code></em> :</span></p></td>
+<td>A <a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> instance</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>A pointer to a <a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a> instance or <code class="literal">NULL</code> if
+no data has been set yet.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-model-set-data"></a><h3>mash_model_set_data ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_model_set_data                 (<em class="parameter"><code><a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> *self</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a> *data</code></em>);</pre>
+<p>
+Replaces the data used by the actor with <em class="parameter"><code>data</code></em>. A reference is
+taken on <em class="parameter"><code>data</code></em> so if you no longer need it you should unref it with
+<code class="function">g_object_unref()</code>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>self</code></em> :</span></p></td>
+<td>A <a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> instance</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>data</code></em> :</span></p></td>
+<td>The new <a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-model-get-fit-to-allocation"></a><h3>mash_model_get_fit_to_allocation ()</h3>
+<pre class="programlisting"><span class="returnvalue">gboolean</span>            mash_model_get_fit_to_allocation    (<em class="parameter"><code><a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> *self</code></em>);</pre>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>self</code></em> :</span></p></td>
+<td>A <a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> instance</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>whether the actor will try to scale the model to fit
+within the allocation.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-model-set-fit-to-allocation"></a><h3>mash_model_set_fit_to_allocation ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_model_set_fit_to_allocation    (<em class="parameter"><code><a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> *self</code></em>,
+                                                         <em class="parameter"><code><span class="type">gboolean</span> fit_to_allocation</code></em>);</pre>
+<p>
+This sets whether the actor should scale the model to fit the
+actor's allocation. If it's <code class="literal">TRUE</code> then all of the axes of the model
+will be scaled by the same amount to fill the allocation as much as
+possible without distorting the aspect ratio. The model is also
+translated so that it is at the center of the allocation and
+centered at 0 along the z axis. The size along the z axis is not
+considered when calculating a scale so if the model is largest
+along that axis then the actor may appear too large. The
+transformations are applied in addition to the actor's
+transformations so it is still possible scale the actor further
+using the scale-x and scale-y properties. The preferred size of the
+actor will be the width and height of the model. If
+width-for-height or height-for-width allocation is being used then
+<a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> will return whatever width or height will exactly
+preserve the aspect ratio.
+</p>
+<p>
+If the value is <code class="literal">FALSE</code> then the actor is not transformed so the
+origin of the model will be the top left corner of the actor. The
+preferred size of the actor will be maximum extents of the model
+although the allocation is not considered during paint so if the
+model extends past the allocated size then it will draw outside the
+allocation.
+</p>
+<p>
+The default value is <code class="literal">TRUE</code>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>self</code></em> :</span></p></td>
+<td>A <a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> instance</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>fit_to_allocation</code></em> :</span></p></td>
+<td>New value</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-model-get-light-set"></a><h3>mash_model_get_light_set ()</h3>
+<pre class="programlisting"><a class="link" href="MashLightSet.html" title="MashLightSet"><span class="returnvalue">MashLightSet</span></a> *      mash_model_get_light_set            (<em class="parameter"><code><a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> *self</code></em>);</pre>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>self</code></em> :</span></p></td>
+<td>A <a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> instance</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>the <a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a> previously set with
+<a class="link" href="MashModel.html#mash-model-set-light-set" title="mash_model_set_light_set ()"><code class="function">mash_model_set_light_set()</code></a>.</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since 0.2</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-model-set-light-set"></a><h3>mash_model_set_light_set ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_model_set_light_set            (<em class="parameter"><code><a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> *self</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a> *light_set</code></em>);</pre>
+<p>
+This sets the <a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a> that will be used to render the
+model. Alternatively <code class="literal">NULL</code> can be passed to disable lighting for
+this model. The light set represents a collection of <a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a>s that will affect the appearance of the model.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>self</code></em> :</span></p></td>
+<td>A <a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> instance</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light_set</code></em> :</span></p></td>
+<td>A new <a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a>
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since 0.2</p>
+</div>
+</div>
+<div class="refsect1">
+<a name="MashModel.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="MashModel--data"></a><h3>The <code class="literal">"data"</code> property</h3>
+<pre class="programlisting">  "data"                     <a class="link" href="MashData.html" title="MashData"><span class="type">MashData</span></a>*             : Read / Write</pre>
+<p>The MashData to render.</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MashModel--fit-to-allocation"></a><h3>The <code class="literal">"fit-to-allocation"</code> property</h3>
+<pre class="programlisting">  "fit-to-allocation"        <span class="type">gboolean</span>              : Read / Write</pre>
+<p>Whether to transform the model so that it fills the actor's allocation while preserving the aspect ratio.</p>
+<p>Default value: TRUE</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MashModel--light-set"></a><h3>The <code class="literal">"light-set"</code> property</h3>
+<pre class="programlisting">  "light-set"                <a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a>*         : Read / Write</pre>
+<p>The MashLightSet to use for the lighting model.</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MashModel--material"></a><h3>The <code class="literal">"material"</code> property</h3>
+<pre class="programlisting">  "material"                 <span class="type">CoglHandle</span>*           : Read / Write</pre>
+<p>The Cogl material to render with.</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.16.1</div>
+</body>
+</html>

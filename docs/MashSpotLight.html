@@ -1,0 +1,245 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>MashSpotLight</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<link rel="home" href="index.html" title="Mash Reference Manual">
+<link rel="up" href="ch02.html" title="Lights">
+<link rel="prev" href="MashPointLight.html" title="MashPointLight">
+<link rel="next" href="object-tree.html" title="Object Hierarchy">
+<meta name="generator" content="GTK-Doc V1.16.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="MashPointLight.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="ch02.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">Mash Reference Manual</th>
+<td><a accesskey="n" href="object-tree.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts">
+<a href="#MashSpotLight.synopsis" class="shortcut">Top</a>
+                   | 
+                  <a href="#MashSpotLight.description" class="shortcut">Description</a>
+                   | 
+                  <a href="#MashSpotLight.object-hierarchy" class="shortcut">Object Hierarchy</a>
+                   | 
+                  <a href="#MashSpotLight.implemented-interfaces" class="shortcut">Implemented Interfaces</a>
+                   | 
+                  <a href="#MashSpotLight.properties" class="shortcut">Properties</a>
+</td></tr>
+</table>
+<div class="refentry">
+<a name="MashSpotLight"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="MashSpotLight.top_of_page"></a>MashSpotLight</span></h2>
+<p>MashSpotLight — A light with a position which emits light
+  within a cone shape.</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<a name="MashSpotLight.synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">                    <a class="link" href="MashSpotLight.html#MashSpotLight-struct" title="MashSpotLight">MashSpotLight</a>;
+struct              <a class="link" href="MashSpotLight.html#MashSpotLightClass" title="struct MashSpotLightClass">MashSpotLightClass</a>;
+<span class="returnvalue">ClutterActor</span> *      <a class="link" href="MashSpotLight.html#mash-spot-light-new" title="mash_spot_light_new ()">mash_spot_light_new</a>                 (<em class="parameter"><code><span class="type">void</span></code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashSpotLight.html#mash-spot-light-set-spot-cutoff" title="mash_spot_light_set_spot_cutoff ()">mash_spot_light_set_spot_cutoff</a>     (<em class="parameter"><code><a class="link" href="MashSpotLight.html" title="MashSpotLight"><span class="type">MashSpotLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">gfloat</span> cutoff</code></em>);
+<span class="returnvalue">gfloat</span>              <a class="link" href="MashSpotLight.html#mash-spot-light-get-spot-cutoff" title="mash_spot_light_get_spot_cutoff ()">mash_spot_light_get_spot_cutoff</a>     (<em class="parameter"><code><a class="link" href="MashSpotLight.html" title="MashSpotLight"><span class="type">MashSpotLight</span></a> *light</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashSpotLight.html#mash-spot-light-set-spot-exponent" title="mash_spot_light_set_spot_exponent ()">mash_spot_light_set_spot_exponent</a>   (<em class="parameter"><code><a class="link" href="MashSpotLight.html" title="MashSpotLight"><span class="type">MashSpotLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">gfloat</span> exponent</code></em>);
+<span class="returnvalue">gfloat</span>              <a class="link" href="MashSpotLight.html#mash-spot-light-get-spot-exponent" title="mash_spot_light_get_spot_exponent ()">mash_spot_light_get_spot_exponent</a>   (<em class="parameter"><code><a class="link" href="MashSpotLight.html" title="MashSpotLight"><span class="type">MashSpotLight</span></a> *light</code></em>);
+</pre>
+</div>
+<div class="refsect1">
+<a name="MashSpotLight.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+  GObject
+   +----GInitiallyUnowned
+         +----ClutterActor
+               +----<a class="link" href="MashLight.html" title="MashLight">MashLight</a>
+                     +----<a class="link" href="MashPointLight.html" title="MashPointLight">MashPointLight</a>
+                           +----MashSpotLight
+</pre>
+</div>
+<div class="refsect1">
+<a name="MashSpotLight.implemented-interfaces"></a><h2>Implemented Interfaces</h2>
+<p>
+MashSpotLight implements
+ ClutterScriptable,  ClutterAnimatable and  AtkImplementorIface.</p>
+</div>
+<div class="refsect1">
+<a name="MashSpotLight.properties"></a><h2>Properties</h2>
+<pre class="synopsis">
+  "<a class="link" href="MashSpotLight.html#MashSpotLight--spot-cutoff" title='The "spot-cutoff" property'>spot-cutoff</a>"              <span class="type">gfloat</span>                : Read / Write
+  "<a class="link" href="MashSpotLight.html#MashSpotLight--spot-exponent" title='The "spot-exponent" property'>spot-exponent</a>"            <span class="type">gfloat</span>                : Read / Write
+</pre>
+</div>
+<div class="refsect1">
+<a name="MashSpotLight.description"></a><h2>Description</h2>
+<p>
+A <a class="link" href="MashSpotLight.html" title="MashSpotLight"><span class="type">MashSpotLight</span></a> is a subclass of <a class="link" href="MashPointLight.html" title="MashPointLight"><span class="type">MashPointLight</span></a> which
+additionally restricts the light emitted to a cone shape eminating
+from the light's position. The same attenuation properties provided
+by <a class="link" href="MashPointLight.html" title="MashPointLight"><span class="type">MashPointLight</span></a> can be used to modify the intensity based on the
+distance to the light. The angle of the cone can be modified with
+the spot-cutoff property and the spot-exponent property. The cutoff
+sets a hard restriction on the maximum angle which light will be
+emitted. The exponent sets the rate at which light dims as the
+angle expands out.
+</p>
+<p>
+The direction of a spot light is always along the positive y axis
+which is towards the bottom of the stage in a default Clutter
+scene. The direction is affected by the actor's transformation so
+it can be modified or animated by rotating the actor.
+</p>
+</div>
+<div class="refsect1">
+<a name="MashSpotLight.details"></a><h2>Details</h2>
+<div class="refsect2">
+<a name="MashSpotLight-struct"></a><h3>MashSpotLight</h3>
+<pre class="programlisting">typedef struct _MashSpotLight MashSpotLight;</pre>
+<p>
+The <a class="link" href="MashSpotLight.html" title="MashSpotLight"><span class="type">MashSpotLight</span></a> structure contains only private data.
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MashSpotLightClass"></a><h3>struct MashSpotLightClass</h3>
+<pre class="programlisting">struct MashSpotLightClass {
+};
+</pre>
+<p>
+The <a class="link" href="MashSpotLight.html#MashSpotLightClass" title="struct MashSpotLightClass"><span class="type">MashSpotLightClass</span></a> structure contains only private data.
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-spot-light-new"></a><h3>mash_spot_light_new ()</h3>
+<pre class="programlisting"><span class="returnvalue">ClutterActor</span> *      mash_spot_light_new                 (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<p>
+Constructs a new <a class="link" href="MashSpotLight.html" title="MashSpotLight"><span class="type">MashSpotLight</span></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>the new light.</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-spot-light-set-spot-cutoff"></a><h3>mash_spot_light_set_spot_cutoff ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_spot_light_set_spot_cutoff     (<em class="parameter"><code><a class="link" href="MashSpotLight.html" title="MashSpotLight"><span class="type">MashSpotLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">gfloat</span> cutoff</code></em>);</pre>
+<p>
+Sets the spot cut off value on a light. This is an angle in degrees
+which defines the shape of the cone of light emitted from the
+light. It should be within the range 0° to 90°
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>The light to modify</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cutoff</code></em> :</span></p></td>
+<td>The new value</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-spot-light-get-spot-cutoff"></a><h3>mash_spot_light_get_spot_cutoff ()</h3>
+<pre class="programlisting"><span class="returnvalue">gfloat</span>              mash_spot_light_get_spot_cutoff     (<em class="parameter"><code><a class="link" href="MashSpotLight.html" title="MashSpotLight"><span class="type">MashSpotLight</span></a> *light</code></em>);</pre>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>The light to query</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>the spot cut off value</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-spot-light-set-spot-exponent"></a><h3>mash_spot_light_set_spot_exponent ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_spot_light_set_spot_exponent   (<em class="parameter"><code><a class="link" href="MashSpotLight.html" title="MashSpotLight"><span class="type">MashSpotLight</span></a> *light</code></em>,
+                                                         <em class="parameter"><code><span class="type">gfloat</span> exponent</code></em>);</pre>
+<p>
+Sets the spot exponent value on a light. The light intensity is
+multiplied by the angle between the light direction and the vector
+to the vertex raised to the power of the exponent. A higher
+exponent value makes the cone of the light appear smaller.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>The light to modify</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>exponent</code></em> :</span></p></td>
+<td>The new value</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-spot-light-get-spot-exponent"></a><h3>mash_spot_light_get_spot_exponent ()</h3>
+<pre class="programlisting"><span class="returnvalue">gfloat</span>              mash_spot_light_get_spot_exponent   (<em class="parameter"><code><a class="link" href="MashSpotLight.html" title="MashSpotLight"><span class="type">MashSpotLight</span></a> *light</code></em>);</pre>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>The light to query</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>the spot exponent value</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1">
+<a name="MashSpotLight.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="MashSpotLight--spot-cutoff"></a><h3>The <code class="literal">"spot-cutoff"</code> property</h3>
+<pre class="programlisting">  "spot-cutoff"              <span class="type">gfloat</span>                : Read / Write</pre>
+<p>The cut off angle where the spot light emits no light.</p>
+<p>Allowed values: [0,90]</p>
+<p>Default value: 45</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MashSpotLight--spot-exponent"></a><h3>The <code class="literal">"spot-exponent"</code> property</h3>
+<pre class="programlisting">  "spot-exponent"            <span class="type">gfloat</span>                : Read / Write</pre>
+<p>A value used to set the decay of the light as the angle increases from the light direction.</p>
+<p>Allowed values: [0,128]</p>
+<p>Default value: 0</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.16.1</div>
+</body>
+</html>

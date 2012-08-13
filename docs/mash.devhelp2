@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE book PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "">
+<book xmlns="http://www.devhelp.net/book" title="Mash Reference Manual" link="index.html" author="" name="mash" version="2" language="c">
+  <chapters>
+    <sub name="Models" link="ch01.html">
+      <sub name="MashModel" link="MashModel.html"/>
+      <sub name="MashData" link="MashData.html"/>
+    </sub>
+    <sub name="Lights" link="ch02.html">
+      <sub name="MashLightSet" link="MashLightSet.html"/>
+      <sub name="MashLight" link="MashLight.html"/>
+      <sub name="MashDirectionalLight" link="MashDirectionalLight.html"/>
+      <sub name="MashPointLight" link="MashPointLight.html"/>
+      <sub name="MashSpotLight" link="MashSpotLight.html"/>
+    </sub>
+    <sub name="Object Hierarchy" link="object-tree.html"/>
+    <sub name="API Index" link="api-index-full.html"/>
+  </chapters>
+  <functions>
+    <keyword type="struct" name="MashModel" link="MashModel.html#MashModel-struct"/>
+    <keyword type="struct" name="struct MashModelClass" link="MashModel.html#MashModelClass"/>
+    <keyword type="function" name="mash_model_new ()" link="MashModel.html#mash-model-new"/>
+    <keyword type="function" name="mash_model_new_from_file ()" link="MashModel.html#mash-model-new-from-file"/>
+    <keyword type="function" name="mash_model_get_material ()" link="MashModel.html#mash-model-get-material"/>
+    <keyword type="function" name="mash_model_set_material ()" link="MashModel.html#mash-model-set-material"/>
+    <keyword type="function" name="mash_model_get_data ()" link="MashModel.html#mash-model-get-data"/>
+    <keyword type="function" name="mash_model_set_data ()" link="MashModel.html#mash-model-set-data"/>
+    <keyword type="function" name="mash_model_get_fit_to_allocation ()" link="MashModel.html#mash-model-get-fit-to-allocation"/>
+    <keyword type="function" name="mash_model_set_fit_to_allocation ()" link="MashModel.html#mash-model-set-fit-to-allocation"/>
+    <keyword type="function" name="mash_model_get_light_set ()" link="MashModel.html#mash-model-get-light-set" since="0.2"/>
+    <keyword type="function" name="mash_model_set_light_set ()" link="MashModel.html#mash-model-set-light-set" since="0.2"/>
+    <keyword type="property" name="The &quot;data&quot; property" link="MashModel.html#MashModel--data"/>
+    <keyword type="property" name="The &quot;fit-to-allocation&quot; property" link="MashModel.html#MashModel--fit-to-allocation"/>
+    <keyword type="property" name="The &quot;light-set&quot; property" link="MashModel.html#MashModel--light-set"/>
+    <keyword type="property" name="The &quot;material&quot; property" link="MashModel.html#MashModel--material"/>
+    <keyword type="macro" name="MASH_DATA_ERROR" link="MashData.html#MASH-DATA-ERROR:CAPS"/>
+    <keyword type="struct" name="MashData" link="MashData.html#MashData-struct"/>
+    <keyword type="struct" name="struct MashDataClass" link="MashData.html#MashDataClass"/>
+    <keyword type="enum" name="enum MashDataError" link="MashData.html#MashDataError"/>
+    <keyword type="enum" name="enum MashDataFlags" link="MashData.html#MashDataFlags"/>
+    <keyword type="function" name="mash_data_new ()" link="MashData.html#mash-data-new"/>
+    <keyword type="function" name="mash_data_load ()" link="MashData.html#mash-data-load"/>
+    <keyword type="function" name="mash_data_render ()" link="MashData.html#mash-data-render"/>
+    <keyword type="function" name="mash_data_get_extents ()" link="MashData.html#mash-data-get-extents"/>
+    <keyword type="struct" name="MashLightSet" link="MashLightSet.html#MashLightSet-struct"/>
+    <keyword type="struct" name="struct MashLightSetClass" link="MashLightSet.html#MashLightSetClass"/>
+    <keyword type="function" name="mash_light_set_new ()" link="MashLightSet.html#mash-light-set-new"/>
+    <keyword type="function" name="mash_light_set_add_light ()" link="MashLightSet.html#mash-light-set-add-light"/>
+    <keyword type="function" name="mash_light_set_remove_light ()" link="MashLightSet.html#mash-light-set-remove-light"/>
+    <keyword type="function" name="mash_light_set_begin_paint ()" link="MashLightSet.html#mash-light-set-begin-paint" since="0.2"/>
+    <keyword type="struct" name="MashLight" link="MashLight.html#MashLight-struct"/>
+    <keyword type="struct" name="struct MashLightClass" link="MashLight.html#MashLightClass"/>
+    <keyword type="function" name="mash_light_set_ambient ()" link="MashLight.html#mash-light-set-ambient"/>
+    <keyword type="function" name="mash_light_get_ambient ()" link="MashLight.html#mash-light-get-ambient"/>
+    <keyword type="function" name="mash_light_set_diffuse ()" link="MashLight.html#mash-light-set-diffuse"/>
+    <keyword type="function" name="mash_light_get_diffuse ()" link="MashLight.html#mash-light-get-diffuse"/>
+    <keyword type="function" name="mash_light_set_specular ()" link="MashLight.html#mash-light-set-specular"/>
+    <keyword type="function" name="mash_light_get_specular ()" link="MashLight.html#mash-light-get-specular"/>
+    <keyword type="function" name="mash_light_generate_shader ()" link="MashLight.html#mash-light-generate-shader"/>
+    <keyword type="function" name="mash_light_update_uniforms ()" link="MashLight.html#mash-light-update-uniforms"/>
+    <keyword type="function" name="mash_light_append_shader ()" link="MashLight.html#mash-light-append-shader"/>
+    <keyword type="function" name="mash_light_get_uniform_location ()" link="MashLight.html#mash-light-get-uniform-location"/>
+    <keyword type="function" name="mash_light_set_direction_uniform ()" link="MashLight.html#mash-light-set-direction-uniform"/>
+    <keyword type="function" name="mash_light_get_modelview_matrix ()" link="MashLight.html#mash-light-get-modelview-matrix"/>
+    <keyword type="property" name="The &quot;ambient&quot; property" link="MashLight.html#MashLight--ambient"/>
+    <keyword type="property" name="The &quot;diffuse&quot; property" link="MashLight.html#MashLight--diffuse"/>
+    <keyword type="property" name="The &quot;specular&quot; property" link="MashLight.html#MashLight--specular"/>
+    <keyword type="struct" name="MashDirectionalLight" link="MashDirectionalLight.html#MashDirectionalLight-struct"/>
+    <keyword type="struct" name="struct MashDirectionalLightClass" link="MashDirectionalLight.html#MashDirectionalLightClass"/>
+    <keyword type="function" name="mash_directional_light_new ()" link="MashDirectionalLight.html#mash-directional-light-new"/>
+    <keyword type="struct" name="MashPointLight" link="MashPointLight.html#MashPointLight-struct"/>
+    <keyword type="struct" name="struct MashPointLightClass" link="MashPointLight.html#MashPointLightClass"/>
+    <keyword type="function" name="mash_point_light_new ()" link="MashPointLight.html#mash-point-light-new"/>
+    <keyword type="function" name="mash_point_light_set_constant_attenuation ()" link="MashPointLight.html#mash-point-light-set-constant-attenuation"/>
+    <keyword type="function" name="mash_point_light_get_constant_attenuation ()" link="MashPointLight.html#mash-point-light-get-constant-attenuation"/>
+    <keyword type="function" name="mash_point_light_set_linear_attenuation ()" link="MashPointLight.html#mash-point-light-set-linear-attenuation"/>
+    <keyword type="function" name="mash_point_light_get_linear_attenuation ()" link="MashPointLight.html#mash-point-light-get-linear-attenuation"/>
+    <keyword type="function" name="mash_point_light_set_quadratic_attenuation ()" link="MashPointLight.html#mash-point-light-set-quadratic-attenuation"/>
+    <keyword type="function" name="mash_point_light_get_quadratic_attenuation ()" link="MashPointLight.html#mash-point-light-get-quadratic-attenuation"/>
+    <keyword type="property" name="The &quot;constant-attenuation&quot; property" link="MashPointLight.html#MashPointLight--constant-attenuation"/>
+    <keyword type="property" name="The &quot;linear-attenuation&quot; property" link="MashPointLight.html#MashPointLight--linear-attenuation"/>
+    <keyword type="property" name="The &quot;quadratic-attenuation&quot; property" link="MashPointLight.html#MashPointLight--quadratic-attenuation"/>
+    <keyword type="struct" name="MashSpotLight" link="MashSpotLight.html#MashSpotLight-struct"/>
+    <keyword type="struct" name="struct MashSpotLightClass" link="MashSpotLight.html#MashSpotLightClass"/>
+    <keyword type="function" name="mash_spot_light_new ()" link="MashSpotLight.html#mash-spot-light-new"/>
+    <keyword type="function" name="mash_spot_light_set_spot_cutoff ()" link="MashSpotLight.html#mash-spot-light-set-spot-cutoff"/>
+    <keyword type="function" name="mash_spot_light_get_spot_cutoff ()" link="MashSpotLight.html#mash-spot-light-get-spot-cutoff"/>
+    <keyword type="function" name="mash_spot_light_set_spot_exponent ()" link="MashSpotLight.html#mash-spot-light-set-spot-exponent"/>
+    <keyword type="function" name="mash_spot_light_get_spot_exponent ()" link="MashSpotLight.html#mash-spot-light-get-spot-exponent"/>
+    <keyword type="property" name="The &quot;spot-cutoff&quot; property" link="MashSpotLight.html#MashSpotLight--spot-cutoff"/>
+    <keyword type="property" name="The &quot;spot-exponent&quot; property" link="MashSpotLight.html#MashSpotLight--spot-exponent"/>
+    <keyword type="constant" name="MASH_DATA_ERROR_UNKNOWN_FORMAT" link="MashData.html#MASH-DATA-ERROR-UNKNOWN-FORMAT:CAPS"/>
+    <keyword type="constant" name="MASH_DATA_ERROR_UNKNOWN" link="MashData.html#MASH-DATA-ERROR-UNKNOWN:CAPS"/>
+    <keyword type="constant" name="MASH_DATA_ERROR_MISSING_PROPERTY" link="MashData.html#MASH-DATA-ERROR-MISSING-PROPERTY:CAPS"/>
+    <keyword type="constant" name="MASH_DATA_ERROR_INVALID" link="MashData.html#MASH-DATA-ERROR-INVALID:CAPS"/>
+    <keyword type="constant" name="MASH_DATA_ERROR_UNSUPPORTED" link="MashData.html#MASH-DATA-ERROR-UNSUPPORTED:CAPS"/>
+    <keyword type="constant" name="MASH_DATA_NONE" link="MashData.html#MASH-DATA-NONE:CAPS"/>
+    <keyword type="constant" name="MASH_DATA_NEGATE_X" link="MashData.html#MASH-DATA-NEGATE-X:CAPS"/>
+    <keyword type="constant" name="MASH_DATA_NEGATE_Y" link="MashData.html#MASH-DATA-NEGATE-Y:CAPS"/>
+    <keyword type="constant" name="MASH_DATA_NEGATE_Z" link="MashData.html#MASH-DATA-NEGATE-Z:CAPS"/>
+  </functions>
+</book>

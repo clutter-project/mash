@@ -1,0 +1,232 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>MashLightSet</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<link rel="home" href="index.html" title="Mash Reference Manual">
+<link rel="up" href="ch02.html" title="Lights">
+<link rel="prev" href="ch02.html" title="Lights">
+<link rel="next" href="MashLight.html" title="MashLight">
+<meta name="generator" content="GTK-Doc V1.16.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="ch02.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="ch02.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">Mash Reference Manual</th>
+<td><a accesskey="n" href="MashLight.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts">
+<a href="#MashLightSet.synopsis" class="shortcut">Top</a>
+                   | 
+                  <a href="#MashLightSet.description" class="shortcut">Description</a>
+                   | 
+                  <a href="#MashLightSet.object-hierarchy" class="shortcut">Object Hierarchy</a>
+</td></tr>
+</table>
+<div class="refentry">
+<a name="MashLightSet"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="MashLightSet.top_of_page"></a>MashLightSet</span></h2>
+<p>MashLightSet — A group of <a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a>s which can be
+  used to affect the appearance of a <a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a>.</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<a name="MashLightSet.synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">                    <a class="link" href="MashLightSet.html#MashLightSet-struct" title="MashLightSet">MashLightSet</a>;
+struct              <a class="link" href="MashLightSet.html#MashLightSetClass" title="struct MashLightSetClass">MashLightSetClass</a>;
+<a class="link" href="MashLightSet.html" title="MashLightSet"><span class="returnvalue">MashLightSet</span></a> *      <a class="link" href="MashLightSet.html#mash-light-set-new" title="mash_light_set_new ()">mash_light_set_new</a>                  (<em class="parameter"><code><span class="type">void</span></code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashLightSet.html#mash-light-set-add-light" title="mash_light_set_add_light ()">mash_light_set_add_light</a>            (<em class="parameter"><code><a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a> *light_set</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="MashLightSet.html#mash-light-set-remove-light" title="mash_light_set_remove_light ()">mash_light_set_remove_light</a>         (<em class="parameter"><code><a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a> *light_set</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>);
+<span class="returnvalue">CoglHandle</span>          <a class="link" href="MashLightSet.html#mash-light-set-begin-paint" title="mash_light_set_begin_paint ()">mash_light_set_begin_paint</a>          (<em class="parameter"><code><a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a> *light_set</code></em>,
+                                                         <em class="parameter"><code><span class="type">CoglHandle</span> material</code></em>);
+</pre>
+</div>
+<div class="refsect1">
+<a name="MashLightSet.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+  GObject
+   +----MashLightSet
+</pre>
+</div>
+<div class="refsect1">
+<a name="MashLightSet.description"></a><h2>Description</h2>
+<p>
+<a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a> is a toplevel object that contains a list of
+<a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a>s. The set which a light belongs to is separate
+from its parent actor. For a light to be useful it needs to be
+added to both a light set and a parent container.
+</p>
+<p>
+The <a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a> can only be used with actors that are
+specifically designed to support it. <a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a> is one such
+actor. It can be told to use a light set with
+<a class="link" href="MashModel.html#mash-model-set-light-set" title="mash_model_set_light_set ()"><code class="function">mash_model_set_light_set()</code></a>.
+</p>
+<p>
+The light set implements the Blinn-Phong lighting model which is
+the standard model used in fixed function version of OpenGL and
+Direct3D. The lighting calculations are performed per-vertex and
+then interpolated across the surface of the primitives.
+</p>
+<p>
+Lights are positioned as normal actors by adding <a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a>s them to a container and moving them. The lights do not have to
+be in any particular position relative to the models in the
+hierarchy of actors, although it wouldn't make much sense if they
+were on different stages. The lights are subclasses of
+<span class="type">ClutterActor</span> so they can be positioned and animated using the
+usual Clutter animation framework.
+</p>
+<p>
+The lighting implementation requires GLSL support from Clutter. If
+the application can still work without lighting it would be worth
+checking for shader support by passing <code class="literal">COGL_FEATURE_SHADERS_GLSL</code>
+to <code class="function">cogl_features_available()</code>.
+</p>
+<p>
+It should be possible to extend the lighting model and implement
+application-specific lighting algorithms by subclassing <a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a>
+and adding shader snippets by overriding
+<a class="link" href="MashLight.html#mash-light-generate-shader" title="mash_light_generate_shader ()"><code class="function">mash_light_generate_shader()</code></a>.
+</p>
+</div>
+<div class="refsect1">
+<a name="MashLightSet.details"></a><h2>Details</h2>
+<div class="refsect2">
+<a name="MashLightSet-struct"></a><h3>MashLightSet</h3>
+<pre class="programlisting">typedef struct _MashLightSet MashLightSet;</pre>
+<p>
+The <a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a> structure contains only private data.
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MashLightSetClass"></a><h3>struct MashLightSetClass</h3>
+<pre class="programlisting">struct MashLightSetClass {
+};
+</pre>
+<p>
+The <a class="link" href="MashLightSet.html#MashLightSetClass" title="struct MashLightSetClass"><span class="type">MashLightSetClass</span></a> structure contains only private data.
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-light-set-new"></a><h3>mash_light_set_new ()</h3>
+<pre class="programlisting"><a class="link" href="MashLightSet.html" title="MashLightSet"><span class="returnvalue">MashLightSet</span></a> *      mash_light_set_new                  (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<p>
+Constructs a new <a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>a new <a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a>.</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-light-set-add-light"></a><h3>mash_light_set_add_light ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_light_set_add_light            (<em class="parameter"><code><a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a> *light_set</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>);</pre>
+<p>
+This adds a light to the set. Lights need to be added to the light
+set as well as to a container somewhere in the Clutter actor
+hierarchy in order to be useful.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light_set</code></em> :</span></p></td>
+<td>A <a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a> instance</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>A <a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-light-set-remove-light"></a><h3>mash_light_set_remove_light ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                mash_light_set_remove_light         (<em class="parameter"><code><a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a> *light_set</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a> *light</code></em>);</pre>
+<p>
+Removes a light from the set.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light_set</code></em> :</span></p></td>
+<td>A <a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a> instance</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light</code></em> :</span></p></td>
+<td>A <a class="link" href="MashLight.html" title="MashLight"><span class="type">MashLight</span></a>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="mash-light-set-begin-paint"></a><h3>mash_light_set_begin_paint ()</h3>
+<pre class="programlisting"><span class="returnvalue">CoglHandle</span>          mash_light_set_begin_paint          (<em class="parameter"><code><a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a> *light_set</code></em>,
+                                                         <em class="parameter"><code><span class="type">CoglHandle</span> material</code></em>);</pre>
+<p>
+This function should only be needed by custom actors that wish to
+use the lighting model of Mash. The function should be called every
+time the actor is painted. The <em class="parameter"><code>material</code></em> parameter is used to
+specify the lighting material properties. The material is not
+otherwise read or modified. The material properties that are used
+are: the emission color, the ambient color, the diffuse color, the
+specular color and the shininess.
+</p>
+<p>
+The return value is a CoglProgram that should be used to paint the
+actor. The actor should attach this to its material using
+<code class="function">cogl_material_set_user_program()</code>.
+</p>
+<p>
+<a class="link" href="MashModel.html" title="MashModel"><span class="type">MashModel</span></a>s are already designed to use this function when
+a light set is passed to <a class="link" href="MashModel.html#mash-model-set-light-set" title="mash_model_set_light_set ()"><code class="function">mash_model_set_light_set()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>light_set</code></em> :</span></p></td>
+<td>A <a class="link" href="MashLightSet.html" title="MashLightSet"><span class="type">MashLightSet</span></a> instance</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>material</code></em> :</span></p></td>
+<td>The material that will be used to paint</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>a CoglProgram to use for rendering.</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since 0.2</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.16.1</div>
+</body>
+</html>
