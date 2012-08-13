@@ -23,23 +23,23 @@ RESOURCES
 
 The official Mash website is:
 
-   http://wiki.clutter-project.org/wiki/Mash
+   http://clutter-project.github.com/mash/
 
 The API reference for the latest stable release is available at:
 
-   http://docs.clutter-project.org/docs/mash/
+   http://clutter-project.github.com/mash/docs/
 
 New releases of Mash are available at:
 
-   http://source.clutter-project.org/sources/mash/
+   https://github.com/clutter-project/mash/downloads/
 
-New bug page on Bugzilla:
+New bug page on github:
 
-   http://bugzilla.clutter-project.org/enter_bug.cgi?product=Mash
+   https://github.com/clutter-project/mash/issues/new
 
 Development on Mash is done in a git repository at:
 
-   git://git.clutter-project.org/mash
+   git://github.com/clutter-project/mash.git
 
 Mash is licensed under the terms of the GNU Lesser General Public
 License, version 2.1 or (at your option) later.
