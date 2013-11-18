@@ -59,6 +59,9 @@
 #include <config.h>
 #endif
 
+#define CLUTTER_ENABLE_EXPERIMENTAL_API
+#define COGL_ENABLE_EXPERIMENTAL_API
+
 #include <clutter/clutter.h>
 
 #include "mash-light-set.h"
@@ -127,6 +130,11 @@ struct _MashLightSetPrivate
 {
   CoglHandle program;
 
+  /* This is the layer indices that the pipeline contained the last
+   * time the program was generated. If these change then we need to
+   * regenerate the program */
+  GArray *layer_indices;
+
   GSList *lights;
 
   guint repaint_func_id;
@@ -161,6 +169,8 @@ mash_light_set_init (MashLightSet *self)
 
   priv->repaint_func_id =
     clutter_threads_add_repaint_func (mash_light_set_repaint_func, self, NULL);
+
+  priv->layer_indices = g_array_new (FALSE, FALSE, sizeof (int));
 }
 
 static void
@@ -191,6 +201,8 @@ mash_light_set_finalize (GObject *object)
   if (priv->program)
     cogl_handle_unref (priv->program);
 
+  g_array_free (priv->layer_indices, TRUE);
+
   G_OBJECT_CLASS (mash_light_set_parent_class)->finalize (object);
 }
 
@@ -205,6 +217,23 @@ MashLightSet *
 mash_light_set_new (void)
 {
   return g_object_new (MASH_TYPE_LIGHT_SET, NULL);
+}
+
+static void
+add_layer_indices (MashLightSet *light_set,
+                   GString *string)
+{
+  MashLightSetPrivate *priv = light_set->priv;
+  int i;
+
+  for (i = 0; i < priv->layer_indices->len; i++)
+    {
+      int layer_index = g_array_index (priv->layer_indices, int, i);
+
+      g_string_append_printf (string,
+                              "  cogl_tex_coord%i_out = cogl_tex_coord%i_in;\n",
+                              layer_index, layer_index);
+    }
 }
 
 static CoglHandle
@@ -268,15 +297,17 @@ mash_light_set_get_program (MashLightSet *light_set)
                            main_source->str,
                            main_source->len);
       /* Perform the standard vertex transformation and copy the
-         texture coordinates. FIXME: This is limited to CoglMaterials
-         that only have one layer. Hopefully this could be fixed when
-         Cogl has a way to insert shader snippets rather than having
-         to replace the whole pipeline. */
+         texture coordinates. FIXME: Ideally this could should be
+         updated to use CoglSnippets so that it doesn't have to do
+         this. */
       g_string_append (uniform_source,
                        "  cogl_position_out =\n"
                        "    cogl_modelview_projection_matrix *\n"
-                       "    cogl_position_in;\n"
-                       "  cogl_tex_coord_out[0] = cogl_tex_coord_in;\n"
+                       "    cogl_position_in;\n");
+
+      add_layer_indices (light_set, uniform_source);
+
+      g_string_append (uniform_source,
                        "}\n");
 
       full_source = g_string_free (uniform_source, FALSE);
@@ -321,6 +352,82 @@ mash_light_set_get_program (MashLightSet *light_set)
   return priv->program;
 }
 
+static void
+mash_light_set_dirty_program (MashLightSet *light_set)
+{
+  MashLightSetPrivate *priv = light_set->priv;
+
+  /* If we've added or removed a light then we need to regenerate the
+     shader */
+  if (priv->program != COGL_INVALID_HANDLE)
+    {
+      cogl_handle_unref (priv->program);
+      priv->program = COGL_INVALID_HANDLE;
+    }
+}
+
+typedef struct
+{
+  MashLightSet *light_set;
+  CoglPipeline *pipeline;
+  gboolean is_matching;
+  int index_num;
+} UpdateLayerIndicesData;
+
+static CoglBool
+update_layer_indices_cb (CoglPipeline *pipeline,
+                         int layer_index,
+                         void *user_data)
+{
+  UpdateLayerIndicesData *data = user_data;
+  MashLightSetPrivate *priv = data->light_set->priv;
+
+  if (data->is_matching)
+    {
+      if (data->index_num >= priv->layer_indices->len ||
+          g_array_index (priv->layer_indices,
+                         int,
+                         data->index_num) != layer_index)
+        {
+          g_array_set_size (priv->layer_indices, data->index_num);
+          data->is_matching = FALSE;
+        }
+    }
+
+  if (!data->is_matching)
+    g_array_append_val (priv->layer_indices, layer_index);
+
+  data->index_num++;
+
+  return TRUE;
+}
+
+static void
+update_layer_indices (MashLightSet *light_set,
+                      CoglHandle material)
+{
+  MashLightSetPrivate *priv = light_set->priv;
+  UpdateLayerIndicesData data;
+
+  data.light_set = light_set;
+  data.pipeline = COGL_PIPELINE (material);
+  data.is_matching = TRUE;
+  data.index_num = 0;
+
+  cogl_pipeline_foreach_layer (data.pipeline,
+                               update_layer_indices_cb,
+                               &data);
+
+  /* If the layer indices have changed then we need to regenerate the
+   * program */
+  if (!data.is_matching ||
+      data.index_num != priv->layer_indices->len)
+    {
+      g_array_set_size (priv->layer_indices, data.index_num);
+      mash_light_set_dirty_program (light_set);
+    }
+}
+
 /**
  * mash_light_set_begin_paint:
  * @light_set: A #MashLightSet instance
@@ -350,8 +457,12 @@ mash_light_set_begin_paint (MashLightSet *light_set,
                             CoglHandle material)
 {
   MashLightSetPrivate *priv = light_set->priv;
-  CoglHandle program = mash_light_set_get_program (light_set);
+  CoglHandle program;
   int i;
+
+  update_layer_indices (light_set, material);
+
+  program = mash_light_set_get_program (light_set);
 
   if (priv->uniforms_dirty)
     {
@@ -455,20 +566,6 @@ mash_light_set_repaint_func (gpointer data)
   priv->uniforms_dirty = TRUE;
 
   return TRUE;
-}
-
-static void
-mash_light_set_dirty_program (MashLightSet *light_set)
-{
-  MashLightSetPrivate *priv = light_set->priv;
-
-  /* If we've added or removed a light then we need to regenerate the
-     shader */
-  if (priv->program != COGL_INVALID_HANDLE)
-    {
-      cogl_handle_unref (priv->program);
-      priv->program = COGL_INVALID_HANDLE;
-    }
 }
 
 /**
