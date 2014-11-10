@@ -25,5 +25,6 @@
 #define __MASH_DATA_LOADERS_H__
 
 #include "mash-ply-loader.h"
+#include "mash-stl-loader.h"
 
 #endif /* __MASH_DATA_LOADERS_H__ */

@@ -53,14 +53,12 @@ G_DEFINE_TYPE (MashData, mash_data, G_TYPE_OBJECT);
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), MASH_TYPE_DATA,  \
                                 MashDataPrivate))
 
-struct _MashDataPrivate
-{
+struct _MashDataPrivate{
   MashDataLoaderData loaded_data;
 };
 
 static void
-mash_data_class_init (MashDataClass *klass)
-{
+mash_data_class_init (MashDataClass *klass){
   GObjectClass *gobject_class = (GObjectClass *) klass;
 
   gobject_class->finalize = mash_data_finalize;
@@ -69,18 +67,15 @@ mash_data_class_init (MashDataClass *klass)
 }
 
 static void
-mash_data_init (MashData *self)
-{
+mash_data_init (MashData *self){
   self->priv = MASH_DATA_GET_PRIVATE (self);
 }
 
 static void
-mash_data_free_vbos (MashData *self)
-{
+mash_data_free_vbos (MashData *self){
   MashDataPrivate *priv = self->priv;
 
-  if (priv->loaded_data.vertices_vbo)
-    {
+  if (priv->loaded_data.vertices_vbo){
       cogl_handle_unref (priv->loaded_data.vertices_vbo);
       priv->loaded_data.vertices_vbo = NULL;
     }
@@ -93,8 +88,7 @@ mash_data_free_vbos (MashData *self)
 }
 
 static void
-mash_data_finalize (GObject *object)
-{
+mash_data_finalize (GObject *object){
   MashData *self = (MashData *) object;
 
   mash_data_free_vbos (self);
@@ -112,8 +106,7 @@ mash_data_finalize (GObject *object)
  * Return value: a new #MashData.
  */
 MashData *
-mash_data_new (void)
-{
+mash_data_new (void){
   MashData *self = g_object_new (MASH_TYPE_DATA, NULL);
 
   return self;
@@ -137,8 +130,7 @@ gboolean
 mash_data_load (MashData *self,
                 MashDataFlags flags,
                 const gchar *filename,
-                GError **error)
-{
+                GError **error){
   MashDataPrivate *priv;
   MashDataLoader *loader;
   gchar *display_name;
@@ -153,13 +145,13 @@ mash_data_load (MashData *self,
 
   if (g_str_has_suffix (filename, ".ply"))
     loader = g_object_new (MASH_TYPE_PLY_LOADER, NULL);
+  else if (g_str_has_suffix (filename, ".stl"))
+    loader = g_object_new (MASH_TYPE_STL_LOADER, NULL);
 
-  if (loader != NULL)
-    {
+  if (loader != NULL){
       if (!mash_data_loader_load (loader, flags, filename, error))
         ret = FALSE;
-      else
-        {
+      else{
           /* Get rid of the old VBOs (if any) */
           mash_data_free_vbos (self);
 
@@ -167,10 +159,8 @@ mash_data_load (MashData *self,
           ret = TRUE;
         }
     }
-  else
-    {
+  else{
       /* Unknown file format */
-
       g_set_error (error, MASH_DATA_ERROR,
                    MASH_DATA_ERROR_UNKNOWN_FORMAT,
                    "Unknown format for file %s",
@@ -197,24 +187,63 @@ mash_data_load (MashData *self,
  * the paint method of the model.
  */
 void
-mash_data_render (MashData *self)
-{
+mash_data_render (MashData *self){
   MashDataPrivate *priv;
-
   g_return_if_fail (MASH_IS_DATA (self));
-
   priv = self->priv;
 
   /* Silently fail if we didn't load any data */
-  if (priv->loaded_data.vertices_vbo == NULL || priv->loaded_data.indices == NULL)
+  if (priv->loaded_data.vertices_vbo == NULL || priv->loaded_data.indices == NULL || priv->loaded_data.prim == NULL){
+    fprintf(stderr, "Missing data\n");
     return;
+  }
+  else{
+        fprintf(stderr, "Data present\n");    
+  }
+    fprintf(stderr, "Drawing a primitive with %d indices\n", cogl_primitive_get_n_vertices (priv->loaded_data.prim));
+    
 
-  cogl_vertex_buffer_draw_elements (priv->loaded_data.vertices_vbo,
+ /*cogl_vertex_buffer_draw_elements (priv->loaded_data.vertices_vbo,
                                     COGL_VERTICES_MODE_TRIANGLES,
                                     priv->loaded_data.indices,
                                     priv->loaded_data.min_index,
                                     priv->loaded_data.max_index,
                                     0, priv->loaded_data.n_triangles * 3);
+    */
+
+    ClutterBackend  *be  = clutter_get_default_backend ();
+    CoglContext     *ctx = (CoglContext*) clutter_backend_get_cogl_context (be);
+    CoglFramebuffer *fb  = cogl_get_draw_framebuffer();
+    CoglPipeline    *pl  = cogl_pipeline_new (ctx);  
+
+
+    //CoglTexture *texture = cogl_texture_new_from_file("crate.jpg", COGL_TEXTURE_NO_SLICING, COGL_PIXEL_FORMAT_ANY, NULL);
+
+    /*guint8 tex_data[6];
+    tex_data[0] = 255;
+    tex_data[1] = 255;
+    tex_data[2] = 255;
+    tex_data[3] = 255;
+    tex_data[4] = 255;
+    tex_data[5] = 0;
+    CoglTexture *tex = cogl_texture_new_from_data (2, 1,
+        COGL_TEXTURE_NO_ATLAS,
+        COGL_PIXEL_FORMAT_RGB_888,
+        COGL_PIXEL_FORMAT_ANY,
+        6, 
+        tex_data);*/
+
+    //cogl_pipeline_set_layer_texture (pl, 0, tex);
+    //cogl_pipeline_set_color4f (pl, 1.0, 0.0, 0.0, 0.5);
+    cogl_primitive_draw (priv->loaded_data.prim, fb, pl);  
+    
+    //clutter_paint_node_add_primitive(node, priv->loaded_data.prim);
+
+    /* add the node, and transfer ownership */
+    //clutter_paint_node_add_child (root, node);
+    //clutter_paint_node_unref (node);
+
+
 }
 
 /**

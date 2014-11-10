@@ -1,4 +1,4 @@
-SUBDIRS = rply
+SUBDIRS = rply rstl
 
 lib_LTLIBRARIES = libmash-@MASH_API_VERSION@.la
 
@@ -15,7 +15,8 @@ enum_h = \
 private_h = \
 	$(srcdir)/mash-data-loaders.h \
 	$(srcdir)/mash-data-loader.h \
-	$(srcdir)/mash-ply-loader.h
+	$(srcdir)/mash-ply-loader.h \
+	$(srcdir)/mash-stl-loader.h
 
 public_h = \
 	$(enum_h) \
@@ -38,7 +39,8 @@ built_source_c = \
 	$(builddir)/mash-enum-types.c
 
 loaders_c = \
-	$(srcdir)/mash-ply-loader.c
+	$(srcdir)/mash-ply-loader.c \
+	$(srcdir)/mash-stl-loader.c
 
 libmash_@MASH_API_VERSION@_la_SOURCES = \
 	$(source_h) \
@@ -69,7 +71,8 @@ libmash_@MASH_API_VERSION@_la_LDFLAGS = \
 
 libmash_@MASH_API_VERSION@_la_LIBADD = \
 	@CLUTTER_LIBS@ \
-	rply/librply.la
+	rply/librply.la \
+    rstl/librstl.la
 
 CLEANFILES =
 
