@@ -332,14 +332,27 @@ p_stl stl_open(const char *name, p_stl_error_cb error_cb, gpointer cb_data) {
 }
 
 int stl_read_header(p_stl stl) {
-    int i;
+    int i, nr_facets = 0;
     assert(stl && stl->fp && stl->io_mode == STL_READ);
-    if (!stl_read_header_format(stl)) return 0;
-    if (!stl_read_word(stl)) return 0;
-
     // STL files do not have the number of vertices 
-    // and normals, so we fake it. TODO: read this from file. 
-    stl_set_header_element(stl, "facet", 12);
+    // and normals, so we fake it.
+    while(1){
+        if(!stl_read_word(stl)) 
+            return 0;
+        if(strcmp(BWORD(stl), "facet") == 0)
+            nr_facets++;
+        else if(strcmp(BWORD(stl), "endsolid") == 0)
+            break;
+    }
+    fprintf(stderr, "Found %d facets\n", nr_facets);
+    // reinit to reset buffer pointers.
+    stl_init(stl);
+    rewind (stl->fp);
+
+    if (!stl_read_header_format(stl)) return 0;
+    if (!stl_read_line(stl)) return 0;
+
+    stl_set_header_element(stl, "facet", nr_facets);
     stl_set_header_property(stl, "facet", STL_WORD);    
     stl_set_header_property(stl, "normal", STL_WORD);    
     stl_set_header_property(stl, "nx", STL_FLOAT);
@@ -364,14 +377,14 @@ int stl_read_header(p_stl stl) {
     return 1;
 }
 
+
+
 long stl_set_read_cb(p_stl stl, const char *element_name,
         const char* property_name, p_stl_read_cb read_cb,
         void *pdata, long idata) {
     p_stl_element element = NULL;
     p_stl_property property = NULL;
     assert(stl && element_name && property_name);
-
-    fprintf(stderr, "stl_set_read_cb for %s and %s\n", element_name, property_name);
 
     element = stl_find_element(stl, element_name);
     if (!element) return 0;
@@ -380,7 +393,6 @@ long stl_set_read_cb(p_stl stl, const char *element_name,
     property->read_cb = read_cb;
     property->pdata = pdata;
     property->idata = idata;
-    fprintf(stderr, "stl_set_read_cb found element and prop\n");
     return (int) element->ninstances;
 }
 
@@ -390,11 +402,9 @@ int stl_read(p_stl stl) {
     p_stl_argument argument;
     assert(stl && stl->fp && stl->io_mode == STL_READ);
     argument = &stl->argument;
-    // for each element type 
     for (i = 0; i < stl->nelements; i++) {
         p_stl_element element = &stl->element[i];
         argument->element = element;
-        //fprintf(stderr, "stl_read(), reading element %s\n", element->name);
         if (!stl_read_element(stl, element, argument))
             return 0;
     }
@@ -785,6 +795,7 @@ static int stl_read_scalar_property(p_stl stl, p_stl_element element,
     p_stl_ihandler handler = driver[property->type];
     argument->length = 1;
     argument->value_index = 0;
+    //fprintf(stderr, "stl_read_scalar_property\n");
     if (!handler(stl, &argument->value)) {
         stl_error(stl, "Error reading '%s' of '%s' number %d",
                 property->name, element->name, argument->instance_index);
@@ -841,7 +852,7 @@ static p_stl_element stl_find_element(p_stl stl, const char *name) {
     assert(stl && name);
     element = stl->element;
     nelements = stl->nelements;
-    fprintf(stderr, "stl_find_element %s, nelements: %d\n", name, nelements);
+    //fprintf(stderr, "stl_find_element %s, nelements: %d\n", name, nelements);
     assert(element || nelements == 0);
     assert(!element || nelements > 0);
     for (i = 0; i < nelements; i++)

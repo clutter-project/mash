@@ -330,8 +330,7 @@ static gboolean
 mash_stl_loader_load (MashDataLoader *data_loader,
                       MashDataFlags flags,
                       const gchar *filename,
-                      GError **error)
-{
+                      GError **error){
   MashStlLoader *self = MASH_STL_LOADER (data_loader);
   MashStlLoaderPrivate *priv;
   MashStlLoaderData data;
@@ -371,19 +370,15 @@ mash_stl_loader_load (MashDataLoader *data_loader,
         mash_stl_loader_check_unknown_error (&data);
       else{
           int i;
-          fprintf(stderr, "mash_stl_loader_load\n");
-
           for (i = 0; i < G_N_ELEMENTS (mash_stl_loader_properties); i++)
             if (stl_set_read_cb (data.stl, "facet",
                                  mash_stl_loader_properties[i].name,
                                  mash_stl_loader_vertex_read_cb,
-                                 &data, i))
-              {
+                                 &data, i)){
                 data.prop_map[i] = data.n_vertex_bytes;
                 data.n_vertex_bytes += mash_stl_loader_properties[i].size;
                 data.available_props |= 1 << i;
               }
-          fprintf(stderr, "data.available_props = %d\n", data.available_props);
           /* Align the size of a vertex to 32 bits */
           data.n_vertex_bytes = (data.n_vertex_bytes + 3) & ~(guint) 3;
 
@@ -400,212 +395,36 @@ mash_stl_loader_load (MashDataLoader *data_loader,
         stl_close (data.stl);
     }
 
-  if (data.error)
-    {
+  if (data.error){
       g_propagate_error (error, data.error);
       ret = FALSE;
     }
-  /*else if (data.faces->len < 3)
-    {
-      g_set_error (error, MASH_DATA_ERROR,
-                   MASH_DATA_ERROR_INVALID,
-                   "No faces found in %s",
-                   display_name);
-      ret = FALSE;
-    }*/
-  else
-    {
+  else{
       /* Make sure all of the indices are valid */
-      if (data.max_index >= data.vertices->len / data.n_vertex_bytes)
-        {
+      if (data.max_index >= data.vertices->len / data.n_vertex_bytes){
           g_set_error (error, MASH_DATA_ERROR,
                        MASH_DATA_ERROR_INVALID,
                        "Index out of range in %s",
                        display_name);
           ret = FALSE;
         }
-      else
-        {
-
-
-    CoglVertexP3C4 triangle[] =
-    {
-      { 0,   300, 0 , 0xFF, 0x00, 0x00, 0xFF},
-      { 150, 0,   0 , 0xFF, 0x00, 0x00, 0xFF},
-      { 300, 300, 0 , 0xFF, 0x00, 0x00, 0xFF}
-    };
-
-
-
-CoglVertexP3T2 vertices[] =
-{
-/* Front face */
-{ /* pos = */ -1.0f, -1.0f, 1.0f, /* tex coords = */ 0.0f, 1.0f},
-{ /* pos = */ 1.0f, -1.0f, 1.0f, /* tex coords = */ 1.0f, 1.0f},
-{ /* pos = */ 1.0f, 1.0f, 1.0f, /* tex coords = */ 1.0f, 0.0f},
-{ /* pos = */ -1.0f, 1.0f, 1.0f, /* tex coords = */ 0.0f, 0.0f},
-/* Back face */
-{ /* pos = */ -1.0f, -1.0f, -1.0f, /* tex coords = */ 1.0f, 0.0f},
-{ /* pos = */ -1.0f, 1.0f, -1.0f, /* tex coords = */ 1.0f, 1.0f},
-{ /* pos = */ 1.0f, 1.0f, -1.0f, /* tex coords = */ 0.0f, 1.0f},
-{ /* pos = */ 1.0f, -1.0f, -1.0f, /* tex coords = */ 0.0f, 0.0f},
-/* Top face */
-{ /* pos = */ -1.0f, 1.0f, -1.0f, /* tex coords = */ 0.0f, 1.0f},
-{ /* pos = */ -1.0f, 1.0f, 1.0f, /* tex coords = */ 0.0f, 0.0f},
-{ /* pos = */ 1.0f, 1.0f, 1.0f, /* tex coords = */ 1.0f, 0.0f},
-{ /* pos = */ 1.0f, 1.0f, -1.0f, /* tex coords = */ 1.0f, 1.0f},
-/* Bottom face */
-{ /* pos = */ -1.0f, -1.0f, -1.0f, /* tex coords = */ 1.0f, 1.0f},
-{ /* pos = */ 1.0f, -1.0f, -1.0f, /* tex coords = */ 0.0f, 1.0f},
-{ /* pos = */ 1.0f, -1.0f, 1.0f, /* tex coords = */ 0.0f, 0.0f},
-{ /* pos = */ -1.0f, -1.0f, 1.0f, /* tex coords = */ 1.0f, 0.0f},
-/* Right face */
-{ /* pos = */ 1.0f, -1.0f, -1.0f, /* tex coords = */ 1.0f, 0.0f},
-{ /* pos = */ 1.0f, 1.0f, -1.0f, /* tex coords = */ 1.0f, 1.0f},
-{ /* pos = */ 1.0f, 1.0f, 1.0f, /* tex coords = */ 0.0f, 1.0f},
-{ /* pos = */ 1.0f, -1.0f, 1.0f, /* tex coords = */ 0.0f, 0.0f},
-/* Left face */
-{ /* pos = */ -1.0f, -1.0f, -1.0f, /* tex coords = */ 0.0f, 0.0f},
-{ /* pos = */ -1.0f, -1.0f, 1.0f, /* tex coords = */ 1.0f, 0.0f},
-{ /* pos = */ -1.0f, 1.0f, 1.0f, /* tex coords = */ 1.0f, 1.0f},
-{ /* pos = */ -1.0f, 1.0f, -1.0f, /* tex coords = */ 0.0f, 1.0f}
-};
-
-
-CoglVertexP3C4 vertices2[] =
-{
-/* Front face */
-{ /* pos = */ -1.0f, -1.0f, 1.0f, 0x00, 0xFF, 0x00, 0xFF},
-{ /* pos = */ 1.0f, -1.0f, 1.0f, 0x00, 0xFF, 0x00, 0xFF},
-{ /* pos = */ 1.0f, 1.0f, 1.0f, 0x00, 0xFF, 0x00, 0xFF},
-{ /* pos = */ -1.0f, 1.0f, 1.0f, 0x00, 0xFF, 0x00, 0xFF},
-/* Back face */
-{ /* pos = */ -1.0f, -1.0f, -1.0f, 0x00, 0xFF, 0x00, 0xFF},
-{ /* pos = */ -1.0f, 1.0f, -1.0f, 0x00, 0xFF, 0x00, 0xFF},
-{ /* pos = */ 1.0f, 1.0f, -1.0f, 0x00, 0xFF, 0x00, 0xFF},
-{ /* pos = */ 1.0f, -1.0f, -1.0f, 0x00, 0xFF, 0x00, 0xFF},
-/* Top face */
-{ /* pos = */ -1.0f, 1.0f, -1.0f, 0x00, 0xFF, 0x00, 0xFF},
-{ /* pos = */ -1.0f, 1.0f, 1.0f, 0x00, 0xFF, 0x00, 0xFF},
-{ /* pos = */ 1.0f, 1.0f, 1.0f, 0x00, 0xFF, 0x00, 0xFF},
-{ /* pos = */ 1.0f, 1.0f, -1.0f, 0x00, 0xFF, 0x00, 0xFF },
-/* Bottom face */
-{ /* pos = */ -1.0f, -1.0f, -1.0f, 0x00, 0xFF, 0x00, 0xFF },
-{ /* pos = */ 1.0f, -1.0f, -1.0f, 0x00, 0xFF, 0x00, 0xFF },
-{ /* pos = */ 1.0f, -1.0f, 1.0f, 0x00, 0xFF, 0x00, 0xFF },
-{ /* pos = */ -1.0f, -1.0f, 1.0f, 0x00, 0xFF, 0x00, 0xFF },
-/* Right face */
-{ /* pos = */ 1.0f, -1.0f, -1.0f, 0x00, 0xFF, 0x00, 0xFF },
-{ /* pos = */ 1.0f, 1.0f, -1.0f, 0x00, 0xFF, 0x00, 0xFF },
-{ /* pos = */ 1.0f, 1.0f, 1.0f, 0x00, 0xFF, 0x00, 0xFF},
-{ /* pos = */ 1.0f, -1.0f, 1.0f, 0x00, 0xFF, 0x00, 0xFF },
-/* Left face */
-{ /* pos = */ -1.0f, -1.0f, -1.0f, 0x00, 0xFF, 0x00, 0xFF},
-{ /* pos = */ -1.0f, -1.0f, 1.0f, 0x00, 0xFF, 0x00, 0xFF },
-{ /* pos = */ -1.0f, 1.0f, 1.0f, 0x00, 0xFF, 0x00, 0xFF },
-{ /* pos = */ -1.0f, 1.0f, -1.0f, 0x00, 0xFF, 0x00, 0xFF }
-};
-
-
-        ClutterBackend      *be         = clutter_get_default_backend ();
-        CoglContext         *ctx        = (CoglContext*) clutter_backend_get_cogl_context (be);
-
+      else{
+            ClutterBackend      *be         = clutter_get_default_backend ();
+            CoglContext         *ctx        = (CoglContext*) clutter_backend_get_cogl_context (be);
 
             CoglVertexP3C4 test[data.vertices->len/data.n_vertex_bytes*3];
-            fprintf(stderr, "Making %d vertices\n", data.vertices->len/data.n_vertex_bytes*3); 
-            fprintf(stderr, "Each vertex has %d bytes\n", data.n_vertex_bytes); 
             for(i=0; i<data.vertices->len/data.n_vertex_bytes; i++){     
                 for(j=0; j<3; j++){            
                     gfloat *x = (gfloat *) (data.vertices->data + data.n_vertex_bytes*i + data.prop_map[j*3]);
                     gfloat *y = (gfloat *) (data.vertices->data + data.n_vertex_bytes*i + data.prop_map[j*3+1]);
                     gfloat *z = (gfloat *) (data.vertices->data + data.n_vertex_bytes*i + data.prop_map[j*3+2]);
-                    fprintf(stderr, "Adding v %d: (%f, %f, %f)\n",i*3+j, *x, *y, *z);
                     CoglVertexP3C4 v = {*x, *y, *z, 0x00, 0x00, 0xFF, 0xFF};
                     test[i*3+j] = v;
                 }
             }
 
-            
-
-            //priv->prim = cogl_primitive_new_p3t2 (ctx, COGL_VERTICES_MODE_TRIANGLES, G_N_ELEMENTS (vertices), vertices);
-            //priv->prim = cogl_primitive_new_p3c4 (ctx, COGL_VERTICES_MODE_TRIANGLES, G_N_ELEMENTS (vertices2), vertices2);  
             priv->prim = cogl_primitive_new_p3c4 (ctx, COGL_VERTICES_MODE_TRIANGLES, data.vertices->len/data.n_vertex_bytes*3, test);
-            fprintf(stderr, "Made a primitive with %d indices\n", cogl_primitive_get_n_vertices (priv->prim));
-
-
-            fprintf(stderr, "Bounding box is (%f, %f, %f), (%f, %f, %f)\n", 
-                data.min_vertex.x,
-                data.min_vertex.y,
-                data.min_vertex.z, 
-                data.max_vertex.x, 
-                data.max_vertex.y, 
-                data.max_vertex.z);
-
-          /* Get rid of the old VBOs (if any) */
-          mash_stl_loader_free_vbos (self);
-
-          /* Create a new VBO for the vertices */
-          priv->vertices_vbo = cogl_vertex_buffer_new (data.vertices->len
-                                                       / data.n_vertex_bytes);
-
-            
-     
-
-          /* Upload the data */
-          if ((data.available_props & MASH_STL_LOADER_VERTEX_PROPS)
-              == MASH_STL_LOADER_VERTEX_PROPS){
-            cogl_vertex_buffer_add (priv->vertices_vbo,
-                                    "gl_Vertex",
-                                    3, COGL_ATTRIBUTE_TYPE_FLOAT,
-                                    FALSE, data.n_vertex_bytes,
-                                    data.vertices->data
-                                    + data.prop_map[0]);
-            fprintf(stderr, "uploading gl_vertex\n");
-          }
-
-          if ((data.available_props & MASH_STL_LOADER_NORMAL_PROPS) == MASH_STL_LOADER_NORMAL_PROPS){
-            cogl_vertex_buffer_add (priv->vertices_vbo,
-                                    "gl_Normal",
-                                    3, COGL_ATTRIBUTE_TYPE_FLOAT,
-                                    FALSE, data.n_vertex_bytes,
-                                    data.vertices->data
-                                    + data.prop_map[3]);
-            fprintf(stderr, "uploading gl_normal\n");
-           }
-
-          if ((data.available_props & MASH_STL_LOADER_TEX_COORD_PROPS) == MASH_STL_LOADER_TEX_COORD_PROPS){
-            cogl_vertex_buffer_add (priv->vertices_vbo,
-                                    "gl_MultiTexCoord0",
-                                    2, COGL_ATTRIBUTE_TYPE_FLOAT,
-                                    FALSE, data.n_vertex_bytes,
-                                    data.vertices->data
-                                    + data.prop_map[6]);
-            fprintf(stderr, "uploading gl_mutitexcorrds\n");
-         }
-
-          if ((data.available_props & MASH_STL_LOADER_COLOR_PROPS) == MASH_STL_LOADER_COLOR_PROPS){
-            cogl_vertex_buffer_add (priv->vertices_vbo,
-                                    "gl_Color",
-                                    3, COGL_ATTRIBUTE_TYPE_UNSIGNED_BYTE,
-                                    FALSE, data.n_vertex_bytes,
-                                    data.vertices->data
-                                    + data.prop_map[8]);
-            fprintf(stderr, "uploading gl_color\n");
-          }
-
-          cogl_vertex_buffer_submit (priv->vertices_vbo);
-
-
-          /* Create a VBO for the indices */
-          priv->indices
-            = cogl_vertex_buffer_indices_new (data.indices_type,
-                                              data.faces->data,
-                                              data.faces->len);
           
-          priv->min_index = data.min_index;
-          priv->max_index = data.max_index;
-          priv->n_triangles = data.faces->len / 3;
-
           priv->min_vertex = data.min_vertex;
           priv->max_vertex = data.max_vertex;
 
@@ -622,21 +441,12 @@ CoglVertexP3C4 vertices2[] =
 }
 
 static void
-mash_stl_loader_get_data (MashDataLoader *data_loader, MashDataLoaderData *loader_data)
-{
+mash_stl_loader_get_data (MashDataLoader *data_loader, MashDataLoaderData *loader_data){
   MashStlLoader *self = MASH_STL_LOADER (data_loader);
   MashStlLoaderPrivate *priv = self->priv;
-
-  loader_data->vertices_vbo = cogl_handle_ref (priv->vertices_vbo);
-  loader_data->indices = cogl_handle_ref (priv->indices);
-
-  loader_data->min_index = priv->min_index;
-  loader_data->max_index = priv->max_index;
-  loader_data->n_triangles = priv->n_triangles;
 
   loader_data->min_vertex = priv->min_vertex;
   loader_data->max_vertex = priv->max_vertex;
 
-    loader_data->prim = priv->prim;
-    fprintf(stderr, "loader_data->prim = priv->prim\n");
+  loader_data->prim = priv->prim;
 }
