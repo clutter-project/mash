@@ -249,7 +249,7 @@ mash_data_render (MashData *self){
         CoglFramebuffer *fb  = cogl_get_draw_framebuffer();
         CoglPipeline    *pl  = cogl_pipeline_new (ctx);  
 
-        CoglTexture *texture = cogl_texture_2d_new_from_file (ctx, "crate.jpg", COGL_PIXEL_FORMAT_ANY, &error);
+        CoglTexture *texture = cogl_texture_2d_new_from_file (ctx, "crate.jpg", &error);
         if (!texture)
             g_error ("Failed to load texture: %s", error->message);
         cogl_pipeline_set_layer_texture (pl, 0, texture);
@@ -277,7 +277,7 @@ mash_data_render (MashData *self){
 
         CoglTexture2D *tex;
         static const uint8_t tex_data[] = { 0x00, 0x44, 0x88, 0xcc };
-        tex = cogl_texture_2d_new_from_data (ctx, 2, 2, COGL_PIXEL_FORMAT_A_8, COGL_PIXEL_FORMAT_A_8, 2, tex_data, &error);
+        tex = cogl_texture_2d_new_from_data (ctx, 2, 2, COGL_PIXEL_FORMAT_A_8,  2, tex_data, &error);
         cogl_pipeline_set_layer_filters (pl,
             0, /* layer */
             COGL_PIPELINE_FILTER_NEAREST,
