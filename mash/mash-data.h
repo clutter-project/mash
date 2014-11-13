@@ -151,7 +151,7 @@ gboolean mash_data_load (MashData *self,
                          const gchar *filename,
                          GError **error);
 
-void mash_data_render (MashData *self);
+void mash_data_render (MashData *self, CoglPipeline *pl);
 
 GQuark mash_data_error_quark (void);
 

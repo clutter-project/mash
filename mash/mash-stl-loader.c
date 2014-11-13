@@ -52,6 +52,9 @@ mash_stl_loader_properties[] =
 {
   /* These should be sorted in descending order of size so that it
      never ends doing an unaligned write */
+  { "nx", sizeof (gfloat) },
+  { "ny", sizeof (gfloat) },
+  { "nz", sizeof (gfloat) },
   { "x0", sizeof (gfloat) },
   { "y0", sizeof (gfloat) },
   { "z0", sizeof (gfloat) },
@@ -61,14 +64,6 @@ mash_stl_loader_properties[] =
   { "x2", sizeof (gfloat) },
   { "y2", sizeof (gfloat) },
   { "z2", sizeof (gfloat) },
-  //{ "nx", sizeof (gfloat) },
-  //{ "ny", sizeof (gfloat) },
-  //{ "nz", sizeof (gfloat) },
-  //{ "s", sizeof (gfloat) },
-  //{ "t", sizeof (gfloat) },
-  //{ "red", sizeof (guint8) },
-  //{ "green", sizeof (guint8) },
-  //{ "blue", sizeof (guint8) }
 };
 
 #define MASH_STL_LOADER_VERTEX_PROPS    511
@@ -211,8 +206,15 @@ mash_stl_loader_vertex_read_cb (p_stl_argument argument){
       int i, j;
         //fprintf(stderr, "data->got_props\n");
 
-      g_byte_array_append (data->vertices, data->current_vertex,
-                           data->n_vertex_bytes);
+      for(i=0; i<3; i++){
+          // Append first vertex data
+          g_byte_array_append (data->vertices, data->current_vertex + data->prop_map[3+i*3],
+                               mash_stl_loader_properties[3].size*3);
+          // Append the normal data. This is the same for all vertices
+          g_byte_array_append (data->vertices, data->current_vertex + data->prop_map[0],
+                               mash_stl_loader_properties[0].size*3);
+      }
+
       data->got_props = 0;
 
       /* Update the bounding box for the data */
@@ -220,7 +222,7 @@ mash_stl_loader_vertex_read_cb (p_stl_argument argument){
             for(j=0; j<3; j++){
                 gfloat *min = &data->min_vertex.x + j;
                 gfloat *max = &data->max_vertex.x + j;
-                gfloat value = *(gfloat *) (data->current_vertex + data->prop_map[i*3+j]);
+                gfloat value = *(gfloat *) (data->current_vertex + data->prop_map[3+i*3+j]);
                 //fprintf(stderr, "value = %f, min_x = %f, max_x = %f\n", value, *min, *max);
                 if (value < *min)
                     *min = value;
@@ -233,39 +235,6 @@ mash_stl_loader_vertex_read_cb (p_stl_argument argument){
   return 1;
 }
 
-
-
-static void
-mash_stl_loader_add_face_index (MashStlLoaderData *data,
-                                guint index)
-{
-  if (index > data->max_index)
-    data->max_index = index;
-  if (index < data->min_index)
-    data->min_index = index;
-
-  switch (data->indices_type)
-    {
-    case COGL_INDICES_TYPE_UNSIGNED_BYTE:
-      {
-        guint8 value = index;
-        g_array_append_val (data->faces, value);
-      }
-      break;
-    case COGL_INDICES_TYPE_UNSIGNED_SHORT:
-      {
-        guint16 value = index;
-        g_array_append_val (data->faces, value);
-      }
-      break;
-    case COGL_INDICES_TYPE_UNSIGNED_INT:
-      {
-        guint32 value = index;
-        g_array_append_val (data->faces, value);
-      }
-      break;
-    }
-}
 
 static gboolean
 mash_stl_loader_get_indices_type (MashStlLoaderData *data,
@@ -412,19 +381,51 @@ mash_stl_loader_load (MashDataLoader *data_loader,
             ClutterBackend      *be         = clutter_get_default_backend ();
             CoglContext         *ctx        = (CoglContext*) clutter_backend_get_cogl_context (be);
 
-            CoglVertexP3C4 test[data.vertices->len/data.n_vertex_bytes*3];
-            for(i=0; i<data.vertices->len/data.n_vertex_bytes; i++){     
-                for(j=0; j<3; j++){            
-                    gfloat *x = (gfloat *) (data.vertices->data + data.n_vertex_bytes*i + data.prop_map[j*3]);
-                    gfloat *y = (gfloat *) (data.vertices->data + data.n_vertex_bytes*i + data.prop_map[j*3+1]);
-                    gfloat *z = (gfloat *) (data.vertices->data + data.n_vertex_bytes*i + data.prop_map[j*3+2]);
-                    CoglVertexP3C4 v = {*x, *y, *z, 0x00, 0x00, 0xFF, 0xFF};
-                    test[i*3+j] = v;
-                }
-            }
+            data.n_vertex_bytes = sizeof (float) *6;
 
-            priv->prim = cogl_primitive_new_p3c4 (ctx, COGL_VERTICES_MODE_TRIANGLES, data.vertices->len/data.n_vertex_bytes*3, test);
-          
+            int nr_vertices = data.vertices->len/(sizeof (float)*6);
+
+            CoglAttributeBuffer *buffer = cogl_attribute_buffer_new (ctx, data.vertices->len, data.vertices->data);
+            CoglAttribute *attributes[2];
+            attributes[0] = cogl_attribute_new (buffer,
+                                    "cogl_position_in",
+                                    /* Stride */
+                                    sizeof (float) * 6,
+                                    /* Offset */
+                                    0,
+                                    /* n_components */
+                                    3,
+                                    COGL_ATTRIBUTE_TYPE_FLOAT);
+            attributes[1] = cogl_attribute_new (buffer,
+                                    "cogl_normal_in",
+                                    /* Stride */
+                                    sizeof (float) * 6,
+                                    /* Offset */
+                                    sizeof (float) * 3,
+                                    /* n_components */
+                                    3,
+                                    COGL_ATTRIBUTE_TYPE_FLOAT);
+            priv->prim = cogl_primitive_new_with_attributes (COGL_VERTICES_MODE_TRIANGLES,
+                                      nr_vertices, /* n_vertices */
+                                      attributes,
+                                      2 /* n_attributes */);
+            cogl_object_unref (attributes[0]);
+            cogl_object_unref (attributes[1]);
+            cogl_object_unref (buffer);
+
+            /*for(i=0; i<nr_vertices; i++){     
+                
+                gfloat *x = (gfloat *) (data.vertices->data + data.n_vertex_bytes*i + data.prop_map[0]);
+                gfloat *y = (gfloat *) (data.vertices->data + data.n_vertex_bytes*i + data.prop_map[1]);
+                gfloat *z = (gfloat *) (data.vertices->data + data.n_vertex_bytes*i + data.prop_map[2]);
+
+                gfloat *nx = (gfloat *) (data.vertices->data + data.n_vertex_bytes*i + data.prop_map[3]);
+                gfloat *ny = (gfloat *) (data.vertices->data + data.n_vertex_bytes*i + data.prop_map[4]);
+                gfloat *nz = (gfloat *) (data.vertices->data + data.n_vertex_bytes*i + data.prop_map[5]);
+
+                //fprintf(stderr, "Vertice: (%f, %f, %f), Normal: (%f, %f, %f)\n", *x, *y, *z, *nx, *ny, *nz);
+            }*/
+
           priv->min_vertex = data.min_vertex;
           priv->max_vertex = data.max_vertex;
 

@@ -366,7 +366,7 @@ mash_model_render_data (MashModel *self)
       cogl_scale (priv->scale, priv->scale, priv->scale);
     }
 
-  mash_data_render (priv->data);
+  mash_data_render (priv->data, (CoglPipeline *) priv->material);
 
   if (priv->fit_to_allocation)
     cogl_pop_matrix ();

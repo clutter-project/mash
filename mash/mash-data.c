@@ -50,8 +50,6 @@
 #include "mash-data-loader.h"
 #include "mash-data-loaders.h"
 
-#define COGL_ENABLE_EXPERIMENTAL_API 1
-
 static void mash_data_finalize (GObject *object);
 
 G_DEFINE_TYPE (MashData, mash_data, G_TYPE_OBJECT);
@@ -182,45 +180,6 @@ mash_data_load (MashData *self,
   return ret;
 }
 
-
-static const char vertex_shader[] =
-"attribute vec3 position;\n"
-"attribute vec3 normal;\n"
-"\n"
-"uniform mat4 ModelViewProjectionMatrix;\n"
-"uniform mat4 NormalMatrix;\n"
-"uniform vec4 LightSourcePosition;\n"
-"uniform vec4 MaterialColor;\n"
-"\n"
-"varying vec4 Color;\n"
-"\n"
-"void main(void)\n"
-"{\n"
-" // Transform the normal to eye coordinates\n"
-" vec3 N = normalize(vec3(NormalMatrix * vec4(normal, 1.0)));\n"
-"\n"
-" // The LightSourcePosition is actually its direction for directional light\n"
-" vec3 L = normalize(LightSourcePosition.xyz);\n"
-"\n"
-" // Multiply the diffuse value by the vertex color (which is fixed in this case)\n"
-" // to get the actual color that we will use to draw this vertex with\n"
-" float diffuse = max(dot(N, L), 0.0);\n"
-" Color = diffuse * MaterialColor;\n"
-"\n"
-" // Transform the position to clip coordinates\n"
-" gl_Position = ModelViewProjectionMatrix * vec4(position, 1.0);\n"
-"}";
-static const char fragment_shader[] =
-"precision mediump float;\n"
-"varying vec4 Color;\n"
-"\n"
-"void main(void)\n"
-"{\n"
-" gl_FragColor = Color;\n"
-"}";
-
-
-
 /**
  * mash_data_render:
  * @self: A #MashData instance
@@ -233,79 +192,23 @@ static const char fragment_shader[] =
  * the paint method of the model.
  */
 void
-mash_data_render (MashData *self){
-  MashDataPrivate *priv;
-  g_return_if_fail (MASH_IS_DATA (self));
-  priv = self->priv;
+mash_data_render (MashData *self, CoglPipeline* pl){
+    MashDataPrivate *priv;
+    g_return_if_fail (MASH_IS_DATA (self));
+    priv = self->priv;
     CoglError *error = NULL;
 
-#define COGL_PIPELINE_FILTER_NEAREST 0x2600
-#define COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE 0x812F
-
-  /* Silently fail if we didn't load any data */
     if (priv->loaded_data.prim != NULL){
         ClutterBackend  *be  = clutter_get_default_backend ();
         CoglContext     *ctx = (CoglContext*) clutter_backend_get_cogl_context (be);
         CoglFramebuffer *fb  = cogl_get_draw_framebuffer();
-        CoglPipeline    *pl  = cogl_pipeline_new (ctx);  
+        //CoglPipeline    *pl  = cogl_pipeline_new (ctx);  
 
-        CoglTexture *texture = cogl_texture_2d_new_from_file (ctx, "crate.jpg", &error);
-        if (!texture)
-            g_error ("Failed to load texture: %s", error->message);
-        cogl_pipeline_set_layer_texture (pl, 0, texture);
-        CoglIndices *indices = cogl_get_rectangle_indices (ctx, 6 /* n_rectangles */);
-        cogl_primitive_set_indices (priv->loaded_data.prim, indices, 6 * 6);
-
-        GLuint v, f, program;
-        const char *p;
-        char msg[512];
-         /* Compile the vertex shader */
-        /*p = vertex_shader;
-        v = glCreateShader (GL_VERTEX_SHADER);
-        glShaderSource (v, 1, &p, NULL);
-        glCompileShader (v);
-        glGetShaderInfoLog (v, sizeof msg, NULL, msg);
-        printf ("vertex shader info: %s\n", msg);*/
-        /* Compile the fragment shader */
-        /*p = fragment_shader;
-        f = glCreateShader (GL_FRAGMENT_SHADER);
-        glShaderSource (f, 1, &p, NULL);
-        glCompileShader (f);
-        glGetShaderInfoLog (f, sizeof msg, NULL, msg);
-        printf ("fragment shader info: %s\n", msg);
-        */
-
-        CoglTexture2D *tex;
-        static const uint8_t tex_data[] = { 0x00, 0x44, 0x88, 0xcc };
-        tex = cogl_texture_2d_new_from_data (ctx, 2, 2, COGL_PIXEL_FORMAT_A_8,  2, tex_data, &error);
-        cogl_pipeline_set_layer_filters (pl,
-            0, /* layer */
-            COGL_PIPELINE_FILTER_NEAREST,
-            COGL_PIPELINE_FILTER_NEAREST);
-        cogl_pipeline_set_layer_wrap_mode (pl,
-            0, /* layer */
-            COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
-        /* This is the layer combine used by cogl-pango */
-        cogl_pipeline_set_layer_combine (pl,
-            0, /* layer */
-            "RGBA = MODULATE (PREVIOUS, TEXTURE[A])",
-            NULL);
-        cogl_pipeline_set_layer_texture (pl,
-            0, /* layer */
-            tex);
-
-        uint8_t replacement_data[1] = { 0xff };
-
-        cogl_texture_set_region (tex,
-            0, 0, /* src_x/y */
-            1, 1, /* dst_x/y */
-            1, 1, /* dst_width / dst_height */
-            1, 1, /* width / height */
-            COGL_PIXEL_FORMAT_A_8,
-            1, /* rowstride */
-            replacement_data);
-
+        //CoglIndices *indices = cogl_get_rectangle_indices (ctx, 6 /* n_rectangles */);
+        //cogl_primitive_set_indices (priv->loaded_data.prim, indices, 6 * 6);
         cogl_primitive_draw (priv->loaded_data.prim, fb, pl);  
+
+        
     }
     else if(priv->loaded_data.vertices_vbo != NULL && priv->loaded_data.indices != NULL){
         cogl_vertex_buffer_draw_elements (priv->loaded_data.vertices_vbo,
