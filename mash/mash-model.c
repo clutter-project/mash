@@ -405,7 +405,6 @@ mash_model_pick (ClutterActor *actor,
   MashModel *self = MASH_MODEL (actor);
   MashModelPrivate *priv;
   CoglColor color;
-
   g_return_if_fail (MASH_IS_MODEL (self));
 
   priv = self->priv;
@@ -414,6 +413,7 @@ mash_model_pick (ClutterActor *actor,
   if (priv->data == NULL)
     return;
 
+  
   if (priv->pick_material == COGL_INVALID_HANDLE)
     {
       GError *error = NULL;
@@ -433,9 +433,7 @@ mash_model_pick (ClutterActor *actor,
                            pick_color->blue,
                            255);
   cogl_material_set_layer_combine_constant (priv->pick_material, 0, &color);
-
   cogl_set_source (priv->pick_material);
-
   mash_model_render_data (self);
 }
 

@@ -196,19 +196,12 @@ mash_data_render (MashData *self, CoglPipeline* pl){
     MashDataPrivate *priv;
     g_return_if_fail (MASH_IS_DATA (self));
     priv = self->priv;
-    CoglError *error = NULL;
 
     if (priv->loaded_data.prim != NULL){
         ClutterBackend  *be  = clutter_get_default_backend ();
         CoglContext     *ctx = (CoglContext*) clutter_backend_get_cogl_context (be);
         CoglFramebuffer *fb  = cogl_get_draw_framebuffer();
-        //CoglPipeline    *pl  = cogl_pipeline_new (ctx);  
-
-        //CoglIndices *indices = cogl_get_rectangle_indices (ctx, 6 /* n_rectangles */);
-        //cogl_primitive_set_indices (priv->loaded_data.prim, indices, 6 * 6);
         cogl_primitive_draw (priv->loaded_data.prim, fb, pl);  
-
-        
     }
     else if(priv->loaded_data.vertices_vbo != NULL && priv->loaded_data.indices != NULL){
         cogl_vertex_buffer_draw_elements (priv->loaded_data.vertices_vbo,
