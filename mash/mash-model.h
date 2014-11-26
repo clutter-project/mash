@@ -103,6 +103,9 @@ gboolean mash_model_get_fit_to_allocation (MashModel *self);
 void mash_model_set_fit_to_allocation (MashModel *self,
                                        gboolean fit_to_allocation);
 
+gfloat
+mash_model_get_model_depth (ClutterActor *actor);
+
 G_END_DECLS
 
 #endif /* __MASH_MODEL_H__ */

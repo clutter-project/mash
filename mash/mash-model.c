@@ -151,7 +151,7 @@ mash_model_class_init (MashModelClass *klass)
   gobject_class->set_property = mash_model_set_property;
 
   actor_class->paint = mash_model_paint;
-  actor_class->pick = mash_model_pick;
+  //actor_class->pick = mash_model_pick;
   actor_class->get_preferred_width = mash_model_get_preferred_width;
   actor_class->get_preferred_height = mash_model_get_preferred_height;
   actor_class->allocate = mash_model_allocate;
@@ -373,8 +373,7 @@ mash_model_render_data (MashModel *self)
 }
 
 static void
-mash_model_paint (ClutterActor *actor)
-{
+mash_model_paint (ClutterActor *actor){
   MashModel *self = MASH_MODEL (actor);
   MashModelPrivate *priv;
 
@@ -386,8 +385,7 @@ mash_model_paint (ClutterActor *actor)
   if (priv->data == NULL || priv->material == COGL_INVALID_HANDLE)
     return;
 
-  if (priv->light_set)
-    {
+  if (priv->light_set){
       CoglHandle program = mash_light_set_begin_paint (priv->light_set,
                                                        priv->material);
       cogl_material_set_user_program (priv->material, program);
@@ -410,12 +408,13 @@ mash_model_pick (ClutterActor *actor,
   priv = self->priv;
 
   /* Silently fail if we haven't got any data */
-  if (priv->data == NULL)
+  if (priv->data == NULL){
+    fprintf(stderr, "No data for pick\n");
     return;
+  }
 
   
-  if (priv->pick_material == COGL_INVALID_HANDLE)
-    {
+  if (priv->pick_material == COGL_INVALID_HANDLE){
       GError *error = NULL;
       priv->pick_material = cogl_material_new ();
       if (!cogl_material_set_layer_combine (priv->pick_material, 0,
@@ -812,4 +811,23 @@ mash_model_allocate (ClutterActor *actor,
                            - (min_vertex.y + max_vertex.y) / 2.0f * min_scale);
       priv->translate_z = -(min_vertex.z + max_vertex.z) / 2.0f * min_scale;
     }
+}
+
+/**
+ * mash_model_get_model_depth:
+ * @self: A #MashModel instance
+ *
+ * Return value: the depth of the actor, in pixels
+ */
+
+gfloat
+mash_model_get_model_depth (ClutterActor *actor){
+    MashModel *model = MASH_MODEL (actor);
+    MashModelPrivate *priv = model->priv;
+    ClutterVertex min_vertex, max_vertex;
+    if (priv->data){
+        mash_data_get_extents (priv->data, &min_vertex, &max_vertex);
+        return max_vertex.z - min_vertex.z;
+    }
+    return 0.0;
 }

@@ -344,7 +344,6 @@ int stl_read_header(p_stl stl) {
         else if(strcmp(BWORD(stl), "endsolid") == 0)
             break;
     }
-    fprintf(stderr, "Found %d facets\n", nr_facets);
     // reinit to reset buffer pointers.
     stl_init(stl);
     rewind (stl->fp);

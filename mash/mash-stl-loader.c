@@ -413,19 +413,6 @@ mash_stl_loader_load (MashDataLoader *data_loader,
             cogl_object_unref (attributes[1]);
             cogl_object_unref (buffer);
 
-            /*for(i=0; i<nr_vertices; i++){     
-                
-                gfloat *x = (gfloat *) (data.vertices->data + data.n_vertex_bytes*i + data.prop_map[0]);
-                gfloat *y = (gfloat *) (data.vertices->data + data.n_vertex_bytes*i + data.prop_map[1]);
-                gfloat *z = (gfloat *) (data.vertices->data + data.n_vertex_bytes*i + data.prop_map[2]);
-
-                gfloat *nx = (gfloat *) (data.vertices->data + data.n_vertex_bytes*i + data.prop_map[3]);
-                gfloat *ny = (gfloat *) (data.vertices->data + data.n_vertex_bytes*i + data.prop_map[4]);
-                gfloat *nz = (gfloat *) (data.vertices->data + data.n_vertex_bytes*i + data.prop_map[5]);
-
-                //fprintf(stderr, "Vertice: (%f, %f, %f), Normal: (%f, %f, %f)\n", *x, *y, *z, *nx, *ny, *nz);
-            }*/
-
           priv->min_vertex = data.min_vertex;
           priv->max_vertex = data.max_vertex;
 

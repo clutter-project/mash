@@ -344,7 +344,6 @@ int stl_read_header(p_stl stl) {
         else if(strcmp(BWORD(stl), "endsolid") == 0)
             break;
     }
-    fprintf(stderr, "Found %d facets\n", nr_facets);
     // reinit to reset buffer pointers.
     stl_init(stl);
     rewind (stl->fp);
@@ -402,10 +401,6 @@ int stl_read(p_stl stl) {
     p_stl_argument argument;
     assert(stl && stl->fp && stl->io_mode == STL_READ);
     argument = &stl->argument;
-    // for each element type 
-    //if (!stl_read_line(stl)) return 0; // Solid blabla
-    //fprintf(stderr, "Read '%s'\n", BLINE(stl));
-   //fprintf(stderr, "stl_read(), nr_elements: %d\n", stl->nelements);
     for (i = 0; i < stl->nelements; i++) {
         p_stl_element element = &stl->element[i];
         argument->element = element;
