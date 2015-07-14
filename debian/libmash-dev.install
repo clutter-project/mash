@@ -1,0 +1,4 @@
+usr/include/
+usr/lib/arm-linux-gnueabihf/*.so
+usr/lib/arm-linux-gnueabihf/pkgconfig/*.pc 
+usr/share/gir-1.0/

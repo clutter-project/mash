@@ -1,0 +1,19 @@
+#!/usr/bin/make -f
+
+include /usr/share/cdbs/1/rules/autoreconf.mk
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/class/autotools.mk
+include /usr/share/cdbs/1/rules/utils.mk
+
+DEB_DH_AUTORECONF_ARGS := $(CURDIR)/autogen.sh 
+DEB_CONFIGURE_EXTRA_FLAGS :=--enable-introspection --libdir=\$${prefix}/lib/$(DEB_HOST_MULTIARCH)
+
+clean:: 
+	find . -type f -name ".gitignore" -exec rm -f {} \;
+
+reconf:
+	intltoolize --force --copy --automake
+	gtkdocize
+	autoreconf -f -i -v
+
+common-binary-predeb-arch:: list-missing
