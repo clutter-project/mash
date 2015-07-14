@@ -238,49 +238,39 @@ mash_stl_loader_vertex_read_cb (p_stl_argument argument){
 
 static gboolean
 mash_stl_loader_get_indices_type (MashStlLoaderData *data,
-                                  GError **error)
-{
+                                  GError **error){
   p_stl_element elem = NULL;
 
   /* Look for the 'vertices' element */
-  while ((elem = stl_get_next_element (data->stl, elem)))
-    {
+  while ((elem = stl_get_next_element (data->stl, elem))){
       const char *name;
       gint32 n_instances;
 
-      if (stl_get_element_info (elem, &name, &n_instances))
-        {
-          if (!strcmp (name, "facet"))
-            {
-              if (n_instances <= 0x100)
-                {
+      if (stl_get_element_info (elem, &name, &n_instances)){
+          if (!strcmp (name, "facet")){
+              if (n_instances <= 0x100){
                   data->indices_type = COGL_INDICES_TYPE_UNSIGNED_BYTE;
                   data->faces = g_array_new (FALSE, FALSE, sizeof (guint8));
-                }
-              else if (n_instances <= 0x10000)
-                {
+              }
+              else if (n_instances <= 0x10000){
                   data->indices_type = COGL_INDICES_TYPE_UNSIGNED_SHORT;
                   data->faces = g_array_new (FALSE, FALSE, sizeof (guint16));
-                }
-              else if (cogl_has_feature(COGL_FEATURE_UNSIGNED_INT_INDICES))
-                {
+              }
+              else if (cogl_has_feature(COGL_FEATURE_UNSIGNED_INT_INDICES)){
                   data->indices_type = COGL_INDICES_TYPE_UNSIGNED_INT;
                   data->faces = g_array_new (FALSE, FALSE, sizeof (guint32));
-                }
-              else
-                {
+              }
+              else{
                   g_set_error (error, MASH_DATA_ERROR,
                                MASH_DATA_ERROR_UNSUPPORTED,
                                "The STL file requires unsigned int indices "
                                "but this is not supported by your GL driver");
                   return FALSE;
-                }
-
+              }
               return TRUE;
-            }
-        }
-      else
-        {
+          }
+      }
+      else{
           g_set_error (error, MASH_DATA_ERROR,
                        MASH_DATA_ERROR_UNKNOWN,
                        "Error getting element info");
@@ -288,7 +278,7 @@ mash_stl_loader_get_indices_type (MashStlLoaderData *data,
         }
     }
 
-  g_set_error (error, MASH_DATA_ERROR,
+    g_set_error (error, MASH_DATA_ERROR,
                MASH_DATA_ERROR_MISSING_PROPERTY,
                "STL file is missing the vertex element");
 
@@ -300,57 +290,58 @@ mash_stl_loader_load (MashDataLoader *data_loader,
                       MashDataFlags flags,
                       const gchar *filename,
                       GError **error){
-  MashStlLoader *self = MASH_STL_LOADER (data_loader);
-  MashStlLoaderPrivate *priv;
-  MashStlLoaderData data;
-  gchar *display_name;
-  gboolean ret;
+    MashStlLoader *self = MASH_STL_LOADER (data_loader);
+    MashStlLoaderPrivate *priv;
+    MashStlLoaderData data;
+    gchar *display_name;
+    gboolean ret;
 
     int i,j;
 
-  priv = self->priv;
+    priv = self->priv;
 
-  data.error = NULL;
-  data.n_vertex_bytes = 0;
-  data.available_props = 0;
-  data.got_props = 0;
-  data.vertices = g_byte_array_new ();
-  data.faces = NULL;
-  data.min_vertex.x = G_MAXFLOAT;
-  data.min_vertex.y = G_MAXFLOAT;
-  data.min_vertex.z = G_MAXFLOAT;
-  data.max_vertex.x = -G_MAXFLOAT;
-  data.max_vertex.y = -G_MAXFLOAT;
-  data.max_vertex.z = -G_MAXFLOAT;
-  data.min_index = G_MAXUINT;
-  data.max_index = 0;
-  data.flags = flags;
+    data.error = NULL;
+    data.n_vertex_bytes = 0;
+    data.available_props = 0;
+    data.got_props = 0;
+    data.vertices = g_byte_array_new ();
+    data.faces = NULL;
+    data.min_vertex.x = G_MAXFLOAT;
+    data.min_vertex.y = G_MAXFLOAT;
+    data.min_vertex.z = G_MAXFLOAT;
+    data.max_vertex.x = -G_MAXFLOAT;
+    data.max_vertex.y = -G_MAXFLOAT;
+    data.max_vertex.z = -G_MAXFLOAT;
+    data.min_index = G_MAXUINT;
+    data.max_index = 0;
+    data.flags = flags;
 
-  display_name = g_filename_display_name (filename);
+    display_name = g_filename_display_name (filename);
 
 
 
-  if ((data.stl = stl_open (filename,
+    if ((data.stl = stl_open (filename,
                             mash_stl_loader_error_cb,
                             &data)) == NULL)
-    mash_stl_loader_check_unknown_error (&data);
-  else{
-      if (!stl_read_header (data.stl))
         mash_stl_loader_check_unknown_error (&data);
-      else{
+    else{
+        if (!stl_read_header (data.stl))
+            mash_stl_loader_check_unknown_error (&data);
+        else{
           int i;
           for (i = 0; i < G_N_ELEMENTS (mash_stl_loader_properties); i++)
             if (stl_set_read_cb (data.stl, "facet",
                                  mash_stl_loader_properties[i].name,
                                  mash_stl_loader_vertex_read_cb,
                                  &data, i)){
+
                 data.prop_map[i] = data.n_vertex_bytes;
                 data.n_vertex_bytes += mash_stl_loader_properties[i].size;
                 data.available_props |= 1 << i;
               }
+                
           /* Align the size of a vertex to 32 bits */
           data.n_vertex_bytes = (data.n_vertex_bytes + 3) & ~(guint) 3;
-
           if ((data.available_props & MASH_STL_LOADER_VERTEX_PROPS)
               != MASH_STL_LOADER_VERTEX_PROPS)
             g_set_error (&data.error, MASH_DATA_ERROR,

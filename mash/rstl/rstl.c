@@ -176,6 +176,7 @@ typedef struct t_stl_ {
     gint32 winstance_index, wvalue_index, wlength;
     p_stl_error_cb error_cb;
     gpointer cb_data;
+    int is_binary;
 } t_stl;
 
 /* ----------------------------------------------------------------------
@@ -294,10 +295,13 @@ static int BREFILL(p_stl stl) {
  * Read support functions
  * ---------------------------------------------------------------------- */
 p_stl stl_open(const char *name, p_stl_error_cb error_cb, gpointer cb_data) {
-    char magic[6] = "     ";
+    char magic[81] = "     ";
     FILE *fp = NULL;
     p_stl stl = NULL;
-    if (error_cb == NULL) error_cb = stl_error_cb;
+    int is_binary = 0;
+
+    if (error_cb == NULL) 
+        error_cb = stl_error_cb;
     if (!stl_type_check()) {
         error_cb("Incompatible type system", cb_data);
         return NULL;
@@ -312,12 +316,31 @@ p_stl stl_open(const char *name, p_stl_error_cb error_cb, gpointer cb_data) {
         error_cb("Error reading from file", cb_data);
         fclose(fp);
         return NULL;
+    }    
+    if (strcmp(magic, "solid") == 0) {
+       //fprintf(stderr, "ASCII STL\n");
+       is_binary = 0;
     }
-    if (strcmp(magic, "solid")) {
-        fclose(fp);
-        error_cb("Not a STL file. Expected magic number 'solid'", cb_data);
-        return NULL;
+    else if(strcmp(magic, "COLOR") == 0){
+        //fprintf(stderr, "Binary STL with COLOR:\n");
+        is_binary = 1;
+        if (fread(magic, 1, 75, fp) < 75) {
+            error_cb("Error reading 80 char header from file", cb_data);
+            fclose(fp);
+            return NULL;
+        }    
     }
+    else{
+        //fprintf(stderr, "Binary STL with no color\n");
+        // Try reading 75 more chacters and then an integer
+        if (fread(magic, 1, 75, fp) < 75) {
+            error_cb("Error reading 80 char header from file", cb_data);
+            fclose(fp);
+            return NULL;
+        }    
+        is_binary = 1;
+    }
+
     stl = stl_alloc();
     if (!stl) {
         error_cb("Out of memory", cb_data);
@@ -328,59 +351,87 @@ p_stl stl_open(const char *name, p_stl_error_cb error_cb, gpointer cb_data) {
     stl->io_mode = STL_READ;
     stl->error_cb = error_cb;
     stl->cb_data = cb_data;
+    stl->is_binary = is_binary;
     return stl;
 }
 
 int stl_read_header(p_stl stl) {
     int i, nr_facets = 0;
+    guint32 uint32;
     assert(stl && stl->fp && stl->io_mode == STL_READ);
-    // STL files do not have the number of vertices 
-    // and normals, so we fake it.
-    while(1){
-        if(!stl_read_word(stl)) 
+    if(stl->is_binary){
+        if( fread( &nr_facets, 1, 4, stl->fp ) < 4){
+            fprintf(stderr, "Error reading number of facets\n");
             return 0;
-        if(strcmp(BWORD(stl), "facet") == 0)
-            nr_facets++;
-        else if(strcmp(BWORD(stl), "endsolid") == 0)
-            break;
+        }        
+
+        // Set input driver
+        if (!stl_read_header_format(stl)) 
+            return 0;
+
+        stl_set_header_element(stl, "facet", nr_facets);
+        stl_set_header_property(stl, "nx", STL_FLOAT);
+        stl_set_header_property(stl, "ny", STL_FLOAT);
+        stl_set_header_property(stl, "nz", STL_FLOAT);
+        stl_set_header_property(stl, "x0", STL_FLOAT);
+        stl_set_header_property(stl, "y0", STL_FLOAT);
+        stl_set_header_property(stl, "z0", STL_FLOAT);
+        stl_set_header_property(stl, "x1", STL_FLOAT);
+        stl_set_header_property(stl, "y1", STL_FLOAT);
+        stl_set_header_property(stl, "z1", STL_FLOAT);
+        stl_set_header_property(stl, "x2", STL_FLOAT);
+        stl_set_header_property(stl, "y2", STL_FLOAT);
+        stl_set_header_property(stl, "z2", STL_FLOAT);
+        stl_set_header_property(stl, "attr", STL_UINT16);
     }
-    // reinit to reset buffer pointers.
-    stl_init(stl);
-    rewind (stl->fp);
+    else{
+        // STL files do not have the number of vertices 
+        // and normals, so we fake it.
+        while(1){
+            if(!stl_read_word(stl)) 
+                return 0;
+            if(strcmp(BWORD(stl), "facet") == 0)
+                nr_facets++;
+            else if(strcmp(BWORD(stl), "endsolid") == 0)
+                break;
+        }
+        // reinit to reset buffer pointers.
+        stl_init(stl);
+        rewind (stl->fp);
 
-    if (!stl_read_header_format(stl)) return 0;
-    if (!stl_read_line(stl)) return 0;
+        if (!stl_read_header_format(stl)) return 0;
+        if (!stl_read_line(stl)) return 0;
 
-    stl_set_header_element(stl, "facet", nr_facets);
-    stl_set_header_property(stl, "facet", STL_WORD);    
-    stl_set_header_property(stl, "normal", STL_WORD);    
-    stl_set_header_property(stl, "nx", STL_FLOAT);
-    stl_set_header_property(stl, "ny", STL_FLOAT);
-    stl_set_header_property(stl, "nz", STL_FLOAT);
-    stl_set_header_property(stl, "outer loop", STL_LINE);    
-    stl_set_header_property(stl, "vertex", STL_WORD);    
-    stl_set_header_property(stl, "x0", STL_FLOAT);
-    stl_set_header_property(stl, "y0", STL_FLOAT);
-    stl_set_header_property(stl, "z0", STL_FLOAT);
-    stl_set_header_property(stl, "vertex", STL_WORD);    
-    stl_set_header_property(stl, "x1", STL_FLOAT);
-    stl_set_header_property(stl, "y1", STL_FLOAT);
-    stl_set_header_property(stl, "z1", STL_FLOAT);
-    stl_set_header_property(stl, "vertex", STL_WORD);    
-    stl_set_header_property(stl, "x2", STL_FLOAT);
-    stl_set_header_property(stl, "y2", STL_FLOAT);
-    stl_set_header_property(stl, "z2", STL_FLOAT);
-    stl_set_header_property(stl, "endloop", STL_LINE);    
-    stl_set_header_property(stl, "endfacet", STL_LINE);    
-
+        stl_set_header_element(stl, "facet", nr_facets);
+        stl_set_header_property(stl, "facet", STL_WORD);    
+        stl_set_header_property(stl, "normal", STL_WORD);    
+        stl_set_header_property(stl, "nx", STL_FLOAT);
+        stl_set_header_property(stl, "ny", STL_FLOAT);
+        stl_set_header_property(stl, "nz", STL_FLOAT);
+        stl_set_header_property(stl, "outer loop", STL_LINE);    
+        stl_set_header_property(stl, "vertex", STL_WORD);    
+        stl_set_header_property(stl, "x0", STL_FLOAT);
+        stl_set_header_property(stl, "y0", STL_FLOAT);
+        stl_set_header_property(stl, "z0", STL_FLOAT);
+        stl_set_header_property(stl, "vertex", STL_WORD);    
+        stl_set_header_property(stl, "x1", STL_FLOAT);
+        stl_set_header_property(stl, "y1", STL_FLOAT);
+        stl_set_header_property(stl, "z1", STL_FLOAT);
+        stl_set_header_property(stl, "vertex", STL_WORD);    
+        stl_set_header_property(stl, "x2", STL_FLOAT);
+        stl_set_header_property(stl, "y2", STL_FLOAT);
+        stl_set_header_property(stl, "z2", STL_FLOAT);
+        stl_set_header_property(stl, "endloop", STL_LINE);    
+        stl_set_header_property(stl, "endfacet", STL_LINE);    
+    }
     return 1;
 }
-
-
 
 long stl_set_read_cb(p_stl stl, const char *element_name,
         const char* property_name, p_stl_read_cb read_cb,
         void *pdata, long idata) {
+    //fprintf(stderr, "stl_set_read_cb '%s', '%s'\n", element_name, property_name);
+
     p_stl_element element = NULL;
     p_stl_property property = NULL;
     assert(stl && element_name && property_name);
@@ -389,6 +440,7 @@ long stl_set_read_cb(p_stl stl, const char *element_name,
     if (!element) return 0;
     property = stl_find_property(element, property_name);
     if (!property) return 0;
+    //fprintf(stderr, "property was found\n");
     property->read_cb = read_cb;
     property->pdata = pdata;
     property->idata = idata;
@@ -402,8 +454,10 @@ int stl_read(p_stl stl) {
     assert(stl && stl->fp && stl->io_mode == STL_READ);
     argument = &stl->argument;
     for (i = 0; i < stl->nelements; i++) {
+        //fprintf(stderr, "stl_read %i\n", i);
         p_stl_element element = &stl->element[i];
         argument->element = element;
+        //fprintf(stderr, "stl_read reading element\n");
         if (!stl_read_element(stl, element, argument))
             return 0;
     }
@@ -789,12 +843,12 @@ static int stl_read_list_property(p_stl stl, p_stl_element element,
 
 static int stl_read_scalar_property(p_stl stl, p_stl_element element,
         p_stl_property property, p_stl_argument argument) {
+    //fprintf(stderr, "stl_read_scalar_property\n");
     p_stl_read_cb read_cb = property->read_cb;
     p_stl_ihandler *driver = stl->idriver->ihandler;
     p_stl_ihandler handler = driver[property->type];
     argument->length = 1;
     argument->value_index = 0;
-    //fprintf(stderr, "stl_read_scalar_property\n");
     if (!handler(stl, &argument->value)) {
         stl_error(stl, "Error reading '%s' of '%s' number %d",
                 property->name, element->name, argument->instance_index);
@@ -851,7 +905,6 @@ static p_stl_element stl_find_element(p_stl stl, const char *name) {
     assert(stl && name);
     element = stl->element;
     nelements = stl->nelements;
-    //fprintf(stderr, "stl_find_element %s, nelements: %d\n", name, nelements);
     assert(element || nelements == 0);
     assert(!element || nelements > 0);
     for (i = 0; i < nelements; i++)
@@ -1118,11 +1171,10 @@ static p_stl_property stl_grow_property(p_stl stl, p_stl_element element) {
 
 static int stl_read_header_format(p_stl stl) {
     assert(stl && stl->fp && stl->io_mode == STL_READ);
-    stl->idriver = &stl_idriver_ascii;
-    //TODO: find out format
-
-    
-
+    if(stl->is_binary)
+        stl->idriver = &stl_idriver_binary;
+    else
+        stl->idriver = &stl_idriver_ascii;
     return 1;
 }
 
