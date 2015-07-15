@@ -1486,8 +1486,13 @@ static int iascii_word(p_stl stl, double *value) {
 
 static int iascii_line(p_stl stl, double *value) {
     char *end;
+    size_t t = 0;
     if (!stl_read_line(stl)) return 0;
-    //fprintf(stderr, "iascii_line: %s\n", BLINE(stl));
+    if(strcmp(BLINE(stl), "") == 0){
+        if (!stl_read_line(stl)) 
+            return 0;
+    }    
+    //fprintf(stderr, "iascii_line: '%s'\n", BLINE(stl));
     return 1;
 }
 
