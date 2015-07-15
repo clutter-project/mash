@@ -1553,7 +1553,8 @@ static int ibinary_float32(p_stl stl, double *value) {
     float float32;
     if (!stl->idriver->ichunk(stl, &float32, sizeof(float32))) return 0;
     *value = float32;
-    stl_reverse(&float32, sizeof(float32));
+    //stl_reverse(&float32, sizeof(float32));
+    //fprintf(stderr, "iascii_float32: %f\n", float32);
     return 1;
 }
 
