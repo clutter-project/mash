@@ -67,9 +67,9 @@ mash_stl_loader_properties[] =
 };
 
 #define MASH_STL_LOADER_VERTEX_PROPS    511
-#define MASH_STL_LOADER_NORMAL_PROPS    (7 << 3)
-#define MASH_STL_LOADER_TEX_COORD_PROPS (3 << 6)
-#define MASH_STL_LOADER_COLOR_PROPS     (7 << 8)
+//#define MASH_STL_LOADER_NORMAL_PROPS    (7 << 3)
+//#define MASH_STL_LOADER_TEX_COORD_PROPS (3 << 6)
+//#define MASH_STL_LOADER_COLOR_PROPS     (7 << 8)
 
 typedef struct _MashStlLoaderData MashStlLoaderData;
 
@@ -239,42 +239,42 @@ mash_stl_loader_vertex_read_cb (p_stl_argument argument){
 static gboolean
 mash_stl_loader_get_indices_type (MashStlLoaderData *data,
                                   GError **error){
-  p_stl_element elem = NULL;
-
-  /* Look for the 'vertices' element */
-  while ((elem = stl_get_next_element (data->stl, elem))){
-      const char *name;
-      gint32 n_instances;
-
-      if (stl_get_element_info (elem, &name, &n_instances)){
-          if (!strcmp (name, "facet")){
-              if (n_instances <= 0x100){
-                  data->indices_type = COGL_INDICES_TYPE_UNSIGNED_BYTE;
-                  data->faces = g_array_new (FALSE, FALSE, sizeof (guint8));
-              }
-              else if (n_instances <= 0x10000){
-                  data->indices_type = COGL_INDICES_TYPE_UNSIGNED_SHORT;
-                  data->faces = g_array_new (FALSE, FALSE, sizeof (guint16));
-              }
-              else if (cogl_has_feature(COGL_FEATURE_UNSIGNED_INT_INDICES)){
-                  data->indices_type = COGL_INDICES_TYPE_UNSIGNED_INT;
-                  data->faces = g_array_new (FALSE, FALSE, sizeof (guint32));
-              }
-              else{
-                  g_set_error (error, MASH_DATA_ERROR,
+    p_stl_element elem = NULL;
+    /* Look for the 'vertices' element */
+    while ((elem = stl_get_next_element (data->stl, elem))){
+        const char *name;
+        gint32 n_instances;
+        //fprintf(stderr, "got a new element\n");     
+        if (stl_get_element_info (elem, &name, &n_instances)){
+            //fprintf(stderr, "Got element info: %s, %i\n", name, n_instances);     
+            if (!strcmp (name, "facet")){
+                if (n_instances <= 0x100){
+                    data->indices_type = COGL_INDICES_TYPE_UNSIGNED_BYTE;
+                    data->faces = g_array_new (FALSE, FALSE, sizeof (guint8));
+                }
+                else if (n_instances <= 0x10000){
+                    data->indices_type = COGL_INDICES_TYPE_UNSIGNED_SHORT;
+                    data->faces = g_array_new (FALSE, FALSE, sizeof (guint16));
+                }
+                else if (cogl_has_feature(COGL_FEATURE_UNSIGNED_INT_INDICES)){
+                    data->indices_type = COGL_INDICES_TYPE_UNSIGNED_INT;
+                    data->faces = g_array_new (FALSE, FALSE, sizeof (guint32));
+                }
+                else{
+                    g_set_error (error, MASH_DATA_ERROR,
                                MASH_DATA_ERROR_UNSUPPORTED,
                                "The STL file requires unsigned int indices "
                                "but this is not supported by your GL driver");
-                  return FALSE;
-              }
-              return TRUE;
-          }
-      }
-      else{
-          g_set_error (error, MASH_DATA_ERROR,
+                    return FALSE;
+                }
+                return TRUE;
+            }
+        }
+        else{
+            g_set_error (error, MASH_DATA_ERROR,
                        MASH_DATA_ERROR_UNKNOWN,
                        "Error getting element info");
-          return FALSE;
+            return FALSE;
         }
     }
 
@@ -325,36 +325,38 @@ mash_stl_loader_load (MashDataLoader *data_loader,
                             &data)) == NULL)
         mash_stl_loader_check_unknown_error (&data);
     else{
+        //fprintf(stderr, "STL open OK\n");
         if (!stl_read_header (data.stl))
             mash_stl_loader_check_unknown_error (&data);
         else{
-          int i;
-          for (i = 0; i < G_N_ELEMENTS (mash_stl_loader_properties); i++)
-            if (stl_set_read_cb (data.stl, "facet",
+            //fprintf(stderr, "STL header read OK\n");
+            int i;
+            for (i = 0; i < G_N_ELEMENTS (mash_stl_loader_properties); i++){
+                if (stl_set_read_cb (data.stl, "facet",
                                  mash_stl_loader_properties[i].name,
                                  mash_stl_loader_vertex_read_cb,
                                  &data, i)){
-
-                data.prop_map[i] = data.n_vertex_bytes;
-                data.n_vertex_bytes += mash_stl_loader_properties[i].size;
-                data.available_props |= 1 << i;
-              }
-                
-          /* Align the size of a vertex to 32 bits */
-          data.n_vertex_bytes = (data.n_vertex_bytes + 3) & ~(guint) 3;
-          if ((data.available_props & MASH_STL_LOADER_VERTEX_PROPS)
+                    data.prop_map[i] = data.n_vertex_bytes;
+                    data.n_vertex_bytes += mash_stl_loader_properties[i].size;
+                    data.available_props |= 1 << i;
+                }
+            }
+            //fprintf(stderr, "STL aligning\n");
+            /* Align the size of a vertex to 32 bits */
+            data.n_vertex_bytes = (data.n_vertex_bytes + 3) & ~(guint) 3;
+            if ((data.available_props & MASH_STL_LOADER_VERTEX_PROPS)
               != MASH_STL_LOADER_VERTEX_PROPS)
-            g_set_error (&data.error, MASH_DATA_ERROR,
+                g_set_error (&data.error, MASH_DATA_ERROR,
                          MASH_DATA_ERROR_MISSING_PROPERTY,
                          "STL file %s is missing the vertex properties",
                         display_name);
-          if (mash_stl_loader_get_indices_type (&data, &data.error)
+            //fprintf(stderr, "STL getting indices\n");
+            if (mash_stl_loader_get_indices_type (&data, &data.error)
                    && !stl_read (data.stl))
-            mash_stl_loader_check_unknown_error (&data);
+                mash_stl_loader_check_unknown_error (&data);
         }
         stl_close (data.stl);
     }
-
   if (data.error){
       g_propagate_error (error, data.error);
       ret = FALSE;

@@ -1,3 +1,8 @@
+Note: During compiling, if you get the error
+"libmash-0.2.la: file not recognized: File format not recognized"
+search for --library in mash/Makefile and change it to 
+mash-0.2
+
 Mash - README
 ===============================================================================
 

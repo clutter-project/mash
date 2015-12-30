@@ -318,8 +318,27 @@ p_stl stl_open(const char *name, p_stl_error_cb error_cb, gpointer cb_data) {
         return NULL;
     }    
     if (strcmp(magic, "solid") == 0) {
-       //fprintf(stderr, "ASCII STL\n");
-       is_binary = 0;
+        //fprintf(stderr, "File starts with 'solid'\n");
+        // The starts with sold, need to make sure it ends with endsolid
+        static const long max_len = 55 + 1;
+        char buf[max_len + 1];
+        // now read that many bytes from the end of the file 
+        fseek(fp, -max_len, SEEK_END);
+        int len = fread(buf, 1, max_len, fp);
+        //fprintf(stderr, "Read %i bytes\n", len);
+        
+        buf[len] = '\0';
+
+        if (strstr(buf, "endsolid") != NULL) {
+            //fprintf(stderr, "File ends with 'endsolid'\n");
+            is_binary = 0;
+            fseek(fp, 5, SEEK_SET);
+        }
+        else{
+            //fprintf(stderr, "No 'endsolid', it is a binary\n");
+            is_binary = 1;
+            fseek(fp, 80, SEEK_SET);
+        }
     }
     else if(strcmp(magic, "COLOR") == 0){
         //fprintf(stderr, "Binary STL with COLOR:\n");
@@ -356,14 +375,17 @@ p_stl stl_open(const char *name, p_stl_error_cb error_cb, gpointer cb_data) {
 }
 
 int stl_read_header(p_stl stl) {
-    int i, nr_facets = 0;
-    guint32 uint32;
+    int i;
+    guint32 nr_facets = 0;
     assert(stl && stl->fp && stl->io_mode == STL_READ);
     if(stl->is_binary){
         if( fread( &nr_facets, 1, 4, stl->fp ) < 4){
             fprintf(stderr, "Error reading number of facets\n");
             return 0;
         }        
+        else{
+            //fprintf(stderr, "Read %i facets\n", nr_facets);
+        }
 
         // Set input driver
         if (!stl_read_header_format(stl)) 
@@ -719,7 +741,8 @@ int stl_get_element_info(p_stl_element element, const char** name,
         gint32 *ninstances) {
     assert(element);
     if (name) *name = element->name;
-    if (ninstances) *ninstances = (gint32) element->ninstances;
+    if (ninstances) 
+        *ninstances = (gint32) 12*4; // 12 floating points
     return 1;
 }
 
@@ -1554,7 +1577,7 @@ static int ibinary_float32(p_stl stl, double *value) {
     if (!stl->idriver->ichunk(stl, &float32, sizeof(float32))) return 0;
     *value = float32;
     //stl_reverse(&float32, sizeof(float32));
-    //fprintf(stderr, "iascii_float32: %f\n", float32);
+    //fprintf(stderr, "ibinary_float32: %f\n", float32);
     return 1;
 }
 
