@@ -300,6 +300,7 @@ p_stl stl_open(const char *name, p_stl_error_cb error_cb, gpointer cb_data) {
     p_stl stl = NULL;
     int is_binary = 0;
 
+    //fprintf(stderr, "stl_open\n");
     if (error_cb == NULL) 
         error_cb = stl_error_cb;
     if (!stl_type_check()) {
@@ -317,7 +318,7 @@ p_stl stl_open(const char *name, p_stl_error_cb error_cb, gpointer cb_data) {
         fclose(fp);
         return NULL;
     }    
-    if (strcmp(magic, "solid") == 0) {
+    if (strncmp(magic, "solid", 5) == 0) {
         //fprintf(stderr, "File starts with 'solid'\n");
         // The starts with sold, need to make sure it ends with endsolid
         static const long max_len = 55 + 1;
@@ -350,7 +351,7 @@ p_stl stl_open(const char *name, p_stl_error_cb error_cb, gpointer cb_data) {
         }    
     }
     else{
-        //fprintf(stderr, "Binary STL with no color\n");
+        //fprintf(stderr, "Binary STL with no color %s \n", magic);
         // Try reading 75 more chacters and then an integer
         if (fread(magic, 1, 75, fp) < 75) {
             error_cb("Error reading 80 char header from file", cb_data);

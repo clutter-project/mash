@@ -150,7 +150,7 @@ mash_data_load (MashData *self,
 
   if (g_str_has_suffix (filename, ".ply"))
     loader = g_object_new (MASH_TYPE_PLY_LOADER, NULL);
-  else if (g_str_has_suffix (filename, ".stl"))
+  else if (g_str_has_suffix (g_ascii_strdown(filename, -1), ".stl"))
     loader = g_object_new (MASH_TYPE_STL_LOADER, NULL);
 
   if (loader != NULL){
