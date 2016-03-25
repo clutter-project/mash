@@ -3,6 +3,8 @@ Note: During compiling, if you get the error
 search for --library in mash/Makefile and change it to 
 mash-0.2
 
+To make a debian package: 
+dpkg-buildpackage -b -nc
 
 ./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf 
 
