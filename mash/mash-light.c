@@ -189,7 +189,7 @@ mash_light_init (MashLight *self)
      unique to this */
   gid = clutter_actor_get_gid (CLUTTER_ACTOR (self));
   g_snprintf (priv->unique_str, MASH_LIGHT_UNIQUE_SYMBOL_SIZE + 1,
-              "g%08" G_GUINT32_FORMAT, gid);
+              "g%08" G_GUINT32_FORMAT, self);
 
   for (i = 0; i < MASH_LIGHT_COLOR_COUNT; i++)
     priv->light_colors[i] = mash_light_default_color;
