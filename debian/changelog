@@ -1,3 +1,10 @@
+mash (0.3.0-1) UNRELEASED; urgency=medium
+
+  * Added shader with progress
+
+ -- Elias Bakken <elias@iagent.no>  Wed, 31 Aug 2016 14:19:39 +0000
+
+
 mash (0.2.0-1) UNRELEASED; urgency=medium
 
   * Initial release for Replicape
