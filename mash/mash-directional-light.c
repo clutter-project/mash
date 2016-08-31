@@ -49,7 +49,7 @@ static void mash_directional_light_generate_shader (MashLight *light,
                                                     GString *uniform_source,
                                                     GString *main_source);
 static void mash_directional_light_update_uniforms (MashLight *light,
-                                                    CoglHandle program);
+                                                    CoglPipeline *pipeline);
 
 G_DEFINE_TYPE (MashDirectionalLight, mash_directional_light, MASH_TYPE_LIGHT);
 
@@ -154,7 +154,7 @@ mash_directional_light_generate_shader (MashLight *light,
 
 static void
 mash_directional_light_update_uniforms (MashLight *light,
-                                        CoglHandle program)
+                                        CoglPipeline *pipeline)
 {
   MashDirectionalLight *dlight = MASH_DIRECTIONAL_LIGHT (light);
   MashDirectionalLightPrivate *priv = dlight->priv;
@@ -163,12 +163,12 @@ mash_directional_light_update_uniforms (MashLight *light,
   static const float light_direction[4] = { 0.0f, -1.0f, 0.0f, 0.0f };
 
   MASH_LIGHT_CLASS (mash_directional_light_parent_class)
-    ->update_uniforms (light, program);
+    ->update_uniforms (light, pipeline);
 
   if (priv->uniform_locations_dirty)
     {
       priv->light_direction_uniform_location
-        = mash_light_get_uniform_location (light, program, "light_direction");
+        = mash_light_get_uniform_location (light, pipeline, "light_direction");
       priv->uniform_locations_dirty = FALSE;
     }
 
@@ -179,7 +179,7 @@ mash_directional_light_update_uniforms (MashLight *light,
      allocation */
 
   mash_light_set_direction_uniform (light,
-                                    program,
+                                    pipeline,
                                     priv->light_direction_uniform_location,
                                     light_direction);
 }

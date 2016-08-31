@@ -59,7 +59,7 @@ static void mash_spot_light_generate_shader (MashLight *light,
                                              GString *uniform_source,
                                              GString *main_source);
 static void mash_spot_light_update_uniforms (MashLight *light,
-                                             CoglHandle program);
+                                             CoglPipeline *pipeline);
 
 G_DEFINE_TYPE (MashSpotLight, mash_spot_light, MASH_TYPE_POINT_LIGHT);
 
@@ -399,7 +399,7 @@ mash_spot_light_generate_shader (MashLight *light,
 
 static void
 mash_spot_light_update_uniforms (MashLight *light,
-                                 CoglHandle program)
+                                 CoglPipeline *pipeline)
 {
   MashSpotLight *slight = MASH_SPOT_LIGHT (light);
   MashSpotLightPrivate *priv = slight->priv;
@@ -408,25 +408,25 @@ mash_spot_light_update_uniforms (MashLight *light,
   static const float light_direction[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
 
   MASH_LIGHT_CLASS (mash_spot_light_parent_class)
-    ->update_uniforms (light, program);
+    ->update_uniforms (light, pipeline);
 
   if (priv->uniform_locations_dirty)
     {
       priv->spot_cos_cutoff_uniform_location
-        = mash_light_get_uniform_location (light, program, "spot_cos_cutoff");
+        = mash_light_get_uniform_location (light, pipeline, "spot_cos_cutoff");
       priv->spot_exponent_uniform_location
-        = mash_light_get_uniform_location (light, program, "spot_exponent");
+        = mash_light_get_uniform_location (light, pipeline, "spot_exponent");
       priv->light_direction_uniform_location
-        = mash_light_get_uniform_location (light, program, "spot_direction");
+        = mash_light_get_uniform_location (light, pipeline, "spot_direction");
       priv->uniform_locations_dirty = FALSE;
     }
 
   if (priv->spot_params_dirty)
     {
-      cogl_program_set_uniform_1f (program,
+      cogl_pipeline_set_uniform_1f (pipeline,
                                    priv->spot_cos_cutoff_uniform_location,
                                    cosf (priv->spot_cutoff * G_PI / 180.0));
-      cogl_program_set_uniform_1f (program,
+      cogl_pipeline_set_uniform_1f (pipeline,
                                    priv->spot_exponent_uniform_location,
                                    priv->spot_exponent);
       priv->spot_params_dirty = FALSE;
@@ -439,7 +439,7 @@ mash_spot_light_update_uniforms (MashLight *light,
      allocation */
 
   mash_light_set_direction_uniform (light,
-                                    program,
+                                    pipeline,
                                     priv->light_direction_uniform_location,
                                     light_direction);
 }

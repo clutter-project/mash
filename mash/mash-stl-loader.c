@@ -21,6 +21,9 @@
 #include <config.h>
 #endif
 
+#define CLUTTER_ENABLE_EXPERIMENTAL_API
+#define COGL_ENABLE_EXPERIMENTAL_API
+
 #include <glib-object.h>
 #include <string.h>
 #include <cogl/cogl.h>
@@ -204,7 +207,49 @@ mash_stl_loader_vertex_read_cb (p_stl_argument argument){
      to the array */
   if (data->got_props == data->available_props){
       int i, j;
-        //fprintf(stderr, "data->got_props\n");
+      if(   (*(gfloat *) (data->current_vertex + data->prop_map[0]) == 0.0) && 
+            (*(gfloat *) (data->current_vertex + data->prop_map[1]) == 0.0) &&
+            (*(gfloat *) (data->current_vertex + data->prop_map[2]) == 0.0)){
+         // No normal data in the STL. Calculate it
+         //fprintf(stderr, "Missing normal data\n");
+        
+        float u1[3], u2[3], cross[3];
+        float v1[3], v2[3], v3[3];
+
+        cogl_vector3_init (v1, 
+            *(gfloat *) (data->current_vertex + data->prop_map[3]), 
+            *(gfloat *) (data->current_vertex + data->prop_map[4]), 
+            *(gfloat *) (data->current_vertex + data->prop_map[5]));
+        cogl_vector3_init (v2, 
+            *(gfloat *) (data->current_vertex + data->prop_map[6]), 
+            *(gfloat *) (data->current_vertex + data->prop_map[7]), 
+            *(gfloat *) (data->current_vertex + data->prop_map[8]));
+        cogl_vector3_init (v3, 
+            *(gfloat *) (data->current_vertex + data->prop_map[9]), 
+            *(gfloat *) (data->current_vertex + data->prop_map[10]), 
+            *(gfloat *) (data->current_vertex + data->prop_map[11]));
+
+        //fprintf(stderr, "V1: %f, %f, %f\n", v1[0], v1[1], v1[2]);
+        //fprintf(stderr, "V2: %f, %f, %f\n", v2[0], v2[1], v2[2]);
+        //fprintf(stderr, "V3: %f, %f, %f\n", v3[0], v3[1], v3[2]);
+
+        cogl_vector3_init_zero(u1);
+        cogl_vector3_init_zero(u2);
+
+        cogl_vector3_subtract(u1, v1, v2);
+        cogl_vector3_subtract(u2, v2, v3);
+
+        //fprintf(stderr, "U1: %f, %f, %f\n", u1[0], u1[1], u1[2]);
+        //fprintf(stderr, "U2: %f, %f, %f\n", u2[0], u2[1], u2[2]);
+
+        cogl_vector3_subtract(u2, v2, v3);
+        cogl_vector3_cross_product(cross, u1, u2);
+        cogl_vector3_normalize(cross);
+        //fprintf(stderr, "New normal: %f, %f, %f\n", cross[0], cross[1], cross[2]);
+        *(gfloat *) (data->current_vertex + data->prop_map[0]) = cross[0];
+        *(gfloat *) (data->current_vertex + data->prop_map[1]) = cross[1];
+        *(gfloat *) (data->current_vertex + data->prop_map[2]) = cross[2];
+      }
 
       for(i=0; i<3; i++){
           // Append first vertex data
@@ -214,10 +259,9 @@ mash_stl_loader_vertex_read_cb (p_stl_argument argument){
           g_byte_array_append (data->vertices, data->current_vertex + data->prop_map[0],
                                mash_stl_loader_properties[0].size*3);
       }
-
       data->got_props = 0;
-
-      /* Update the bounding box for the data */
+      /* Update the bounding box for the data 
+        TODO: This should only have to be done once, not for every vertex.*/
       for (i = 0; i < 3; i++){
             for(j=0; j<3; j++){
                 gfloat *min = &data->min_vertex.x + j;
@@ -240,13 +284,15 @@ static gboolean
 mash_stl_loader_get_indices_type (MashStlLoaderData *data,
                                   GError **error){
     p_stl_element elem = NULL;
+
+    ClutterBackend      *be         = clutter_get_default_backend ();
+    CoglContext         *ctx        = (CoglContext*) clutter_backend_get_cogl_context (be);
+
     /* Look for the 'vertices' element */
     while ((elem = stl_get_next_element (data->stl, elem))){
         const char *name;
         gint32 n_instances;
-        //fprintf(stderr, "got a new element\n");     
         if (stl_get_element_info (elem, &name, &n_instances)){
-            //fprintf(stderr, "Got element info: %s, %i\n", name, n_instances);     
             if (!strcmp (name, "facet")){
                 if (n_instances <= 0x100){
                     data->indices_type = COGL_INDICES_TYPE_UNSIGNED_BYTE;
@@ -256,7 +302,7 @@ mash_stl_loader_get_indices_type (MashStlLoaderData *data,
                     data->indices_type = COGL_INDICES_TYPE_UNSIGNED_SHORT;
                     data->faces = g_array_new (FALSE, FALSE, sizeof (guint16));
                 }
-                else if (cogl_has_feature(COGL_FEATURE_UNSIGNED_INT_INDICES)){
+                else if (cogl_has_feature(ctx, COGL_FEATURE_UNSIGNED_INT_INDICES)){
                     data->indices_type = COGL_INDICES_TYPE_UNSIGNED_INT;
                     data->faces = g_array_new (FALSE, FALSE, sizeof (guint32));
                 }
@@ -406,10 +452,9 @@ mash_stl_loader_load (MashDataLoader *data_loader,
             cogl_object_unref (attributes[1]);
             cogl_object_unref (buffer);
 
-          priv->min_vertex = data.min_vertex;
-          priv->max_vertex = data.max_vertex;
-
-          ret = TRUE;
+            priv->min_vertex = data.min_vertex;
+            priv->max_vertex = data.max_vertex;
+            ret = TRUE;
         }
     }
 

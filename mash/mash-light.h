@@ -67,7 +67,7 @@ struct _MashLightClass
                             GString *uniform_source,
                             GString *main_source);
   void (* update_uniforms) (MashLight *light,
-                            CoglHandle program);
+                            CoglPipeline *pipeline);
 };
 
 /**
@@ -98,10 +98,10 @@ void mash_light_generate_shader (MashLight *light,
                                  GString *uniform_source,
                                  GString *main_source);
 void mash_light_update_uniforms (MashLight *light,
-                                 CoglHandle program);
+                                 CoglPipeline *pipeline);
 
 int mash_light_get_uniform_location (MashLight *light,
-                                     CoglHandle program,
+                                     CoglPipeline *pipeline,
                                      const char *uniform_name);
 
 void mash_light_append_shader (MashLight *light,
@@ -112,7 +112,7 @@ void mash_light_get_modelview_matrix (MashLight *light,
                                       CoglMatrix *matrix);
 
 void mash_light_set_direction_uniform (MashLight *light,
-                                       CoglHandle program,
+                                       CoglPipeline *pipeline,
                                        int uniform_location,
                                        const float *direction_in);
 

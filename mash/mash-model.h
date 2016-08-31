@@ -87,9 +87,9 @@ ClutterActor *mash_model_new_from_file (MashDataFlags flags,
                                         const gchar *filename,
                                         GError **error);
 
-CoglHandle mash_model_get_material (MashModel *self);
+CoglPipeline* mash_model_get_material (MashModel *self);
 void mash_model_set_material (MashModel *self,
-                              CoglHandle material);
+                              CoglPipeline *material);
 
 MashData *mash_model_get_data (MashModel *self);
 void mash_model_set_data (MashModel *self,

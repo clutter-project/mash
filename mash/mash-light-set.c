@@ -72,7 +72,7 @@ static void mash_light_set_finalize (GObject *object);
 
 static gboolean mash_light_set_repaint_func (gpointer data);
 
-static float mash_light_set_get_shininess_wrapper (CoglMaterial *material);
+static float mash_light_set_get_shininess_wrapper (CoglPipeline *pipeline);
 
 G_DEFINE_TYPE (MashLightSet, mash_light_set, G_TYPE_OBJECT);
 
@@ -80,10 +80,10 @@ G_DEFINE_TYPE (MashLightSet, mash_light_set, G_TYPE_OBJECT);
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), MASH_TYPE_LIGHT_SET, \
                                 MashLightSetPrivate))
 
-typedef void (* MaterialColorGetFunc) (CoglMaterial *material,
+typedef void (* MaterialColorGetFunc) (CoglPipeline *pipeline,
                                        CoglColor *color);
 
-typedef float (* MaterialFloatGetFunc) (CoglMaterial *material);
+typedef float (* MaterialFloatGetFunc) (CoglPipeline *pipeline);
 
 typedef enum
 {
@@ -102,22 +102,22 @@ mash_light_set_material_properties[] =
     {
       MATERIAL_PROP_TYPE_COLOR,
       "mash_material.emission",
-      cogl_material_get_emission
+      cogl_pipeline_get_emission
     },
     {
       MATERIAL_PROP_TYPE_COLOR,
       "mash_material.ambient",
-      cogl_material_get_ambient
+      cogl_pipeline_get_ambient
     },
     {
       MATERIAL_PROP_TYPE_COLOR,
       "mash_material.diffuse",
-      cogl_material_get_diffuse
+      cogl_pipeline_get_diffuse
     },
     {
       MATERIAL_PROP_TYPE_COLOR,
       "mash_material.specular",
-      cogl_material_get_specular
+      cogl_pipeline_get_specular
     },
     {
       MATERIAL_PROP_TYPE_FLOAT,
@@ -128,7 +128,7 @@ mash_light_set_material_properties[] =
 
 struct _MashLightSetPrivate
 {
-  CoglHandle program;
+  CoglPipeline *pipeline;
 
   /* This is the layer indices that the pipeline contained the last
    * time the program was generated. If these change then we need to
@@ -147,6 +147,8 @@ struct _MashLightSetPrivate
      need to update the uniforms on the program before painting any
      actor */
   gboolean uniforms_dirty;
+
+  gboolean pipeline_created;
 };
 
 static void
@@ -171,6 +173,7 @@ mash_light_set_init (MashLightSet *self)
     clutter_threads_add_repaint_func (mash_light_set_repaint_func, self, NULL);
 
   priv->layer_indices = g_array_new (FALSE, FALSE, sizeof (int));
+  priv->pipeline_created = FALSE;
 }
 
 static void
@@ -198,8 +201,8 @@ mash_light_set_finalize (GObject *object)
   MashLightSet *self = (MashLightSet *) object;
   MashLightSetPrivate *priv = self->priv;
 
-  if (priv->program)
-    cogl_handle_unref (priv->program);
+  if (priv->pipeline)
+    cogl_handle_unref (priv->pipeline);
 
   g_array_free (priv->layer_indices, TRUE);
 
@@ -236,121 +239,112 @@ add_layer_indices (MashLightSet *light_set,
     }
 }
 
-static CoglHandle
-mash_light_set_get_program (MashLightSet *light_set)
-{
+void
+mash_light_set_get_pipeline (MashLightSet *light_set, CoglPipeline* pipeline){
+ 
   MashLightSetPrivate *priv = light_set->priv;
+  GString *uniform_source, *main_source;
+  char *uniform_char, *main_char;
+  CoglHandle shader;
+  char *info_log;
+  GSList *l;
+  int i;
 
-  if (priv->program == COGL_INVALID_HANDLE)
-    {
-      GString *uniform_source, *main_source;
-      char *full_source;
-      CoglHandle shader;
-      char *info_log;
-      GSList *l;
-      int i;
+  uniform_source = g_string_new (NULL);
+  main_source = g_string_new (NULL);
 
-      uniform_source = g_string_new (NULL);
-      main_source = g_string_new (NULL);
+  /* Append the shader boiler plate */
+  g_string_append (uniform_source,
+                   "\n"
+                   "uniform mat3 mash_normal_matrix;\n"
+                   "\n"
+                   "struct MashMaterialParameters {\n"
+                   "  vec4 emission;\n"
+                   "  vec4 ambient;\n"
+                   "  vec4 diffuse;\n"
+                   "  vec4 specular;\n"
+                   "  float shininess;\n"
+                   "};\n"
+                   "\n"
+                   "uniform MashMaterialParameters mash_material;\n");
+  g_string_append (main_source,
+                   /* Start with just the light emitted by the
+                      object itself. The lights should add to this
+                      color */
+                   "  cogl_color_out = mash_material.emission;\n"
+                   /* Calculate a transformed and normalized vertex normal */
+                   "  vec3 normal = normalize (mash_normal_matrix * cogl_normal_in);\n"
+                   /* Calculate the vertex position in eye coordinates */
+                   "  vec4 homogenous_eye_coord = cogl_modelview_matrix * cogl_position_in;\n"
+                   "  vec3 eye_coord = homogenous_eye_coord.xyz / homogenous_eye_coord.w;\n");
 
-      /* Give all of the lights in the scene a chance to modify the
-         shader source */
-      for (l = priv->lights; l; l = l->next)
-        mash_light_generate_shader (l->data,
-                                    uniform_source,
-                                    main_source);
 
-      /* Append the shader boiler plate */
-      g_string_append (uniform_source,
-                       "\n"
-                       "uniform mat3 mash_normal_matrix;\n"
-                       "\n"
-                       "struct MashMaterialParameters {\n"
-                       "  vec4 emission;\n"
-                       "  vec4 ambient;\n"
-                       "  vec4 diffuse;\n"
-                       "  vec4 specular;\n"
-                       "  float shininess;\n"
-                       "};\n"
-                       "\n"
-                       "uniform MashMaterialParameters mash_material;\n"
-                       "\n"
-                       "void\n"
-                       "main ()\n"
-                       "{\n"
-                       /* Start with just the light emitted by the
-                          object itself. The lights should add to this
-                          color */
-                       "  cogl_color_out = mash_material.emission;\n"
-                       /* Calculate a transformed and normalized
-                          vertex normal */
-                       "  vec3 normal = normalize (mash_normal_matrix\n"
-                       "                           * cogl_normal_in);\n"
-                       /* Calculate the vertex position in eye coordinates */
-                       "  vec4 homogenous_eye_coord\n"
-                       "    = cogl_modelview_matrix * cogl_position_in;\n"
-                       "  vec3 eye_coord = homogenous_eye_coord.xyz\n"
-                       "    / homogenous_eye_coord.w;\n");
-      /* Append the main source to the uniform source to get the full
-         source for the shader */
-      g_string_append_len (uniform_source,
-                           main_source->str,
-                           main_source->len);
-      /* Perform the standard vertex transformation and copy the
-         texture coordinates. FIXME: Ideally this could should be
-         updated to use CoglSnippets so that it doesn't have to do
-         this. */
-      g_string_append (uniform_source,
-                       "  cogl_position_out =\n"
-                       "    cogl_modelview_projection_matrix *\n"
-                       "    cogl_position_in;\n");
+  /* Give all of the lights in the scene a chance to modify the
+     shader source */
+  for (l = priv->lights; l; l = l->next)
+    mash_light_generate_shader (l->data,
+                                uniform_source,
+                                main_source);
 
-      add_layer_indices (light_set, uniform_source);
 
-      g_string_append (uniform_source,
-                       "}\n");
+  /* Perform the standard vertex transformation and copy the
+     texture coordinates. */
+  g_string_append (main_source,
+                   "  cogl_position_out = cogl_modelview_projection_matrix * cogl_position_in;\n");
+  
+  add_layer_indices (light_set, main_source);
 
-      full_source = g_string_free (uniform_source, FALSE);
-      g_string_free (main_source, TRUE);
+  uniform_char = g_string_free (uniform_source, FALSE);
+  main_char = g_string_free (main_source, FALSE);
 
-      priv->program = cogl_create_program ();
+  CoglSnippet *snippet_vertex; 
+  snippet_vertex = cogl_snippet_new (COGL_SNIPPET_HOOK_VERTEX,
+                  uniform_char, main_char);
 
-      shader = cogl_create_shader (COGL_SHADER_TYPE_VERTEX);
-      cogl_shader_source (shader, full_source);
-      g_free (full_source);
-      cogl_shader_compile (shader);
 
-      if (!cogl_shader_is_compiled (shader))
-        g_warning ("Error compiling light box shader");
+  /* Add it to the pipeline */
+  cogl_pipeline_add_snippet (pipeline, snippet_vertex);
+  /* The pipeline keeps a reference to the snippet
+  so we don't need to */
+  cogl_object_unref (snippet_vertex);
 
-      info_log = cogl_shader_get_info_log (shader);
+  priv->normal_matrix_uniform = cogl_pipeline_get_uniform_location (pipeline, "mash_normal_matrix");
 
-      if (info_log)
-        {
-          if (*info_log)
-            g_warning ("The light box shader has an info log:\n%s", info_log);
-
-          g_free (info_log);
-        }
-
-      cogl_program_attach_shader (priv->program, shader);
-      cogl_program_link (priv->program);
-
-      priv->normal_matrix_uniform =
-        cogl_program_get_uniform_location (priv->program, "mash_normal_matrix");
-
-      for (i = 0; i < G_N_ELEMENTS (mash_light_set_material_properties); i++)
-        {
-          const char *uniform_name =
-            mash_light_set_material_properties[i].uniform_name;
-
-          priv->material_uniforms[i] =
-            cogl_program_get_uniform_location (priv->program, uniform_name);
-        }
-    }
-
-  return priv->program;
+  for (i = 0; i < G_N_ELEMENTS (mash_light_set_material_properties); i++){
+      const char *uniform_name = mash_light_set_material_properties[i].uniform_name;
+      priv->material_uniforms[i] = cogl_pipeline_get_uniform_location (pipeline, uniform_name);
+  }
 }
+
+void
+mash_light_set_get_snippets (MashLightSet *light_set){
+ 
+  MashLightSetPrivate *priv = light_set->priv;
+  GString *uniform_source, *main_source;
+  char *uniform_char, *main_char;
+  CoglHandle shader;
+  char *info_log;
+  GSList *l;
+  int i;
+
+  // TODO: Let each light generate it's own snippet. 
+
+  CoglSnippet *main =  cogl_snippet_new (COGL_SNIPPET_HOOK_VERTEX_GLOBALS, NULL, NULL);
+
+  cogl_snippet_set_declarations(main, 
+                   "uniform mat3 mash_normal_matrix;\n"
+                   "\n"
+                   "struct MashMaterialParameters {\n"
+                   "  vec4 emission;\n"
+                   "  vec4 ambient;\n"
+                   "  vec4 diffuse;\n"
+                   "  vec4 specular;\n"
+                   "  float shininess;\n"
+                   "};\n"
+                   "\n"
+                   "uniform MashMaterialParameters mash_material;\n");
+}
+
 
 static void
 mash_light_set_dirty_program (MashLightSet *light_set)
@@ -359,11 +353,10 @@ mash_light_set_dirty_program (MashLightSet *light_set)
 
   /* If we've added or removed a light then we need to regenerate the
      shader */
-  if (priv->program != COGL_INVALID_HANDLE)
-    {
-      cogl_handle_unref (priv->program);
-      priv->program = COGL_INVALID_HANDLE;
-    }
+  priv->pipeline_created = FALSE;
+  // TODO: Keep a list of pipelines, so each can be recreated. 
+  // Right now, pipelines can not be set to NULL, since they 
+  // already have color and possibly a fragment shader. 
 }
 
 typedef struct
@@ -377,13 +370,11 @@ typedef struct
 static CoglBool
 update_layer_indices_cb (CoglPipeline *pipeline,
                          int layer_index,
-                         void *user_data)
-{
+                         void *user_data){
   UpdateLayerIndicesData *data = user_data;
   MashLightSetPrivate *priv = data->light_set->priv;
 
-  if (data->is_matching)
-    {
+  if (data->is_matching){
       if (data->index_num >= priv->layer_indices->len ||
           g_array_index (priv->layer_indices,
                          int,
@@ -396,28 +387,25 @@ update_layer_indices_cb (CoglPipeline *pipeline,
 
   if (!data->is_matching)
     g_array_append_val (priv->layer_indices, layer_index);
-
   data->index_num++;
-
   return TRUE;
 }
 
-static void
-update_layer_indices (MashLightSet *light_set,
-                      CoglHandle material)
+gboolean
+mash_light_set_update_layer_indices (MashLightSet *light_set,
+                      CoglPipeline *pipeline)
 {
   MashLightSetPrivate *priv = light_set->priv;
   UpdateLayerIndicesData data;
 
   data.light_set = light_set;
-  data.pipeline = COGL_PIPELINE (material);
+  data.pipeline = pipeline;
   data.is_matching = TRUE;
   data.index_num = 0;
 
   cogl_pipeline_foreach_layer (data.pipeline,
                                update_layer_indices_cb,
                                &data);
-
   /* If the layer indices have changed then we need to regenerate the
    * program */
   if (!data.is_matching ||
@@ -425,7 +413,10 @@ update_layer_indices (MashLightSet *light_set,
     {
       g_array_set_size (priv->layer_indices, data.index_num);
       mash_light_set_dirty_program (light_set);
+
+      return TRUE;
     }
+  return FALSE;
 }
 
 /**
@@ -452,33 +443,31 @@ update_layer_indices (MashLightSet *light_set,
  *
  * Since: 0.2
  */
-CoglHandle
+void
 mash_light_set_begin_paint (MashLightSet *light_set,
-                            CoglHandle material)
-{
+                            CoglPipeline *pipeline){  
   MashLightSetPrivate *priv = light_set->priv;
-  CoglHandle program;
   int i;
 
-  update_layer_indices (light_set, material);
+  priv->pipeline = pipeline;
 
-  program = mash_light_set_get_program (light_set);
+  if(!cogl_is_pipeline(pipeline))
+    return;
 
-  if (priv->uniforms_dirty)
-    {
+  //mash_light_set_update_layer_indices (light_set, pipeline);
+
+  if (priv->uniforms_dirty){
       GSList *l;
-
       /* Give all of the lights a chance to update the uniforms before we
          paint the first actor using the light set */
       for (l = priv->lights; l; l = l->next)
-        mash_light_update_uniforms (l->data, program);
+        mash_light_update_uniforms (l->data, pipeline);
 
-      priv->uniforms_dirty = FALSE;
+      //priv->uniforms_dirty = FALSE;
     }
 
   /* Calculate the normal matrix from the modelview matrix */
-  if (priv->normal_matrix_uniform != -1)
-    {
+  if (priv->normal_matrix_uniform != -1){
       CoglMatrix modelview_matrix;
       CoglMatrix inverse_matrix;
       float transpose_matrix[3 * 3];
@@ -500,7 +489,7 @@ mash_light_set_begin_paint (MashLightSet *light_set,
       transpose_matrix[7] = inverse_matrix.zy;
       transpose_matrix[8] = inverse_matrix.zz;
 
-      cogl_program_set_uniform_matrix (program,
+      cogl_pipeline_set_uniform_matrix (pipeline,
                                        priv->normal_matrix_uniform,
                                        3, /* dimensions */
                                        1, /* count */
@@ -519,14 +508,14 @@ mash_light_set_begin_paint (MashLightSet *light_set,
               mash_light_set_material_properties[i].get_func;
             float vec[4];
 
-            get_func (material, &color);
+            get_func (pipeline, &color);
 
             vec[0] = cogl_color_get_red_float (&color);
             vec[1] = cogl_color_get_green_float (&color);
             vec[2] = cogl_color_get_blue_float (&color);
             vec[3] = cogl_color_get_alpha_float (&color);
 
-            cogl_program_set_uniform_float (program,
+            cogl_pipeline_set_uniform_float (pipeline,
                                             priv->material_uniforms[i],
                                             4, /* n_components */
                                             1, /* count */
@@ -540,16 +529,14 @@ mash_light_set_begin_paint (MashLightSet *light_set,
               mash_light_set_material_properties[i].get_func;
             float value;
 
-            value = get_func (material);
+            value = get_func (pipeline);
 
-            cogl_program_set_uniform_1f (program,
+            cogl_pipeline_set_uniform_1f (pipeline,
                                          priv->material_uniforms[i],
                                          value);
           }
           break;
         }
-
-  return program;
 }
 
 static gboolean
@@ -631,7 +618,7 @@ mash_light_set_remove_light (MashLightSet *light_set,
 }
 
 static float
-mash_light_set_get_shininess_wrapper (CoglMaterial *material)
+mash_light_set_get_shininess_wrapper (CoglPipeline *pipeline)
 {
   float shininess;
 
@@ -646,7 +633,7 @@ mash_light_set_get_shininess_wrapper (CoglMaterial *material)
      CoglMaterial is 0 so it's quite likely that an application would
      hit this if they are trying not to use specular lighting */
 
-  shininess = cogl_material_get_shininess (material);
+  shininess = cogl_pipeline_get_shininess  (pipeline);
 
   return MAX (0.0001, shininess);
 }

@@ -71,6 +71,10 @@
 #include <config.h>
 #endif
 
+#define CLUTTER_ENABLE_EXPERIMENTAL_API
+#define COGL_ENABLE_EXPERIMENTAL_API
+
+
 #include <glib-object.h>
 #include <string.h>
 #include <cogl/cogl.h>
@@ -118,7 +122,7 @@ struct _MashModelPrivate
 {
   MashData *data;
   MashLightSet *light_set;
-  CoglHandle material, pick_material;
+  CoglPipeline *material, *pick_material;
   /* Whether the model should be transformed to fill the allocation */
   gboolean fit_to_allocation;
   /* The amount to scale (on all axes) when fit_to_allocation is
@@ -127,6 +131,8 @@ struct _MashModelPrivate
   /* Translation used when fit_to_allocation is TRUE. This is
      calculated in the allocate method */
   gfloat translate_x, translate_y, translate_z;
+  gfloat progress;
+  gboolean pipeline_created;
 };
 
 enum
@@ -210,7 +216,9 @@ mash_model_init (MashModel *self)
   priv = self->priv = MASH_MODEL_GET_PRIVATE (self);
 
   /* Default to a plain white material */
-  priv->material = cogl_material_new ();
+  
+  CoglContext *ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
+  priv->material = cogl_pipeline_new (ctx);
 
   priv->fit_to_allocation = TRUE;
 }
@@ -310,13 +318,16 @@ mash_model_dispose (GObject *object)
  */
 void
 mash_model_set_material (MashModel *self,
-                         CoglHandle material)
+                         CoglPipeline* material)
 {
   MashModelPrivate *priv;
 
+  //fprintf(stderr, "mash_model_set_material\n");
+  
   g_return_if_fail (MASH_IS_MODEL (self));
   g_return_if_fail (material == COGL_INVALID_HANDLE
-                    || cogl_is_material (material));
+                    || cogl_is_pipeline (material));
+
 
   priv = self->priv;
 
@@ -343,7 +354,7 @@ mash_model_set_material (MashModel *self,
  *
  * Return value: a handle to the Cogl material used by the model.
  */
-CoglHandle
+CoglPipeline*
 mash_model_get_material (MashModel *self)
 {
   g_return_val_if_fail (MASH_IS_MODEL (self), COGL_INVALID_HANDLE);
@@ -381,19 +392,31 @@ mash_model_paint (ClutterActor *actor){
 
   priv = self->priv;
 
+  //fprintf(stderr, "mash_model_paint %p\n", self);
+
   /* Silently fail if we haven't got any data or a material */
   if (priv->data == NULL || priv->material == COGL_INVALID_HANDLE)
     return;
 
+  if(!cogl_is_pipeline(priv->material))
+    return;
+
   if (priv->light_set){
-      CoglHandle program = mash_light_set_begin_paint (priv->light_set,
-                                                       priv->material);
-      cogl_material_set_user_program (priv->material, program);
+    if(mash_light_set_update_layer_indices(priv->light_set, priv->material)){
+      // Recreate program
+      priv->pipeline_created = FALSE;
     }
-
-  cogl_set_source (priv->material);
-
+    if(!priv->pipeline_created){
+      mash_light_set_get_pipeline (priv->light_set, priv->material);
+      priv->pipeline_created = TRUE;
+    }
+    mash_light_set_begin_paint(priv->light_set, priv->material);    
+  }
+  
+  /* Now we can render with the snippet as usual */
+  cogl_push_source (priv->material);
   mash_model_render_data (self);
+  cogl_pop_source ();  
 }
 
 static void
