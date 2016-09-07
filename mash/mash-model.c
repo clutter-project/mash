@@ -854,3 +854,41 @@ mash_model_get_model_depth (ClutterActor *actor){
     }
     return 0.0;
 }
+
+/**
+ * mash_model_get_model_z_min:
+ * @self: A #MashModel instance
+ *
+ * Return value: the z_min of the actor, in pixels
+ */
+
+gfloat
+mash_model_get_model_z_min (ClutterActor *actor){
+    MashModel *model = MASH_MODEL (actor);
+    MashModelPrivate *priv = model->priv;
+    ClutterVertex min_vertex, max_vertex;
+    if (priv->data){
+        mash_data_get_extents (priv->data, &min_vertex, &max_vertex);
+        return min_vertex.z;
+    }
+    return 0.0;
+}
+
+/**
+ * mash_model_get_model_z_max:
+ * @self: A #MashModel instance
+ *
+ * Return value: the z_max of the actor, in pixels
+ */
+
+gfloat
+mash_model_get_model_z_max (ClutterActor *actor){
+    MashModel *model = MASH_MODEL (actor);
+    MashModelPrivate *priv = model->priv;
+    ClutterVertex min_vertex, max_vertex;
+    if (priv->data){
+        mash_data_get_extents (priv->data, &min_vertex, &max_vertex);
+        return max_vertex.z;
+    }
+    return 0.0;
+}

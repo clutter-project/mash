@@ -1,11 +1,10 @@
+#AUTOMAKE_OPTIONS = subdir-objects
 SUBDIRS = rply rstl
 
 lib_LTLIBRARIES = libmash-@MASH_API_VERSION@.la
 
-INCLUDES = \
-	-I$(top_srcdir)
-
 AM_CPPFLAGS = \
+	-I$(top_srcdir) \
 	-DMASH_COMPILATION=1 \
 	@CLUTTER_CFLAGS@
 
@@ -90,7 +89,7 @@ Mash-@MASH_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libmash-@MASH_API_VERSION@
 		--c-include='mash/mash.h' \
 		--include=Clutter-1.0 \
 		--output $@ \
-		--library=libmash-@MASH_API_VERSION@.la \
+		--library=mash-@MASH_API_VERSION@ \
 		$(libmash_@MASH_API_VERSION@_la_SOURCES)
 
 BUILT_GIRSOURCES += Mash-@MASH_API_VERSION@.gir
