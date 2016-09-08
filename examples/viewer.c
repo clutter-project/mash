@@ -69,7 +69,7 @@ main (int argc, char **argv)
               cogl_material_set_layer (material, 0, texture);
               cogl_handle_unref (texture);
 
-              mash_model_set_material (MASH_MODEL (model),
+              mash_model_set_pipeline (MASH_MODEL (model),
                                        material);
 
               cogl_handle_unref (material);

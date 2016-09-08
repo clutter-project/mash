@@ -40,28 +40,28 @@
  * existing actor then call mash_model_set_data() with the
  * return value on a new actor.
  *
- * The model can be rendered with any Cogl material. By default the
- * model will use a solid white material. The material color is
- * blended with the model's vertex colors so the white material will
+ * The model can be rendered with any Cogl pipeline. By default the
+ * model will use a solid white pipeline. The pipeline color is
+ * blended with the model's vertex colors so the white pipeline will
  * cause the vertex colors to be used directly. #MashData is
  * able to load texture coordinates from the PLY file so it is
  * possible to render a textured model by setting a texture layer on
- * the material, like so:
+ * the pipeline, like so:
  *
  * |[
  *   /&ast; Create an actor out of a PLY model file &ast;/
  *   ClutterActor *model
  *     = mash_model_new_from_file ("some-model.ply", NULL);
- *   /&ast; Get a handle to the default material for the actor &ast;/
- *   CoglHandle material
- *     = mash_model_get_material (MASH_MODEL (model));
+ *   /&ast; Get a handle to the default pipeline for the actor &ast;/
+ *   CoglHandle pipeline
+ *     = mash_model_get_pipeline (MASH_MODEL (model));
  *   /&ast; Load a texture image from a file &ast;/
  *   CoglHandle texture
  *     = cogl_texture_new_from_file ("some-image.png", COGL_TEXTURE_NONE,
  *                                   COGL_PIXEL_FORMAT_ANY, NULL);
- *   /&ast; Set a texture layer on the material &ast;/
- *   cogl_material_set_layer (material, 0, texture);
- *   /&ast; The texture is now referenced by the material so we can
+ *   /&ast; Set a texture layer on the pipeline &ast;/
+ *   cogl_pipeline_set_layer (pipeline, 0, texture);
+ *   /&ast; The texture is now referenced by the pipeline so we can
  *     drop the reference we have &ast;/
  *   cogl_handle_unref (texture);
  * ]|
@@ -122,7 +122,8 @@ struct _MashModelPrivate
 {
   MashData *data;
   MashLightSet *light_set;
-  CoglPipeline *material, *pick_material;
+  CoglPipeline *pipeline, *pick_pipeline;
+  CoglFramebuffer *fb;
   /* Whether the model should be transformed to fill the allocation */
   gboolean fit_to_allocation;
   /* The amount to scale (on all axes) when fit_to_allocation is
@@ -139,7 +140,7 @@ enum
   {
     PROP_0,
 
-    PROP_MATERIAL,
+    PROP_PIPELINE,
     PROP_DATA,
     PROP_LIGHT_SET,
     PROP_FIT_TO_ALLOCATION
@@ -162,15 +163,15 @@ mash_model_class_init (MashModelClass *klass)
   actor_class->get_preferred_height = mash_model_get_preferred_height;
   actor_class->allocate = mash_model_allocate;
 
-  pspec = g_param_spec_boxed ("material",
-                              "Material",
-                              "The Cogl material to render with",
+  pspec = g_param_spec_boxed ("pipeline",
+                              "pipeline",
+                              "The Cogl pipeline to render with",
                               COGL_TYPE_HANDLE,
                               G_PARAM_READABLE | G_PARAM_WRITABLE
                               | G_PARAM_STATIC_NAME
                               | G_PARAM_STATIC_NICK
                               | G_PARAM_STATIC_BLURB);
-  g_object_class_install_property (gobject_class, PROP_MATERIAL, pspec);
+  g_object_class_install_property (gobject_class, PROP_PIPELINE, pspec);
 
   pspec = g_param_spec_object ("data",
                                "Data",
@@ -215,10 +216,11 @@ mash_model_init (MashModel *self)
 
   priv = self->priv = MASH_MODEL_GET_PRIVATE (self);
 
-  /* Default to a plain white material */
+  /* Default to a plain white pipeline */
   
   CoglContext *ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
-  priv->material = cogl_pipeline_new (ctx);
+  priv->pipeline = cogl_pipeline_new (ctx);
+  priv->pick_pipeline = cogl_pipeline_new (ctx);
 
   priv->fit_to_allocation = TRUE;
 }
@@ -250,10 +252,10 @@ mash_model_new (void)
  * This is a convenience function that creates a new #MashData
  * and immediately loads the data in @filename. If the load succeeds a
  * new #MashModel will be created for the data. The model has a
- * default white material so that if vertices of the model have any
- * color attributes they will be used directly. The material does not
+ * default white pipeline so that if vertices of the model have any
+ * color attributes they will be used directly. The pipeline does not
  * have textures by default so if you want the model to be textured
- * you will need to modify the material.
+ * you will need to modify the pipeline.
  *
  * Return value: a new #MashModel or %NULL if the load failed.
  */
@@ -283,12 +285,12 @@ mash_model_dispose (GObject *object)
   MashModelPrivate *priv = self->priv;
 
   mash_model_set_data (self, NULL);
-  mash_model_set_material (self, COGL_INVALID_HANDLE);
+  mash_model_set_pipeline (self, COGL_INVALID_HANDLE);
 
-  if (priv->pick_material)
+  if (priv->pick_pipeline)
     {
-      cogl_handle_unref (priv->pick_material);
-      priv->pick_material = COGL_INVALID_HANDLE;
+      cogl_handle_unref (priv->pick_pipeline);
+      priv->pick_pipeline = COGL_INVALID_HANDLE;
     }
 
   mash_model_set_light_set (self, NULL);
@@ -297,90 +299,92 @@ mash_model_dispose (GObject *object)
 }
 
 /**
- * mash_model_set_material:
+ * mash_model_set_pipeline:
  * @self: A #MashModel instance
- * @material: A handle to a Cogl material
+ * @pipeline: A handle to a Cogl pipeline
  *
- * Replaces the material that will be used to render the model with
+ * Replaces the pipeline that will be used to render the model with
  * the given one. By default a #MashModel will use a solid white
- * material. However the color of the material is still blended with
- * the vertex colors so the white material will cause the vertex
+ * pipeline. However the color of the pipeline is still blended with
+ * the vertex colors so the white pipeline will cause the vertex
  * colors to be used directly. If you want the model to be textured
- * you will need to create a material that has a texture layer and set
+ * you will need to create a pipeline that has a texture layer and set
  * it with this function.
  *
- * If a #MashLightSet is used with the model then the material given
+ * If a #MashLightSet is used with the model then the pipeline given
  * here will be modified to use the program generated by that light
- * set. If multiple models are expected to use the same material with
+ * set. If multiple models are expected to use the same pipeline with
  * different light sets, it would be better to use a different copy of
- * the same material for each set of models so that they don't
- * repeatedly change the program on the material during paint.
+ * the same pipeline for each set of models so that they don't
+ * repeatedly change the program on the pipeline during paint.
  */
 void
-mash_model_set_material (MashModel *self,
-                         CoglPipeline* material)
+mash_model_set_pipeline (MashModel *self,
+                         CoglPipeline* pipeline)
 {
   MashModelPrivate *priv;
 
-  //fprintf(stderr, "mash_model_set_material\n");
+  //fprintf(stderr, "mash_model_set_pipeline\n");
   
   g_return_if_fail (MASH_IS_MODEL (self));
-  g_return_if_fail (material == COGL_INVALID_HANDLE
-                    || cogl_is_pipeline (material));
+  g_return_if_fail (pipeline == COGL_INVALID_HANDLE
+                    || cogl_is_pipeline (pipeline));
 
 
   priv = self->priv;
 
-  if (material)
-    cogl_handle_ref (material);
+  if (pipeline)
+    cogl_handle_ref (pipeline);
 
-  if (priv->material)
-    cogl_handle_unref (priv->material);
+  if (priv->pipeline)
+    cogl_handle_unref (priv->pipeline);
 
-  priv->material = material;
+  priv->pipeline = pipeline;
 
   clutter_actor_queue_redraw (CLUTTER_ACTOR (self));
 
-  g_object_notify (G_OBJECT (self), "material");
+  g_object_notify (G_OBJECT (self), "pipeline");
 }
 
 /**
- * mash_model_get_material:
+ * mash_model_get_pipeline:
  * @self: A #MashModel instance
  *
- * Gets the material that will be used to render the model. The
- * material can be modified to affect the appearence of the model. By
- * default the material will be solid white.
+ * Gets the pipeline that will be used to render the model. The
+ * pipeline can be modified to affect the appearence of the model. By
+ * default the pipeline will be solid white.
  *
- * Return value: a handle to the Cogl material used by the model.
+ * Return value: a handle to the Cogl pipeline used by the model.
  */
 CoglPipeline*
-mash_model_get_material (MashModel *self)
+mash_model_get_pipeline (MashModel *self)
 {
   g_return_val_if_fail (MASH_IS_MODEL (self), COGL_INVALID_HANDLE);
 
-  return self->priv->material;
+  return self->priv->pipeline;
 }
 
 static void
 mash_model_render_data (MashModel *self)
 {
   MashModelPrivate *priv = self->priv;
+  priv->fb = cogl_get_draw_framebuffer();
 
   if (priv->fit_to_allocation)
     {
-      cogl_push_matrix ();
+      cogl_framebuffer_push_matrix (priv->fb);
 
-      cogl_translate (priv->translate_x,
+      cogl_framebuffer_translate (priv->fb, 
+                      priv->translate_x,
                       priv->translate_y,
                       priv->translate_z);
-      cogl_scale (priv->scale, priv->scale, priv->scale);
+      cogl_framebuffer_scale (priv->fb, priv->scale, priv->scale, priv->scale);
     }
 
-  mash_data_render (priv->data, (CoglPipeline *) priv->material);
+  mash_data_render (priv->data, (CoglPipeline *) priv->pipeline);
 
   if (priv->fit_to_allocation)
-    cogl_pop_matrix ();
+    cogl_framebuffer_pop_matrix (priv->fb);
 }
 
 static void
@@ -391,32 +395,29 @@ mash_model_paint (ClutterActor *actor){
   g_return_if_fail (MASH_IS_MODEL (self));
 
   priv = self->priv;
+  priv->fb = cogl_get_draw_framebuffer();
 
-  //fprintf(stderr, "mash_model_paint %p\n", self);
-
-  /* Silently fail if we haven't got any data or a material */
-  if (priv->data == NULL || priv->material == COGL_INVALID_HANDLE)
+  /* Silently fail if we haven't got any data or a pipeline */
+  if (priv->data == NULL || priv->pipeline == COGL_INVALID_HANDLE)
     return;
 
-  if(!cogl_is_pipeline(priv->material))
+  if(!cogl_is_pipeline(priv->pipeline))
     return;
 
   if (priv->light_set){
-    if(mash_light_set_update_layer_indices(priv->light_set, priv->material)){
+    if(mash_light_set_update_layer_indices(priv->light_set, priv->pipeline)){
       // Recreate program
       priv->pipeline_created = FALSE;
     }
     if(!priv->pipeline_created){
-      mash_light_set_get_pipeline (priv->light_set, priv->material);
+      mash_light_set_get_pipeline (priv->light_set, priv->pipeline);
       priv->pipeline_created = TRUE;
     }
-    mash_light_set_begin_paint(priv->light_set, priv->material);    
+    mash_light_set_begin_paint(priv->light_set, priv->pipeline);    
   }
   
   /* Now we can render with the snippet as usual */
-  cogl_push_source (priv->material);
   mash_model_render_data (self);
-  cogl_pop_source ();  
 }
 
 static void
@@ -432,15 +433,12 @@ mash_model_pick (ClutterActor *actor,
 
   /* Silently fail if we haven't got any data */
   if (priv->data == NULL){
-    fprintf(stderr, "No data for pick\n");
     return;
   }
-
   
-  if (priv->pick_material == COGL_INVALID_HANDLE){
+  if (priv->pick_pipeline == COGL_INVALID_HANDLE){
       GError *error = NULL;
-      priv->pick_material = cogl_material_new ();
-      if (!cogl_material_set_layer_combine (priv->pick_material, 0,
+      if (!cogl_pipeline_set_layer_combine (priv->pick_pipeline, 0,
                                             "RGBA=REPLACE(CONSTANT)",
                                             &error))
         {
@@ -449,13 +447,13 @@ mash_model_pick (ClutterActor *actor,
         }
     }
 
-  cogl_color_set_from_4ub (&color,
+  cogl_color_init_from_4ub (&color,
                            pick_color->red,
                            pick_color->green,
                            pick_color->blue,
                            255);
-  cogl_material_set_layer_combine_constant (priv->pick_material, 0, &color);
-  cogl_set_source (priv->pick_material);
+  cogl_pipeline_set_layer_combine_constant (priv->pick_pipeline, 0, &color);
+  //cogl_set_source (priv->pick_pipeline);
   mash_model_render_data (self);
 }
 
@@ -557,8 +555,8 @@ mash_model_set_light_set (MashModel *self,
 
   priv->light_set = light_set;
 
-  if (light_set == NULL && priv->material)
-    cogl_material_set_user_program (priv->material, COGL_INVALID_HANDLE);
+  //if (light_set == NULL && priv->pipeline)
+  //  cogl_pipeline_set_user_program (priv->pipeline, COGL_INVALID_HANDLE);
 
   clutter_actor_queue_relayout (CLUTTER_ACTOR (self));
 
@@ -638,8 +636,8 @@ mash_model_get_property (GObject *object,
 
   switch (prop_id)
     {
-    case PROP_MATERIAL:
-      g_value_set_boxed (value, mash_model_get_material (model));
+    case PROP_PIPELINE:
+      g_value_set_boxed (value, mash_model_get_pipeline (model));
       break;
 
     case PROP_DATA:
@@ -671,8 +669,8 @@ mash_model_set_property (GObject *object,
 
   switch (prop_id)
     {
-    case PROP_MATERIAL:
-      mash_model_set_material (model, g_value_get_boxed (value));
+    case PROP_PIPELINE:
+      mash_model_set_pipeline (model, g_value_get_boxed (value));
       break;
 
     case PROP_DATA:
@@ -869,7 +867,9 @@ mash_model_get_model_z_min (ClutterActor *actor){
     ClutterVertex min_vertex, max_vertex;
     if (priv->data){
         mash_data_get_extents (priv->data, &min_vertex, &max_vertex);
-        return min_vertex.z;
+        gfloat f = min_vertex.z;
+        fprintf(stderr,"F: %f\n", f);
+        return f;
     }
     return 0.0;
 }

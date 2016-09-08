@@ -554,7 +554,7 @@ main (int argc, char **argv)
     CoglHandle material;
     float maximum_shininess;
 
-    material = mash_model_get_material (MASH_MODEL (data.model));
+    material = mash_model_get_pipeline (MASH_MODEL (data.model));
 
     /* Before version 1.3.10 on the 1.3 branch and 1.2.14 on the 1.2
        branch Cogl would remap the shininess property to the range
