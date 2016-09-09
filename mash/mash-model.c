@@ -692,6 +692,7 @@ mash_model_set_property (GObject *object,
     }
 }
 
+
 static void
 mash_model_get_preferred_width (ClutterActor *actor,
                                 gfloat for_height,
@@ -834,61 +835,104 @@ mash_model_allocate (ClutterActor *actor,
     }
 }
 
-/**
- * mash_model_get_model_depth:
- * @self: A #MashModel instance
- *
- * Return value: the depth of the actor, in pixels
- */
-
-gfloat
-mash_model_get_model_depth (ClutterActor *actor){
-    MashModel *model = MASH_MODEL (actor);
-    MashModelPrivate *priv = model->priv;
-    ClutterVertex min_vertex, max_vertex;
-    if (priv->data){
-        mash_data_get_extents (priv->data, &min_vertex, &max_vertex);
-        return max_vertex.z - min_vertex.z;
-    }
-    return 0.0;
-}
 
 /**
- * mash_model_get_model_z_min:
- * @self: A #MashModel instance
+ * mash_model_set_color:
+ * @self: a #ToggleModel
+ * @color: the #ClutterColor to use as the color for the button text
  *
- * Return value: the z_min of the actor, in pixels
+ * Set the color of the model when finished
  */
+void
+mash_model_set_color (MashModel *self, const ClutterColor *color){
+    MashModelPrivate *priv;
 
-gfloat
-mash_model_get_model_z_min (ClutterActor *actor){
-    MashModel *model = MASH_MODEL (actor);
-    MashModelPrivate *priv = model->priv;
-    ClutterVertex min_vertex, max_vertex;
-    if (priv->data){
-        mash_data_get_extents (priv->data, &min_vertex, &max_vertex);
-        gfloat f = min_vertex.z;
-        fprintf(stderr,"F: %f\n", f);
-        return f;
-    }
-    return 0.0;
+    g_return_if_fail (MASH_IS_MODEL (self));
+
+    priv = self->priv;
+    CoglColor *c = cogl_color_new();
+    cogl_color_init_from_4ub(c, color->red, color->green, color->blue, color->alpha);
+    cogl_pipeline_set_layer_combine_constant (priv->pipeline, 0, c);
+    cogl_pipeline_set_layer_combine (priv->pipeline, 0, "RGBA = MODULATE (CONSTANT, PRIMARY)", NULL);
+
 }
+
 
 /**
- * mash_model_get_model_z_max:
- * @self: A #MashModel instance
+ * masg_model_set_progress:
+ * @self: a #MashModel
+ * @progress: the progress finished as #float from 0 to 1
  *
- * Return value: the z_max of the actor, in pixels
+ * Set the progress for the model
  */
+void
+mash_model_set_progress (MashModel *self, float progress){
+    MashModelPrivate *priv;
 
-gfloat
-mash_model_get_model_z_max (ClutterActor *actor){
-    MashModel *model = MASH_MODEL (actor);
-    MashModelPrivate *priv = model->priv;
-    ClutterVertex min_vertex, max_vertex;
-    if (priv->data){
-        mash_data_get_extents (priv->data, &min_vertex, &max_vertex);
-        return max_vertex.z;
+    g_return_if_fail (MASH_IS_MODEL (self));
+    priv = self->priv;
+
+    if(priv->progress == -1){
+        int prog = cogl_pipeline_get_uniform_location (priv->pipeline, "progress");
+        //fprintf(stderr, "Progress: %i\n", prog);
+
+        CoglSnippet *snippet_v; 
+        snippet_v = cogl_snippet_new (COGL_SNIPPET_HOOK_VERTEX_GLOBALS,                    
+                         "varying vec4 vertex_pos;\n",
+                         NULL);
+
+        /* Add it to the pipeline */
+        cogl_pipeline_add_snippet (priv->pipeline, snippet_v);
+        /* The pipeline keeps a reference to the snippet
+        so we don't need to */
+        cogl_object_unref (snippet_v);
+
+        CoglSnippet *snippet_v2 = cogl_snippet_new (COGL_SNIPPET_HOOK_VERTEX,
+                         NULL,
+                         "vertex_pos = cogl_position_in;\n");
+
+        /* Add it to the pipeline */
+        cogl_pipeline_add_snippet (priv->pipeline, snippet_v2);
+        /* The pipeline keeps a reference to the snippet
+        so we don't need to */
+        cogl_object_unref (snippet_v2);
+
+        CoglSnippet *snippet; 
+        // TODO: Allow user defined color
+        snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
+                        "uniform float progress;\n"
+                        "varying vec4 vertex_pos;\n",
+                        "if(progress < vertex_pos.z){\n"
+                        "  cogl_color_out.a = 0.5;\n"
+                        "}\n");
+
+        /* Add it to the pipeline */
+        cogl_pipeline_add_snippet (priv->pipeline, snippet);
+        /* The pipeline keeps a reference to the snippet
+        so we don't need to */
+        cogl_object_unref (snippet);
     }
-    return 0.0;
+
+    priv->progress = progress;
+
+    /* Update the custom uniform on the pipeline */
+    int prog = cogl_pipeline_get_uniform_location (priv->pipeline, "progress");
+    cogl_pipeline_set_uniform_1f (priv->pipeline, prog, progress);
 }
+
+
+/**
+ * mash_model_set_culling:
+ * @self: a #ToggleModel
+ * @culling: the culling type
+ *
+ * Set the culling type for the model
+ */
+void
+mash_model_set_culling (MashModel *self, int culling){
+    g_return_if_fail (MASH_IS_MODEL (self));
+    cogl_pipeline_set_cull_face_mode (self->priv->pipeline, culling);
+}
+
+
+

@@ -103,9 +103,15 @@ gboolean mash_model_get_fit_to_allocation (MashModel *self);
 void mash_model_set_fit_to_allocation (MashModel *self,
                                        gboolean fit_to_allocation);
 
-gfloat mash_model_get_model_depth (ClutterActor *actor);
-gfloat mash_model_get_model_z_min (ClutterActor *actor);
-gfloat mash_model_get_model_z_max (ClutterActor *actor);
+
+void
+mash_model_set_color (MashModel *self, const ClutterColor *color);
+
+void
+mash_model_set_progress (MashModel *self, float progress);
+
+void
+mash_model_set_culling (MashModel *self, int culling);
 
 G_END_DECLS
 
