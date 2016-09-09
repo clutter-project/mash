@@ -223,6 +223,15 @@ mash_model_init (MashModel *self)
   priv->pick_pipeline = cogl_pipeline_new (ctx);
 
   priv->fit_to_allocation = TRUE;
+  priv->progress = -1;
+
+  g_signal_connect_swapped (self, "paint",
+                            G_CALLBACK (cogl_set_depth_test_enabled),
+                            GINT_TO_POINTER (TRUE));
+  g_signal_connect_data (self, "paint",
+                         G_CALLBACK (cogl_set_depth_test_enabled),
+                         GINT_TO_POINTER (FALSE), NULL,
+                         G_CONNECT_AFTER | G_CONNECT_SWAPPED);
 }
 
 /**
