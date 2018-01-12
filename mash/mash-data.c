@@ -44,6 +44,8 @@
 #include <GLES2/gl2.h>
 #include <cogl/cogl.h>
 #include <cogl/cogl-gles2.h>
+#include <cogl/cogl-framebuffer.h>
+#include <cogl/deprecated/cogl-framebuffer-deprecated.h>
 #include <glib.h>
 
 #include "mash-data.h"
@@ -198,10 +200,8 @@ mash_data_render (MashData *self, CoglPipeline* pl){
     priv = self->priv;
 
     if (priv->loaded_data.prim != NULL){
-        ClutterBackend  *be  = clutter_get_default_backend ();
-        CoglContext     *ctx = (CoglContext*) clutter_backend_get_cogl_context (be);
-        CoglFramebuffer *fb  = cogl_get_draw_framebuffer();
-        cogl_primitive_draw (priv->loaded_data.prim, fb, pl);  
+        CoglFramebuffer     *fb  = /*(CoglFramebuffer*)*/ cogl_get_draw_framebuffer();
+        cogl_primitive_draw(priv->loaded_data.prim, fb, pl);
     }
     else if(priv->loaded_data.vertices_vbo != NULL && priv->loaded_data.indices != NULL){
         cogl_vertex_buffer_draw_elements (priv->loaded_data.vertices_vbo,

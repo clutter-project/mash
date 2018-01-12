@@ -89,7 +89,7 @@ Mash-@MASH_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libmash-@MASH_API_VERSION@
 		--c-include='mash/mash.h' \
 		--include=Clutter-1.0 \
 		--output $@ \
-		--library=mash-@MASH_API_VERSION@ \
+		--library=mash-@MASH_API_VERSION@ --library-path=$(srcdir)/mash/mash/.libs/\
 		$(libmash_@MASH_API_VERSION@_la_SOURCES)
 
 BUILT_GIRSOURCES += Mash-@MASH_API_VERSION@.gir
