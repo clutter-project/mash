@@ -1,11 +1,10 @@
-SUBDIRS = rply
+#AUTOMAKE_OPTIONS = subdir-objects
+SUBDIRS = rply rstl
 
 lib_LTLIBRARIES = libmash-@MASH_API_VERSION@.la
 
-INCLUDES = \
-	-I$(top_srcdir)
-
 AM_CPPFLAGS = \
+	-I$(top_srcdir) \
 	-DMASH_COMPILATION=1 \
 	@CLUTTER_CFLAGS@
 
@@ -15,7 +14,8 @@ enum_h = \
 private_h = \
 	$(srcdir)/mash-data-loaders.h \
 	$(srcdir)/mash-data-loader.h \
-	$(srcdir)/mash-ply-loader.h
+	$(srcdir)/mash-ply-loader.h \
+	$(srcdir)/mash-stl-loader.h
 
 public_h = \
 	$(enum_h) \
@@ -38,7 +38,8 @@ built_source_c = \
 	$(builddir)/mash-enum-types.c
 
 loaders_c = \
-	$(srcdir)/mash-ply-loader.c
+	$(srcdir)/mash-ply-loader.c \
+	$(srcdir)/mash-stl-loader.c
 
 libmash_@MASH_API_VERSION@_la_SOURCES = \
 	$(source_h) \
@@ -69,7 +70,8 @@ libmash_@MASH_API_VERSION@_la_LDFLAGS = \
 
 libmash_@MASH_API_VERSION@_la_LIBADD = \
 	@CLUTTER_LIBS@ \
-	rply/librply.la
+	rply/librply.la \
+    rstl/librstl.la
 
 CLEANFILES =
 
@@ -87,7 +89,7 @@ Mash-@MASH_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libmash-@MASH_API_VERSION@
 		--c-include='mash/mash.h' \
 		--include=Clutter-1.0 \
 		--output $@ \
-		--library=libmash-@MASH_API_VERSION@.la \
+		--library=mash-@MASH_API_VERSION@ --library-path=$(realpath $(top_srcdir))/mash/.libs/\
 		$(libmash_@MASH_API_VERSION@_la_SOURCES)
 
 BUILT_GIRSOURCES += Mash-@MASH_API_VERSION@.gir

@@ -1,0 +1,4 @@
+version=3
+http://source.clutter-project.org/sources/mx/([\d]+[\d\.]*)/mx-([\d\.]*)\.tar\.bz2
+opts=uversionmangle=s/_/./g;s/(\d)[_\.\-\+]?((RC|rc|pre|dev|beta|alpha)[\-\.]?\d*)$/$1~$2/ \
+https://github.com/clutter-project/mx/tags .*[^n]/(?:v||release-|mx[_\-])(\d.*)\.(?:tgz|tbz2|txz|tar\.(?:gz|bz2|xz))

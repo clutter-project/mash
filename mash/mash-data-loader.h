@@ -102,6 +102,8 @@ struct _MashDataLoaderData
 
   /* Bounding cuboid of the data */
   ClutterVertex min_vertex, max_vertex;
+
+    CoglPrimitive   *prim;
 };
 
 GType mash_data_loader_get_type (void) G_GNUC_CONST;

@@ -44,6 +44,9 @@
 #include <config.h>
 #endif
 
+#define CLUTTER_ENABLE_EXPERIMENTAL_API
+#define COGL_ENABLE_EXPERIMENTAL_API
+
 #include <clutter/clutter.h>
 #include <string.h>
 #include <math.h>
@@ -64,7 +67,7 @@ static void mash_light_real_generate_shader (MashLight *light,
                                              GString *uniform_source,
                                              GString *main_source);
 static void mash_light_real_update_uniforms (MashLight *light,
-                                             CoglHandle program);
+                                             CoglPipeline *pipeline);
 
 /* Length in characters not including any terminating NULL of the
    unique string that we append to uniform symbols */
@@ -189,7 +192,7 @@ mash_light_init (MashLight *self)
      unique to this */
   gid = clutter_actor_get_gid (CLUTTER_ACTOR (self));
   g_snprintf (priv->unique_str, MASH_LIGHT_UNIQUE_SYMBOL_SIZE + 1,
-              "g%08" G_GUINT32_FORMAT, gid);
+              "g%08" G_GUINT32_FORMAT, self);
 
   for (i = 0; i < MASH_LIGHT_COLOR_COUNT; i++)
     priv->light_colors[i] = mash_light_default_color;
@@ -496,7 +499,7 @@ mash_light_generate_shader (MashLight *light,
 /**
  * mash_light_update_uniforms:
  * @light: The #MashLight that needs updating
- * @program: A #CoglProgram containing the uniforms
+ * @program: A #CoglPipeline containing the uniforms
  *
  * This function is used by #MashLightSet to implement the lights. It
  * should not need to be called by an application directly.
@@ -518,11 +521,13 @@ mash_light_generate_shader (MashLight *light,
  * in mash_light_append_shader().
  */
 void
-mash_light_update_uniforms (MashLight *light, CoglHandle program)
+mash_light_update_uniforms (MashLight *light, CoglPipeline *pipeline)
 {
   g_return_if_fail (MASH_IS_LIGHT (light));
 
-  MASH_LIGHT_GET_CLASS (light)->update_uniforms (light, program);
+    //fprintf(stderr, "mash_light_update_uniforms\n");
+
+  MASH_LIGHT_GET_CLASS (light)->update_uniforms (light, pipeline);
 }
 
 /**
@@ -595,7 +600,7 @@ mash_light_append_shader (MashLight *light,
  */
 int
 mash_light_get_uniform_location (MashLight *light,
-                                 CoglHandle program,
+                                 CoglPipeline *pipeline,
                                  const char *uniform_name)
 {
   MashLightPrivate *priv;
@@ -609,7 +614,7 @@ mash_light_get_uniform_location (MashLight *light,
   /* Append this light's unique identifier to the uniform name */
   unique_name = g_strconcat (uniform_name, priv->unique_str, NULL);
 
-  location = cogl_program_get_uniform_location (program, unique_name);
+  location = cogl_pipeline_get_uniform_location (pipeline, unique_name);
 
   g_free (unique_name);
 
@@ -702,7 +707,7 @@ mash_light_get_modelview_matrix (MashLight *light,
  */
 void
 mash_light_set_direction_uniform (MashLight *light,
-                                  CoglHandle program,
+                                  CoglPipeline *pipeline,
                                   int uniform_location,
                                   const float *direction_in)
 {
@@ -734,7 +739,7 @@ mash_light_set_direction_uniform (MashLight *light,
   light_direction[1] /= magnitude;
   light_direction[2] /= magnitude;
 
-  cogl_program_set_uniform_float (program,
+  cogl_pipeline_set_uniform_float (pipeline,
                                   uniform_location,
                                   3, 1,
                                   light_direction);
@@ -762,7 +767,7 @@ mash_light_real_generate_shader (MashLight *light,
 
 static void
 mash_light_real_update_uniforms (MashLight *light,
-                                 CoglHandle program)
+                                 CoglPipeline *pipeline)
 {
   MashLightPrivate *priv = light->priv;
   int i;
@@ -777,7 +782,7 @@ mash_light_real_update_uniforms (MashLight *light,
     {
       for (i = 0; i < MASH_LIGHT_COLOR_COUNT; i++)
         priv->uniform_locations[i]
-          = mash_light_get_uniform_location (light, program,
+          = mash_light_get_uniform_location (light, pipeline,
                                              mash_light_color_names[i]);
 
       priv->uniform_locations_dirty = FALSE;
@@ -793,7 +798,7 @@ mash_light_real_update_uniforms (MashLight *light,
         vec[1] = color->green / 255.0f;
         vec[2] = color->blue / 255.0f;
 
-        cogl_program_set_uniform_float (program,
+        cogl_pipeline_set_uniform_float (pipeline,
                                         priv->uniform_locations[i],
                                         3, 1, vec);
       }

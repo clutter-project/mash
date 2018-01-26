@@ -87,9 +87,9 @@ ClutterActor *mash_model_new_from_file (MashDataFlags flags,
                                         const gchar *filename,
                                         GError **error);
 
-CoglHandle mash_model_get_material (MashModel *self);
-void mash_model_set_material (MashModel *self,
-                              CoglHandle material);
+CoglPipeline* mash_model_get_pipeline (MashModel *self);
+void mash_model_set_pipeline (MashModel *self,
+                              CoglPipeline *pipeline);
 
 MashData *mash_model_get_data (MashModel *self);
 void mash_model_set_data (MashModel *self,
@@ -102,6 +102,16 @@ void mash_model_set_light_set (MashModel *self,
 gboolean mash_model_get_fit_to_allocation (MashModel *self);
 void mash_model_set_fit_to_allocation (MashModel *self,
                                        gboolean fit_to_allocation);
+
+
+void
+mash_model_set_color (MashModel *self, const ClutterColor *color);
+
+void
+mash_model_set_progress (MashModel *self, float progress);
+
+void
+mash_model_set_culling (MashModel *self, int culling);
 
 G_END_DECLS
 

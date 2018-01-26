@@ -87,8 +87,14 @@ void mash_light_set_add_light (MashLightSet *light_set,
 void mash_light_set_remove_light (MashLightSet *light_set,
                                   MashLight *light);
 
-CoglHandle mash_light_set_begin_paint (MashLightSet *light_set,
-                                       CoglHandle material);
+void mash_light_set_begin_paint (MashLightSet *light_set,
+                                       CoglPipeline *pipeline);
+
+
+gboolean mash_light_set_update_layer_indices (MashLightSet *light_set,
+                      CoglPipeline *pipeline);
+
+void mash_light_set_get_pipeline (MashLightSet *light_set, CoglPipeline* pipeline);
 
 G_END_DECLS
 

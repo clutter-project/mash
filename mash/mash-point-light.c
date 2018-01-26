@@ -42,6 +42,9 @@
 #include <config.h>
 #endif
 
+#define CLUTTER_ENABLE_EXPERIMENTAL_API
+#define COGL_ENABLE_EXPERIMENTAL_API
+
 #include <clutter/clutter.h>
 
 #include "mash-light.h"
@@ -60,7 +63,7 @@ static void mash_point_light_generate_shader (MashLight *light,
                                               GString *uniform_source,
                                               GString *main_source);
 static void mash_point_light_update_uniforms (MashLight *light,
-                                              CoglHandle program);
+                                              CoglPipeline *pipeline);
 
 G_DEFINE_TYPE (MashPointLight, mash_point_light, MASH_TYPE_LIGHT);
 
@@ -455,7 +458,7 @@ mash_point_light_generate_shader (MashLight *light,
 
 static void
 mash_point_light_update_uniforms (MashLight *light,
-                                  CoglHandle program)
+                                  CoglPipeline *pipeline)
 {
   MashPointLight *plight = MASH_POINT_LIGHT (light);
   MashPointLightPrivate *priv = plight->priv;
@@ -463,20 +466,20 @@ mash_point_light_update_uniforms (MashLight *light,
   CoglMatrix matrix;
 
   MASH_LIGHT_CLASS (mash_point_light_parent_class)
-    ->update_uniforms (light, program);
+    ->update_uniforms (light, pipeline);
 
   if (priv->uniform_locations_dirty)
     {
       priv->attenuation_uniform_location
-        = mash_light_get_uniform_location (light, program, "attenuation");
+        = mash_light_get_uniform_location (light, pipeline, "attenuation");
       priv->light_eye_coord_uniform_location
-        = mash_light_get_uniform_location (light, program, "light_eye_coord");
+        = mash_light_get_uniform_location (light, pipeline, "light_eye_coord");
       priv->uniform_locations_dirty = FALSE;
     }
 
   if (priv->attenuation_dirty)
     {
-      cogl_program_set_uniform_float (program,
+      cogl_pipeline_set_uniform_float (pipeline,
                                       priv->attenuation_uniform_location,
                                       3, 1,
                                       priv->attenuation);
@@ -500,7 +503,7 @@ mash_point_light_update_uniforms (MashLight *light,
   light_eye_coord[1] /= light_eye_coord[3];
   light_eye_coord[2] /= light_eye_coord[3];
 
-  cogl_program_set_uniform_float (program,
+  cogl_pipeline_set_uniform_float (pipeline,
                                   priv->light_eye_coord_uniform_location,
                                   3, 1,
                                   light_eye_coord);

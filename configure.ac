@@ -5,7 +5,7 @@ dnl 1.0.0 release). The micro is odd numbered between releases. Only
 dnl on the commit that contains a release should it be an even number.
 
 m4_define([mash_major_version], [0])
-m4_define([mash_minor_version], [2])
+m4_define([mash_minor_version], [3])
 m4_define([mash_micro_version], [1])
 m4_define([mash_version],
           [mash_major_version.mash_minor_version.mash_micro_version])
@@ -35,7 +35,7 @@ AC_CONFIG_SRCDIR([mash/mash.h])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
-AM_INIT_AUTOMAKE([1.9])
+AM_INIT_AUTOMAKE([1.14])
 
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
@@ -105,6 +105,7 @@ AC_CONFIG_FILES([
         Makefile
         mash/Makefile
         mash/rply/Makefile
+        mash/rstl/Makefile
         examples/Makefile
         docs/Makefile
         docs/reference/Makefile

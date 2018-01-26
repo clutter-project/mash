@@ -1,0 +1,5 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: mash
+Upstream-Contact: Emmanuele Bassi <ebassi@linux.intel.com>
+                  Thomas Wood <thos@gnome.org>
+Source: http://source.clutter-project.org/sources/mash	
